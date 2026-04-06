@@ -57,6 +57,7 @@ public class FacilityServiceImpl implements FacilityService {
         facility.setNameOrModel(request.nameOrModel());
         facility.setCapacity(request.capacity());
         facility.setLocation(request.location());
+        facility.setDescription(request.description());
         facility.setAvailabilityWindows(request.availabilityWindows());
         facility.setImageUrl(request.imageUrl());
         facility.setStatus(request.status().name());
@@ -72,6 +73,7 @@ public class FacilityServiceImpl implements FacilityService {
         facility.setNameOrModel(request.nameOrModel());
         facility.setCapacity(request.capacity());
         facility.setLocation(request.location());
+        facility.setDescription(request.description());
         facility.setAvailabilityWindows(request.availabilityWindows());
         facility.setImageUrl(request.imageUrl());
         facility.setStatus(request.status().name());
@@ -133,6 +135,7 @@ public class FacilityServiceImpl implements FacilityService {
                 facility.getNameOrModel(),
                 facility.getCapacity(),
                 facility.getLocation(),
+                facility.getDescription(),
                 facility.getAvailabilityWindows(),
                 facility.getImageUrl(),
                 com.paf.project.dto.facilities.FacilityStatus.valueOf(facility.getStatus())

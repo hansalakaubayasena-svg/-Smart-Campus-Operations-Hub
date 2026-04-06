@@ -40,7 +40,7 @@ const mapFacilityToUiResource = (facility) => {
     status: facility.status,
     imageUrl: facility.imageUrl || '',
     imageFile: null,
-    description: `${facility.nameOrModel} located at ${facility.location}.`,
+    description: facility.description || `${facility.nameOrModel} located at ${facility.location}.`,
     availabilityWindows: (facility.availabilityWindows || []).map((window) => {
       const match = /^(.+)\s(\d{2}:\d{2})-(\d{2}:\d{2})$/.exec(window)
       if (!match) {
@@ -56,6 +56,7 @@ const uiToApiPayload = (resourceData) => ({
   nameOrModel: resourceData.name,
   capacity: Number(resourceData.capacity),
   location: resourceData.location,
+  description: resourceData.description?.trim() || null,
   imageUrl: resourceData.imageUrl || null,
   availabilityWindows: (resourceData.availabilityWindows || []).map(
     (window) => `${window.days} ${window.startTime}-${window.endTime}`,

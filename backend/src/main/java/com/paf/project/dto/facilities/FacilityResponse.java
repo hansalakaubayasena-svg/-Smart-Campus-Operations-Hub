@@ -9,6 +9,7 @@ public record FacilityResponse(
         String nameOrModel,
         Integer capacity,
         String location,
+        String description,
         List<String> availabilityWindows,
         String imageUrl,
         FacilityStatus status

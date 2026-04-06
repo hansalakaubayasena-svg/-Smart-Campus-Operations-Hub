@@ -20,6 +20,7 @@ public class Facility {
 
     private Integer capacity;
     private String location;
+    private String description;
     private List<String> availabilityWindows;
     private String imageUrl;
 
@@ -29,13 +30,14 @@ public class Facility {
     }
 
     public Facility(String id, String resourceId, String type, String nameOrModel, Integer capacity, String location,
-                    List<String> availabilityWindows, String imageUrl, String status) {
+                    String description, List<String> availabilityWindows, String imageUrl, String status) {
         this.id = id;
         this.resourceId = resourceId;
         this.type = type;
         this.nameOrModel = nameOrModel;
         this.capacity = capacity;
         this.location = location;
+        this.description = description;
         this.availabilityWindows = availabilityWindows;
         this.imageUrl = imageUrl;
         this.status = status;
@@ -87,6 +89,14 @@ public class Facility {
 
     public void setLocation(String location) {
         this.location = location;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public List<String> getAvailabilityWindows() {

@@ -27,6 +27,9 @@ public record CreateFacilityRequest(
         @Size(max = 120, message = "location must be at most 120 characters")
         String location,
 
+        @Size(max = 1000, message = "description must be at most 1000 characters")
+        String description,
+
         @NotEmpty(message = "availabilityWindows is required")
         List<@NotBlank(message = "availabilityWindows values cannot be blank") String> availabilityWindows,
 

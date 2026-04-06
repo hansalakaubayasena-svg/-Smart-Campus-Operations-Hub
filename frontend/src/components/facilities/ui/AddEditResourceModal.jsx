@@ -351,7 +351,7 @@ export const AddEditResourceModal = ({
                         className="w-full px-2 py-1.5 text-sm border border-slate-300 rounded focus:ring-1 focus:ring-primary focus:border-primary outline-none"
                       />
                     </div>
-                    <div className="w-24">
+                    <div className="w-32 sm:w-36">
                       <input
                         type="time"
                         value={window.startTime}
@@ -362,7 +362,7 @@ export const AddEditResourceModal = ({
                       />
                     </div>
                     <span className="text-slate-400">-</span>
-                    <div className="w-24">
+                    <div className="w-32 sm:w-36">
                       <input
                         type="time"
                         value={window.endTime}

@@ -37,7 +37,7 @@ const mapFacilityToUiResource = (facility) => {
     capacity: facility.capacity,
     status: facility.status,
     imageUrl: facility.imageUrl || '',
-    description: `${facility.nameOrModel} located at ${facility.location}.`,
+    description: facility.description || `${facility.nameOrModel} located at ${facility.location}.`,
     availabilityWindows: toAvailabilityObjects(facility.availabilityWindows),
   }
 }
