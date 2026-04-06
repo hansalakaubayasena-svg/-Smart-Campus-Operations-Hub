@@ -94,7 +94,6 @@ export const AdminManagement = () => {
   const filteredResources = resources.filter(
     (r) =>
       r.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      r.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
       r.location.toLowerCase().includes(searchTerm.toLowerCase()),
   )
 
@@ -193,7 +192,7 @@ export const AdminManagement = () => {
               </div>
               <input
                 type="text"
-                placeholder="Search by ID, Name, or Location..."
+                placeholder="Search by Name or Location..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="block w-full pl-10 pr-3 py-2 border border-slate-300 rounded-lg focus:ring-primary focus:border-primary sm:text-sm outline-none transition-colors"
@@ -213,12 +212,6 @@ export const AdminManagement = () => {
                     className="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider"
                   >
                     Image
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider"
-                  >
-                    ID
                   </th>
                   <th
                     scope="col"
@@ -280,9 +273,6 @@ export const AdminManagement = () => {
                           )}
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-slate-500">
-                        {resource.id}
-                      </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm font-bold text-text">
                           {resource.name}
@@ -325,13 +315,13 @@ export const AdminManagement = () => {
                   ))
                 ) : !loading ? (
                   <tr>
-                    <td colSpan={8} className="px-6 py-12 text-center text-slate-500">
+                    <td colSpan={7} className="px-6 py-12 text-center text-slate-500">
                       No resources found matching your search.
                     </td>
                   </tr>
                 ) : (
                   <tr>
-                    <td colSpan={8} className="px-6 py-12 text-center text-slate-500">
+                    <td colSpan={7} className="px-6 py-12 text-center text-slate-500">
                       Loading facilities...
                     </td>
                   </tr>

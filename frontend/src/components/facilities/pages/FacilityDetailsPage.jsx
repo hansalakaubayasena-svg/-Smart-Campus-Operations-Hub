@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
-import { ArrowLeft, MapPin, Users, Tag, Clock, Info, Calendar } from 'lucide-react'
+import { ArrowLeft, MapPin, Users, Tag, Clock, Calendar } from 'lucide-react'
 import { StatusBadge } from '../ui/StatusBadge'
 import { getFacilityByResourceId } from '../../../services/facilities/facilityService'
 
@@ -103,21 +103,7 @@ export const FacilityDetailsPage = () => {
         ) : (
           <section className="space-y-6">
             <header className="rounded-xl border border-border bg-gradient-to-r from-white via-white to-teal-50/50 p-6 md:p-8">
-              <div className="flex flex-wrap items-center gap-3 mb-3">
-                <span className="px-2.5 py-1 rounded-md text-xs font-semibold bg-primary/10 text-primary">
-                  {resource.type}
-                </span>
-                <StatusBadge status={resource.status} />
-                {isBookMode && (
-                  <span className="inline-flex items-center rounded-md bg-teal-50 px-2.5 py-1 text-xs font-semibold text-teal-700 border border-teal-200">
-                    Booking Preview
-                  </span>
-                )}
-              </div>
               <h1 className="text-3xl md:text-4xl font-bold text-text tracking-tight">{resource.name}</h1>
-              <p className="mt-2 text-slate-600 text-sm md:text-base">
-                Facility overview, operating windows, and booking readiness.
-              </p>
             </header>
 
             <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
@@ -184,6 +170,18 @@ export const FacilityDetailsPage = () => {
                 <section className="bg-card border border-border rounded-xl p-5 md:p-6 xl:sticky xl:top-6">
                   <h2 className="text-lg font-semibold text-text mb-5">Facility Information</h2>
 
+                  <div className="flex flex-wrap items-center gap-3 mb-5">
+                    <span className="px-2.5 py-1 rounded-md text-xs font-semibold bg-primary/10 text-primary">
+                      {resource.type}
+                    </span>
+                    <StatusBadge status={resource.status} />
+                    {isBookMode && (
+                      <span className="inline-flex items-center rounded-md bg-teal-50 px-2.5 py-1 text-xs font-semibold text-teal-700 border border-teal-200">
+                        Booking Preview
+                      </span>
+                    )}
+                  </div>
+
                   <div className="space-y-5">
                     <div className="flex items-start gap-3">
                       <div className="p-2 bg-slate-50 rounded-lg text-slate-500">
@@ -217,15 +215,6 @@ export const FacilityDetailsPage = () => {
                       </div>
                     </div>
 
-                    <div className="flex items-start gap-3">
-                      <div className="p-2 bg-slate-50 rounded-lg text-slate-500">
-                        <Info className="h-5 w-5" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-slate-500">Resource ID</p>
-                        <p className="text-base font-semibold text-text font-mono break-all">{resource.id}</p>
-                      </div>
-                    </div>
                   </div>
                 </section>
               </aside>
