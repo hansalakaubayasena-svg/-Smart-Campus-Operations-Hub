@@ -78,7 +78,7 @@ export const FacilityDetailsPage = () => {
   )
 
   return (
-    <div className="min-h-screen bg-background py-8">
+    <div className="min-h-screen bg-background py-8 md:py-10">
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <button
           onClick={() => navigate('/facilities')}
@@ -89,134 +89,149 @@ export const FacilityDetailsPage = () => {
         </button>
 
         {loading ? (
-          <div className="bg-card border border-border rounded-2xl p-10 text-center text-slate-500">
+          <div className="bg-card border border-border rounded-xl p-10 text-center text-slate-500">
             Loading facility details...
           </div>
         ) : error ? (
-          <div className="bg-red-50 border border-red-200 rounded-2xl p-6 text-red-700">
+          <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-red-700">
             {error}
           </div>
         ) : !resource ? (
-          <div className="bg-card border border-border rounded-2xl p-10 text-center text-slate-500">
+          <div className="bg-card border border-border rounded-xl p-10 text-center text-slate-500">
             Facility not found.
           </div>
         ) : (
-          <div className="bg-card rounded-2xl border border-border shadow-xl overflow-hidden">
-            <div className="p-6 border-b border-border">
-              <div className="flex items-center gap-3 mb-2">
+          <section className="space-y-6">
+            <header className="rounded-xl border border-border bg-gradient-to-r from-white via-white to-teal-50/50 p-6 md:p-8">
+              <div className="flex flex-wrap items-center gap-3 mb-3">
                 <span className="px-2.5 py-1 rounded-md text-xs font-semibold bg-primary/10 text-primary">
                   {resource.type}
                 </span>
                 <StatusBadge status={resource.status} />
-              </div>
-              <h1 className="text-3xl font-bold text-text">{resource.name}</h1>
-              {isBookMode && (
-                <p className="text-sm text-primary mt-1 font-medium">Booking Preview</p>
-              )}
-            </div>
-
-            <div className="p-6 space-y-6">
-              <div className="h-[460px] rounded-xl overflow-hidden border border-border bg-slate-100 flex items-center justify-center">
-                {resource.imageUrl ? (
-                  <img
-                    src={resource.imageUrl}
-                    alt={resource.name}
-                    className="h-full w-full object-scale-down p-3"
-                  />
-                ) : (
-                  <div className="h-full w-full flex items-center justify-center text-slate-400 text-sm">
-                    No image available
-                  </div>
+                {isBookMode && (
+                  <span className="inline-flex items-center rounded-md bg-teal-50 px-2.5 py-1 text-xs font-semibold text-teal-700 border border-teal-200">
+                    Booking Preview
+                  </span>
                 )}
               </div>
+              <h1 className="text-3xl md:text-4xl font-bold text-text tracking-tight">{resource.name}</h1>
+              <p className="mt-2 text-slate-600 text-sm md:text-base">
+                Facility overview, operating windows, and booking readiness.
+              </p>
+            </header>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-                <div className="flex items-start gap-3">
-                  <div className="p-2 bg-slate-50 rounded-lg text-slate-500">
-                    <Tag className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-slate-500">Category</p>
-                    <p className="text-base font-semibold text-text">{resource.category}</p>
-                  </div>
+            <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
+              <div className="xl:col-span-8 space-y-6">
+                <div className="h-[300px] md:h-[460px] rounded-xl overflow-hidden border border-border bg-slate-100 flex items-center justify-center">
+                  {resource.imageUrl ? (
+                    <img
+                      src={resource.imageUrl}
+                      alt={resource.name}
+                      className="h-full w-full object-scale-down p-3"
+                    />
+                  ) : (
+                    <div className="h-full w-full flex items-center justify-center text-slate-400 text-sm">
+                      No image available
+                    </div>
+                  )}
                 </div>
 
-                <div className="flex items-start gap-3">
-                  <div className="p-2 bg-slate-50 rounded-lg text-slate-500">
-                    <MapPin className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-slate-500">Location</p>
-                    <p className="text-base font-semibold text-text">{resource.location}</p>
-                  </div>
-                </div>
+                <section className="bg-card border border-border rounded-xl p-5 md:p-6">
+                  <h2 className="text-lg font-semibold text-text mb-4">Description</h2>
+                  <p className="text-slate-600 leading-relaxed bg-slate-50 p-4 rounded-lg border border-slate-200 min-h-24">
+                    {resource.description}
+                  </p>
+                </section>
 
-                <div className="flex items-start gap-3">
-                  <div className="p-2 bg-slate-50 rounded-lg text-slate-500">
-                    <Users className="h-5 w-5" />
+                <section className="bg-card border border-border rounded-xl overflow-hidden">
+                  <h2 className="text-lg font-semibold text-text px-5 md:px-6 pt-5 md:pt-6 mb-3 flex items-center gap-2">
+                    <Clock className="h-5 w-5 text-slate-400" />
+                    Availability Windows
+                  </h2>
+                  <div className="px-5 md:px-6 pb-5 md:pb-6">
+                    <div className="bg-white border border-border rounded-lg overflow-hidden">
+                      <table className="min-w-full divide-y divide-border">
+                        <thead className="bg-slate-50">
+                          <tr>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+                              Days
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+                              Time
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-border">
+                          {resource.availabilityWindows.map((window, idx) => (
+                            <tr key={idx}>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-text flex items-center gap-2">
+                                <Calendar className="h-4 w-4 text-slate-400" />
+                                {window.days}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
+                                {window.startTime} - {window.endTime}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm font-medium text-slate-500">Capacity</p>
-                    <p className="text-base font-semibold text-text">
-                      {resource.capacity} {resource.type === 'Room' ? 'people' : 'unit'}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <div className="p-2 bg-slate-50 rounded-lg text-slate-500">
-                    <Info className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-slate-500">Resource ID</p>
-                    <p className="text-base font-semibold text-text font-mono">{resource.id}</p>
-                  </div>
-                </div>
+                </section>
               </div>
 
-              <div>
-                <h2 className="text-lg font-semibold text-text mb-3">Description</h2>
-                <p className="text-slate-600 leading-relaxed bg-slate-50 p-4 rounded-xl border border-slate-100 min-h-24">
-                  {resource.description}
-                </p>
-              </div>
+              <aside className="xl:col-span-4">
+                <section className="bg-card border border-border rounded-xl p-5 md:p-6 xl:sticky xl:top-6">
+                  <h2 className="text-lg font-semibold text-text mb-5">Facility Information</h2>
 
-              <div>
-                <h2 className="text-lg font-semibold text-text mb-3 flex items-center gap-2">
-                  <Clock className="h-5 w-5 text-slate-400" />
-                  Availability Windows
-                </h2>
-                <div className="bg-white border border-border rounded-xl overflow-hidden">
-                  <table className="min-w-full divide-y divide-border">
-                    <thead className="bg-slate-50">
-                      <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                          Days
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                          Time
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-border">
-                      {resource.availabilityWindows.map((window, idx) => (
-                        <tr key={idx}>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-text flex items-center gap-2">
-                            <Calendar className="h-4 w-4 text-slate-400" />
-                            {window.days}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
-                            {window.startTime} - {window.endTime}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
+                  <div className="space-y-5">
+                    <div className="flex items-start gap-3">
+                      <div className="p-2 bg-slate-50 rounded-lg text-slate-500">
+                        <Tag className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-slate-500">Category</p>
+                        <p className="text-base font-semibold text-text">{resource.category}</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <div className="p-2 bg-slate-50 rounded-lg text-slate-500">
+                        <MapPin className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-slate-500">Location</p>
+                        <p className="text-base font-semibold text-text">{resource.location}</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <div className="p-2 bg-slate-50 rounded-lg text-slate-500">
+                        <Users className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-slate-500">Capacity</p>
+                        <p className="text-base font-semibold text-text">
+                          {resource.capacity} {resource.type === 'Room' ? 'people' : 'unit'}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <div className="p-2 bg-slate-50 rounded-lg text-slate-500">
+                        <Info className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-slate-500">Resource ID</p>
+                        <p className="text-base font-semibold text-text font-mono break-all">{resource.id}</p>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+              </aside>
             </div>
 
-            <div className="p-6 border-t border-border bg-slate-50 flex justify-end gap-3">
+            <div className="border border-border rounded-xl bg-white p-4 sm:p-5 flex flex-col sm:flex-row sm:justify-end gap-3">
               <button
                 onClick={() => navigate('/facilities')}
                 className="px-4 py-2 border border-slate-300 rounded-lg text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 transition-colors"
@@ -234,7 +249,7 @@ export const FacilityDetailsPage = () => {
                 {isBookMode ? 'Proceed to Booking' : 'Request Booking'}
               </button>
             </div>
-          </div>
+          </section>
         )}
       </main>
     </div>
