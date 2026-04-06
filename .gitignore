@@ -34,7 +34,6 @@ ehthumbs.db
 Desktop.ini
 
 # Project-specific local config and caches
-backend/
 backend/src/main/resources/application.properties
 backend/src/main/resources/application-local.properties
 backend/src/main/resources/application-*.local.properties

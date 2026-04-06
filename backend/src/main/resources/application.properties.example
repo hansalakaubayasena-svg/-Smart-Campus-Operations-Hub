@@ -1,0 +1,20 @@
+# Copy this file to application.properties for local development.
+# Never commit real credentials.
+
+# MongoDB Configuration
+spring.data.mongodb.uri=mongodb+srv://<username>:<password>@<cluster-hostname>
+spring.data.mongodb.database=smart_campus_db
+server.port=8081
+
+# API behavior
+server.error.include-message=always
+spring.jackson.default-property-inclusion=non_null
+
+# Cloudinary configuration
+CLOUDINARY_API_KEY=<your-cloudinary-api-key>
+CLOUDINARY_API_SECRET=<your-cloudinary-api-secret>
+CLOUDINARY_CLOUD_NAME=<your-cloudinary-cloud-name>
+
+# Multipart upload limits
+spring.servlet.multipart.max-file-size=10MB
+spring.servlet.multipart.max-request-size=10MB

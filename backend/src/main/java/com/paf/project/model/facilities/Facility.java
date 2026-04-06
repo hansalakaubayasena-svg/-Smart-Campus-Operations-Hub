@@ -1,0 +1,115 @@
+package com.paf.project.model.facilities;
+
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+import java.util.List;
+
+@Document(collection = "facilities")
+public class Facility {
+    @Id
+    private String id;
+
+    @Indexed(unique = true)
+    private String resourceId;
+
+    private String type;
+
+    private String nameOrModel;
+
+    private Integer capacity;
+    private String location;
+    private List<String> availabilityWindows;
+    private String imageUrl;
+
+    private String status; // ACTIVE / OUT_OF_SERVICE
+
+    public Facility() {
+    }
+
+    public Facility(String id, String resourceId, String type, String nameOrModel, Integer capacity, String location,
+                    List<String> availabilityWindows, String imageUrl, String status) {
+        this.id = id;
+        this.resourceId = resourceId;
+        this.type = type;
+        this.nameOrModel = nameOrModel;
+        this.capacity = capacity;
+        this.location = location;
+        this.availabilityWindows = availabilityWindows;
+        this.imageUrl = imageUrl;
+        this.status = status;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getResourceId() {
+        return resourceId;
+    }
+
+    public void setResourceId(String resourceId) {
+        this.resourceId = resourceId;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getNameOrModel() {
+        return nameOrModel;
+    }
+
+    public void setNameOrModel(String nameOrModel) {
+        this.nameOrModel = nameOrModel;
+    }
+
+    public Integer getCapacity() {
+        return capacity;
+    }
+
+    public void setCapacity(Integer capacity) {
+        this.capacity = capacity;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public List<String> getAvailabilityWindows() {
+        return availabilityWindows;
+    }
+
+    public void setAvailabilityWindows(List<String> availabilityWindows) {
+        this.availabilityWindows = availabilityWindows;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+}
