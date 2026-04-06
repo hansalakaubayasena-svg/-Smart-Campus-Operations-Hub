@@ -122,12 +122,12 @@ export const FacilityDetailsPage = () => {
 
             <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
               <div className="xl:col-span-8 space-y-6">
-                <div className="h-[300px] md:h-[460px] rounded-xl overflow-hidden border border-border bg-slate-100 flex items-center justify-center">
+                <div className="w-full aspect-[16/9] max-h-[520px] rounded-xl overflow-hidden border border-border bg-slate-100 flex items-center justify-center">
                   {resource.imageUrl ? (
                     <img
                       src={resource.imageUrl}
                       alt={resource.name}
-                      className="h-full w-full object-scale-down p-3"
+                      className="h-full w-full object-cover"
                     />
                   ) : (
                     <div className="h-full w-full flex items-center justify-center text-slate-400 text-sm">

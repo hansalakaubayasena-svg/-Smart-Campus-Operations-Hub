@@ -62,6 +62,14 @@ export const FacilityDirectory = () => {
 
   const [filters, setFilters] = useState(initialFilters)
 
+  const uiTypeToApiType = {
+    Room: 'ROOM',
+    Lab: 'LAB',
+    'Lecture Hall': 'LECTURE_HALL',
+    'Meeting Room': 'MEETING_ROOM',
+    Equipment: 'EQUIPMENT',
+  }
+
   const loadFacilities = useCallback(async (showLoader = false) => {
     if (showLoader) {
       setIsLoading(true)
@@ -71,12 +79,7 @@ export const FacilityDirectory = () => {
       const response = await getFacilities({
         role: 'USER',
         q: filters.search,
-        type:
-          filters.type === 'All'
-            ? undefined
-            : filters.type === 'Equipment'
-              ? 'EQUIPMENT'
-              : undefined,
+        type: filters.type === 'All' ? undefined : uiTypeToApiType[filters.type],
         minCapacity: filters.minCapacity,
         maxCapacity: filters.maxCapacity,
         location: filters.location,

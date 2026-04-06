@@ -61,6 +61,9 @@ export const FilterSidebar = ({
         >
           <option value="All">All Types</option>
           <option value="Room">Room</option>
+          <option value="Lab">Lab</option>
+          <option value="Lecture Hall">Lecture Hall</option>
+          <option value="Meeting Room">Meeting Room</option>
           <option value="Equipment">Equipment</option>
         </select>
       </div>
