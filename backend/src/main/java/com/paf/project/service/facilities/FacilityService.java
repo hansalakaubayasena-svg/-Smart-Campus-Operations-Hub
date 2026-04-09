@@ -20,6 +20,8 @@ public interface FacilityService {
 
     FacilityResponse updateStatus(String resourceId, UpdateFacilityStatusRequest request);
 
+    FacilityResponse updateImage(String resourceId, MultipartFile file);
+
     String uploadImage(MultipartFile file);
 
     void delete(String resourceId);

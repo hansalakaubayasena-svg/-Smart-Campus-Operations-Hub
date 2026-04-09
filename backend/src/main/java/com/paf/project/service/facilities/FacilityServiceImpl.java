@@ -89,6 +89,13 @@ public class FacilityServiceImpl implements FacilityService {
     }
 
     @Override
+    public FacilityResponse updateImage(String resourceId, MultipartFile file) {
+        Facility facility = getRequiredByResourceId(resourceId);
+        facility.setImageUrl(uploadImage(file));
+        return toResponse(facilityRepository.save(facility));
+    }
+
+    @Override
     public String uploadImage(MultipartFile file) {
         return cloudinaryService.uploadImage(file);
     }

@@ -33,8 +33,8 @@ export const updateFacilityStatus = (resourceId, status, role = 'ADMIN') =>
 export const deleteFacility = (resourceId, role = 'ADMIN') =>
 	api.delete(`/facilities/${resourceId}`, roleHeaders(role));
 
-export const uploadFacilityImage = (file, role = 'ADMIN') => {
+export const uploadFacilityImage = (resourceId, file, role = 'ADMIN') => {
 	const formData = new FormData();
 	formData.append('file', file);
-	return api.post('/facilities/upload-image', formData, roleHeaders(role));
+	return api.put(`/facilities/${resourceId}/image`, formData, roleHeaders(role));
 };

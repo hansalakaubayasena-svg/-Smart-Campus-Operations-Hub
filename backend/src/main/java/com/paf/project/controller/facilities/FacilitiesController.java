@@ -16,6 +16,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -60,7 +61,10 @@ public class FacilitiesController {
             @Valid @RequestBody CreateFacilityRequest request
     ) {
         assertAdmin(role);
-        return ResponseEntity.status(HttpStatus.CREATED).body(facilityService.create(request));
+        FacilityResponse created = facilityService.create(request);
+        return ResponseEntity
+            .created(URI.create("/api/facilities/" + created.resourceId()))
+            .body(created);
     }
 
     @PutMapping("/{resourceId}")
@@ -81,6 +85,16 @@ public class FacilitiesController {
     ) {
         assertAdmin(role);
         return ResponseEntity.ok(facilityService.updateStatus(resourceId, request));
+    }
+
+    @PutMapping(path = "/{resourceId}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<FacilityResponse> updateFacilityImage(
+            @RequestHeader("X-ROLE") String role,
+            @PathVariable String resourceId,
+            @RequestParam("file") MultipartFile file
+    ) {
+        assertAdmin(role);
+        return ResponseEntity.ok(facilityService.updateImage(resourceId, file));
     }
 
     @PostMapping(path = "/upload-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

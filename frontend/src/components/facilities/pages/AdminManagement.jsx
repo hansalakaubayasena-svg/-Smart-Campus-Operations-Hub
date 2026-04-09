@@ -117,27 +117,29 @@ export const AdminManagement = () => {
     const run = async () => {
       setError('')
       try {
-        let uploadedImageUrl = resourceData.imageUrl || ''
-        if (resourceData.imageFile) {
-          const uploadResponse = await uploadFacilityImage(resourceData.imageFile, 'ADMIN')
-          uploadedImageUrl = uploadResponse?.data?.imageUrl || uploadedImageUrl
-        }
+        const resourceId = resourceToEdit?.resourceId || `RES-${Date.now().toString().slice(-6)}`
+        const shouldUploadImage = Boolean(resourceData.imageFile)
 
         const payload = uiToApiPayload({
           ...resourceData,
-          imageUrl: uploadedImageUrl,
+          imageUrl: shouldUploadImage ? null : resourceData.imageUrl || '',
         })
         if (resourceToEdit) {
-          await updateFacility(resourceToEdit.resourceId, payload, 'ADMIN')
+          await updateFacility(resourceId, payload, 'ADMIN')
         } else {
           await createFacility(
             {
-              resourceId: `RES-${Date.now().toString().slice(-6)}`,
+              resourceId,
               ...payload,
             },
             'ADMIN',
           )
         }
+
+        if (shouldUploadImage) {
+          await uploadFacilityImage(resourceId, resourceData.imageFile, 'ADMIN')
+        }
+
         await loadFacilities()
       } catch (err) {
         setError(err?.response?.data?.message || 'Failed to save facility.')
