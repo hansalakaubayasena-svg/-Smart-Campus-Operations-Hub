@@ -8,6 +8,8 @@ import {
   AlertCircle,
   CheckCircle2,
   XCircle,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { registerUser, initiateGoogleLogin, initiateGitHubLogin } from "../../services/auth/authApi";
@@ -123,6 +125,8 @@ const SignupPage = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [passwordTouched, setPasswordTouched] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const passwordScore = useMemo(
     () => PASSWORD_RULES.filter((r) => r.test(form.password)).length,
@@ -315,17 +319,24 @@ const SignupPage = () => {
                   </div>
                   <input
                     id="password"
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     value={form.password}
                     onChange={handleChange}
                     onKeyDown={handleKeyDown}
-                    className={`block w-full pl-10 pr-3 py-2.5 border rounded-lg focus:ring-2 bg-slate-50 focus:bg-white hover:border-slate-300 transition-all duration-300 sm:text-sm outline-none ${
+                    className={`block w-full pl-10 pr-10 py-2.5 border rounded-lg focus:ring-2 bg-slate-50 focus:bg-white hover:border-slate-300 transition-all duration-300 sm:text-sm outline-none ${
                       fieldErrors.password
                         ? "border-red-300 focus:ring-red-500/20 focus:border-red-400"
                         : "border-slate-200 focus:ring-blue-500/20 focus:border-blue-600"
                     }`}
                     placeholder="••••••••"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 transition-colors"
+                  >
+                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  </button>
                 </div>
                 {passwordTouched && <PasswordStrengthMeter password={form.password} />}
                 {fieldErrors.password && (
@@ -344,18 +355,25 @@ const SignupPage = () => {
                   </div>
                   <input
                     id="confirmPassword"
-                    type="password"
+                    type={showConfirmPassword ? "text" : "password"}
                     value={form.confirmPassword}
                     onChange={handleChange}
                     onBlur={handleBlur}
                     onKeyDown={handleKeyDown}
-                    className={`block w-full pl-10 pr-3 py-2.5 border rounded-lg focus:ring-2 bg-slate-50 focus:bg-white hover:border-slate-300 transition-all duration-300 sm:text-sm outline-none ${
+                    className={`block w-full pl-10 pr-10 py-2.5 border rounded-lg focus:ring-2 bg-slate-50 focus:bg-white hover:border-slate-300 transition-all duration-300 sm:text-sm outline-none ${
                       fieldErrors.confirmPassword
                         ? "border-red-300 focus:ring-red-500/20 focus:border-red-400"
                         : "border-slate-200 focus:ring-blue-500/20 focus:border-blue-600"
                     }`}
                     placeholder="••••••••"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 transition-colors"
+                  >
+                    {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  </button>
                 </div>
                 {fieldErrors.confirmPassword && (
                   <p className="mt-1.5 text-xs text-red-600 font-medium">{fieldErrors.confirmPassword}</p>

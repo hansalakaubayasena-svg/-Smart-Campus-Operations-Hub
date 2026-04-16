@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Mail, Lock, ArrowRight, AlertCircle } from "lucide-react";
+import { Mail, Lock, ArrowRight, AlertCircle, Eye, EyeOff } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { loginUser, initiateGoogleLogin, initiateGitHubLogin } from "../../services/auth/authApi";
 import Header from "../../components/Header";
@@ -17,6 +17,7 @@ const LoginPage = () => {
   const [fieldErrors, setFieldErrors] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e) => {
     const { id, value } = e.target;
@@ -145,17 +146,24 @@ const LoginPage = () => {
                   </div>
                   <input
                     id="password"
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     value={form.password}
                     onChange={handleChange}
                     onKeyDown={handleKeyDown}
-                    className={`block w-full pl-10 pr-3 py-2.5 border rounded-lg focus:ring-2 bg-slate-50 focus:bg-white hover:border-slate-300 transition-all duration-300 sm:text-sm outline-none ${
+                    className={`block w-full pl-10 pr-10 py-2.5 border rounded-lg focus:ring-2 bg-slate-50 focus:bg-white hover:border-slate-300 transition-all duration-300 sm:text-sm outline-none ${
                       fieldErrors.password
                         ? "border-red-300 focus:ring-red-500/20 focus:border-red-400"
                         : "border-slate-200 focus:ring-blue-500/20 focus:border-blue-600"
                     }`}
                     placeholder="••••••••"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 transition-colors"
+                  >
+                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  </button>
                 </div>
                 {fieldErrors.password && (
                   <p className="mt-1.5 text-xs text-red-600 font-medium">{fieldErrors.password}</p>
