@@ -1,19 +1,19 @@
 package com.paf.project.model.bookings;
 
-import jakarta.persistence.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 import lombok.*;
 import java.time.LocalDateTime;
 
-@Entity
+@Document(collection = "bookings")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class Booking {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private Long facilityId;
-    private Long userId;
+    private String id;
+    private String facilityId;
+    private String userId;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private String purpose;
