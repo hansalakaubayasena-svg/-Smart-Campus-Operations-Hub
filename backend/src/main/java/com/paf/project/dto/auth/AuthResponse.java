@@ -9,7 +9,7 @@ public class AuthResponse {
     // Single response shape used for register, login, and /me
     // Frontend always gets the same structure regardless of auth method
     private String token;
-    private Long userId;
+    private String userId;
     private String email;
     private String fullName;
     private String role;
