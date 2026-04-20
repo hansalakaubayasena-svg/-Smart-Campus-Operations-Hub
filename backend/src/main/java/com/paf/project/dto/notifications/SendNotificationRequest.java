@@ -31,12 +31,12 @@ public class SendNotificationRequest {
     private String targetType;
 
     // Conditional — checked in service based on targetType
-    private Long userId;
-    private List<Long> userIds;
+    private String userId;
+    private List<String> userIds;
     private User.Role role;
 
     // Optional — for booking/ticket manual sends from admin panel
     private Notification.NotificationType type;  // defaults to GENERAL if null
-    private Long referenceId;
+    private String referenceId;
     private String referenceType;
 }
