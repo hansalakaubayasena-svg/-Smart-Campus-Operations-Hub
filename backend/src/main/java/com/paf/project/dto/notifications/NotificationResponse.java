@@ -14,15 +14,15 @@ import lombok.Data;
 @Data
 public class NotificationResponse {
 
-    private Long id;
-    private Long userId;
+    private String id;
+    private String userId;
     private Notification.NotificationType type;
     private String category;   // "BOOKING" | "TICKET" | "GENERAL"
     private String title;
     private String message;
     private Boolean isRead;
     private LocalDateTime createdAt;
-    private Long referenceId;
+    private String referenceId;
     private String referenceType;
 
     public static NotificationResponse from(Notification n) {
