@@ -1,17 +1,17 @@
 package com.paf.project.model.incidents;
 
-import jakarta.persistence.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 import lombok.*;
 
-@Entity
+@Document(collection = "incident_tickets")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class IncidentTicket {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private Long resourceId;
+    private String id;
+    private String resourceId;
     private String description;
     private String category;
     private String priority; // LOW / MEDIUM / HIGH

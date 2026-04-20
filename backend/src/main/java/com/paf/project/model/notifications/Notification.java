@@ -2,56 +2,34 @@ package com.paf.project.model.notifications;
 
 import java.time.LocalDateTime;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.Table;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Entity
-@Table(name = "notifications")
+@Document(collection = "notifications")
 @Data
 @NoArgsConstructor
 public class Notification {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
 
-    @Column(nullable = false)
-    private Long userId;
+    private String userId;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private NotificationType type;
 
-    @Column(nullable = false)
     private String title;
 
-    @Column(nullable = false, length = 1000)
     private String message;
 
-    @Column(name = "is_read", nullable = false)
     private Boolean read = false;
 
-    @Column(name = "created_at", nullable = false)
     private LocalDateTime creationTime;
 
-    private Long referenceId;
+    private String referenceId;
 
     private String referenceType;
-
-    @PrePersist
-    protected void onCreate() {
-        if (creationTime == null) creationTime = LocalDateTime.now();
-        if (read == null)         read         = false;
-    }
 
     public enum NotificationType {
         BOOKING_PENDING,
