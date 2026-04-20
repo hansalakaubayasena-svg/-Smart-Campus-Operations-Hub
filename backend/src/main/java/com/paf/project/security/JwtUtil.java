@@ -39,7 +39,7 @@ public class JwtUtil {
      * Role in the token = no DB hit needed on every request for auth checks.
      * This keeps the API stateless — REST Constraint #2.
      */
-    public String generateToken(String email, User.Role role, Long userId) {
+    public String generateToken(String email, User.Role role, String userId) {
         return Jwts.builder()
                 .subject(email)
                 .claim("role", role.name())  // .name() converts enum → String for JWT storage
@@ -74,8 +74,8 @@ public class JwtUtil {
         return extractAllClaims(token).get("role", String.class);
     }
 
-    public Long extractUserId(String token) {
-        return extractAllClaims(token).get("userId", Long.class);
+    public String extractUserId(String token) {
+        return extractAllClaims(token).get("userId", String.class);
     }
 
     // ── VALIDATION ────────────────────────────────────────────────────────
