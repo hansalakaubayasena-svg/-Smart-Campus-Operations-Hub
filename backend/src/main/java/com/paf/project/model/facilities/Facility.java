@@ -1,16 +1,16 @@
 package com.paf.project.model.facilities;
 
-import jakarta.persistence.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 import lombok.*;
 
-@Entity
+@Document(collection = "facilities")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class Facility {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
     private String name;
     private String type;
     private Integer capacity;
