@@ -131,7 +131,7 @@ public class UserController {
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMINISTRATOR')")
     public ResponseEntity<ApiResponse<EntityModel<User>>> getUserById(
-            @PathVariable Long id) {
+            @PathVariable String id) {
 
         User user = userService.getUserById(id);
 
@@ -171,7 +171,7 @@ public class UserController {
     @PutMapping("/{id}/role")
     @PreAuthorize("hasRole('ADMINISTRATOR')")
     public ResponseEntity<ApiResponse<EntityModel<User>>> updateUserRole(
-            @PathVariable Long id,
+            @PathVariable String id,
             @RequestBody Map<String, String> body) {
 
         User updated = userService.updateUserRole(id, body.get("role"));
@@ -192,7 +192,7 @@ public class UserController {
      */
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMINISTRATOR')")
-    public ResponseEntity<ApiResponse<Void>> deleteUser(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteUser(@PathVariable String id) {
         userService.deleteUser(id);
         return ResponseEntity
                 .status(HttpStatus.NO_CONTENT)
