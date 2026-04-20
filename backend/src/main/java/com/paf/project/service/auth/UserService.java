@@ -112,7 +112,7 @@ public class UserService {
         throw new UnauthorizedException("No authenticated user found");
     }
 
-    public User getUserById(Long id) {
+    public User getUserById(String id) {
         return userRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("User", id));
     }
@@ -131,7 +131,7 @@ public class UserService {
         return userRepository.findAll();
     }
 
-    public User updateUserRole(Long id, String newRole) {
+    public User updateUserRole(String id, String newRole) {
         User user = getUserById(id);
         try {
             user.setRole(User.Role.valueOf(newRole.toUpperCase()));
@@ -168,7 +168,7 @@ public class UserService {
      * Deletes a user by ID. ADMIN only (enforced at controller level).
      * Prevents an admin from deleting their own account.
      */
-    public void deleteUser(Long id) {
+    public void deleteUser(String id) {
         User target = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
 
