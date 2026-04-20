@@ -76,7 +76,7 @@ public class NotificationController {
      * Marks a single notification as read. Must be owned by caller.
      */
     @PutMapping("/{id}/read")
-    public ResponseEntity<ApiResponse<Void>> markAsRead(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> markAsRead(@PathVariable String id) {
         notificationService.markAsRead(id);
         return ResponseEntity.ok(ApiResponse.noContent("Notification marked as read"));
     }
@@ -96,7 +96,7 @@ public class NotificationController {
      * Deletes a notification owned by the current user.
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteMyNotification(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteMyNotification(@PathVariable String id) {
         notificationService.deleteMyNotification(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT)
                 .body(ApiResponse.noContent("Notification deleted"));
@@ -132,7 +132,7 @@ public class NotificationController {
     @GetMapping("/admin/all")
     @PreAuthorize("hasRole('ADMINISTRATOR')")
     public ResponseEntity<ApiResponse<List<NotificationResponse>>> getAllNotifications(
-            @RequestParam(required = false) Long userId,
+            @RequestParam(required = false) String userId,
             @RequestParam(required = false) Notification.NotificationType type,
             @RequestParam(required = false) Boolean isRead) {
 
@@ -149,7 +149,7 @@ public class NotificationController {
     @PutMapping("/admin/{id}")
     @PreAuthorize("hasRole('ADMINISTRATOR')")
     public ResponseEntity<ApiResponse<NotificationResponse>> adminUpdate(
-            @PathVariable Long id,
+            @PathVariable String id,
             @RequestBody Map<String, String> body) {
 
         NotificationResponse updated = notificationService.adminUpdate(
@@ -163,7 +163,7 @@ public class NotificationController {
      */
     @DeleteMapping("/admin/{id}")
     @PreAuthorize("hasRole('ADMINISTRATOR')")
-    public ResponseEntity<ApiResponse<Void>> adminDelete(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> adminDelete(@PathVariable String id) {
         notificationService.adminDelete(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT)
                 .body(ApiResponse.noContent("Notification deleted"));
