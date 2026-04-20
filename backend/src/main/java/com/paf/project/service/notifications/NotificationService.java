@@ -47,10 +47,10 @@ public class NotificationService {
      *       "Your ticket 'Broken projector' has been resolved.",
      *       ticket.getId(), "TICKET");
      */
-    public void notify(Long userId,
+    public void notify(String userId,
                        NotificationType type,
                        String message,
-                       Long referenceId,
+                       String referenceId,
                        String referenceType) {
 
         Notification n = new Notification();
@@ -68,7 +68,7 @@ public class NotificationService {
     // ─────────────────────────────────────────────────────────────────────────
 
     public List<NotificationResponse> getMyNotifications() {
-        Long userId = getCurrentUserId();
+        String userId = getCurrentUserId();
         return notificationRepository
                 .findByUserIdOrderByCreationTimeDesc(userId)
                 .stream()
@@ -81,7 +81,7 @@ public class NotificationService {
     }
 
     public List<NotificationResponse> getMyRecentForBell() {
-        Long userId = getCurrentUserId();
+        String userId = getCurrentUserId();
         return notificationRepository
                 .findTop5ByUserIdOrderByCreationTimeDesc(userId)
                 .stream()
@@ -90,7 +90,7 @@ public class NotificationService {
     }
 
     @Transactional
-    public void markAsRead(Long id) {
+    public void markAsRead(String id) {
         Notification n = getOwnedNotification(id);
         n.setRead(true);
         notificationRepository.save(n);
@@ -98,10 +98,19 @@ public class NotificationService {
 
     @Transactional
     public void markAllAsRead() {
-        notificationRepository.markAllAsReadByUserId(getCurrentUserId());
+        Notification n = new Notification();
+        n.setRead(true);
+        n.setUserId(getCurrentUserId());
+        // Since MongoDB doesn't support bulk update via repository method,
+        // we'll need to fetch all unread notifications for this user and update them
+        notificationRepository.findByUserIdAndReadFalseOrderByCreationTimeDesc(getCurrentUserId())
+                .forEach(notification -> {
+                    notification.setRead(true);
+                    notificationRepository.save(notification);
+                });
     }
 
-    public void deleteMyNotification(Long id) {
+    public void deleteMyNotification(String id) {
         getOwnedNotification(id); // ownership check
         notificationRepository.deleteById(id);
     }
@@ -155,7 +164,7 @@ public class NotificationService {
     // ADMIN — MANAGE
     // ─────────────────────────────────────────────────────────────────────────
 
-    public List<NotificationResponse> getAllNotifications(Long userId,
+    public List<NotificationResponse> getAllNotifications(String userId,
                                                           NotificationType type,
                                                           Boolean isRead) {
         return notificationRepository.findWithFilters(userId, type, isRead)
@@ -165,7 +174,7 @@ public class NotificationService {
     }
 
     @Transactional
-    public NotificationResponse adminUpdate(Long id, String title, String message) {
+    public NotificationResponse adminUpdate(String id, String title, String message) {
         Notification n = notificationRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Notification", id));
         if (title   != null && !title.isBlank())   n.setTitle(title);
@@ -173,7 +182,7 @@ public class NotificationService {
         return NotificationResponse.from(notificationRepository.save(n));
     }
 
-    public void adminDelete(Long id) {
+    public void adminDelete(String id) {
         if (!notificationRepository.existsById(id))
             throw new ResourceNotFoundException("Notification", id);
         notificationRepository.deleteById(id);
@@ -183,11 +192,11 @@ public class NotificationService {
     // PRIVATE HELPERS
     // ─────────────────────────────────────────────────────────────────────────
 
-    private void createAndSave(Long userId,
+    private void createAndSave(String userId,
                                 NotificationType type,
                                 String title,
                                 String message,
-                                Long referenceId,
+                                String referenceId,
                                 String referenceType) {
         Notification n = new Notification();
         n.setUserId(userId);
@@ -203,7 +212,7 @@ public class NotificationService {
      * Fetches a notification only if it belongs to the current user.
      * Throws 404 if not found, 403 if owned by someone else.
      */
-    private Notification getOwnedNotification(Long id) {
+    private Notification getOwnedNotification(String id) {
         Notification n = notificationRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Notification", id));
         if (!n.getUserId().equals(getCurrentUserId()))
@@ -211,7 +220,7 @@ public class NotificationService {
         return n;
     }
 
-    private Long getCurrentUserId() {
+    private String getCurrentUserId() {
         return userService.getCurrentUser().getId();
     }
 
