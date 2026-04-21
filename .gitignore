@@ -32,3 +32,15 @@ yarn-error.log*
 Thumbs.db
 ehthumbs.db
 Desktop.ini
+
+# Project-specific local config and caches
+backend/src/main/resources/application.properties
+backend/src/main/resources/application-local.properties
+backend/src/main/resources/application-*.local.properties
+backend/src/main/resources/*.secrets.properties
+frontend/.vite/
+coverage/
+*.pid
+*.pid.lock
+hs_err_pid*
+replay_pid*
