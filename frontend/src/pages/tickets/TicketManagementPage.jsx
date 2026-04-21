@@ -364,7 +364,7 @@ const TicketManagementPage = () => {
               {shouldShowFollowUpResolutionSection ? (
                 <div className="rounded-2xl border border-[#b7d8ea] bg-[#eaf5fc] p-4">
                   <h3 className="text-sm font-black uppercase tracking-[0.16em] text-[#1f4968]">Follow-up Resolution Notes</h3>
-                  <p className="mt-2 text-sm text-[#153753]">Add  new resolution update after reviewing the requester reply and attachments.</p>
+                  <p className="mt-2 text-sm text-[#153753]">Add a new resolution update after reviewing the requester reply and attachments.</p>
 
                   {isFollowUpResolutionEditing ? (
                     <>
