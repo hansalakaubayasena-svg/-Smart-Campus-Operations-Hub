@@ -79,7 +79,7 @@ export const ResourceDetailModal = ({ resource, isOpen, onClose, mode = 'view' }
               <div>
                 <p className="text-sm font-medium text-slate-500">Capacity</p>
                 <p className="text-base font-semibold text-text">
-                  {resource.capacity} {resource.type === 'Room' ? 'people' : 'unit'}
+                  {resource.capacity} units
                 </p>
               </div>
             </div>

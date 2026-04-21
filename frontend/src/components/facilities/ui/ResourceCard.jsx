@@ -6,20 +6,20 @@ export const ResourceCard = ({ resource, onViewDetails, onBook }) => {
   const isOutOfService = resource.status === 'OUT_OF_SERVICE'
 
   const getCategoryColor = (category) => {
-    switch (category) {
-      case 'Lab':
-        return 'bg-cyan-100 text-cyan-800 border-cyan-200'
-      case 'Lecture Hall':
-        return 'bg-teal-100 text-teal-800 border-teal-200'
-      case 'Conference Room':
-        return 'bg-purple-100 text-purple-800 border-purple-200'
-      case 'Workshop':
-        return 'bg-amber-100 text-amber-800 border-amber-200'
-      case 'Equipment':
-        return 'bg-emerald-100 text-emerald-800 border-emerald-200'
-      default:
-        return 'bg-slate-100 text-slate-800 border-slate-200'
-    }
+    const variants = [
+      'bg-slate-100 text-slate-800 border-slate-200',
+      'bg-cyan-100 text-cyan-800 border-cyan-200',
+      'bg-teal-100 text-teal-800 border-teal-200',
+      'bg-emerald-100 text-emerald-800 border-emerald-200',
+      'bg-amber-100 text-amber-800 border-amber-200',
+      'bg-rose-100 text-rose-800 border-rose-200',
+    ]
+
+    const hash = (category || '')
+      .split('')
+      .reduce((acc, char) => acc + char.charCodeAt(0), 0)
+
+    return variants[hash % variants.length]
   }
 
   return (
@@ -54,11 +54,7 @@ export const ResourceCard = ({ resource, onViewDetails, onBook }) => {
             {resource.category}
           </span>
           <span className="px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200 flex items-center gap-1">
-            {resource.type === 'Room' ? (
-              <LayoutGrid className="h-3 w-3" />
-            ) : (
-              <div className="h-3 w-3" />
-            )}
+            <LayoutGrid className="h-3 w-3" />
             {resource.type}
           </span>
         </div>

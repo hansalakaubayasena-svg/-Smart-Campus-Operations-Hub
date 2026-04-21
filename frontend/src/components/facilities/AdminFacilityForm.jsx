@@ -2,7 +2,8 @@ import React, { useMemo, useState } from 'react';
 
 const initialForm = {
   resourceId: '',
-  type: 'ROOM',
+  type: '',
+  category: '',
   nameOrModel: '',
   capacity: 0,
   location: '',
@@ -10,8 +11,17 @@ const initialForm = {
   status: 'ACTIVE',
 };
 
-const AdminFacilityForm = ({ onCreate }) => {
+const AdminFacilityForm = ({ onCreate, taxonomy }) => {
   const [form, setForm] = useState(initialForm);
+  const typeOptions = taxonomy?.types || [];
+  const categoriesByType = useMemo(
+    () => (taxonomy?.types || []).reduce((acc, type) => {
+      acc[type.name] = (type.categories || []).map((category) => category.name);
+      return acc;
+    }, {}),
+    [taxonomy],
+  );
+  const categoryOptions = categoriesByType[form.type] || [];
 
   const payload = useMemo(() => ({
     ...form,
@@ -45,14 +55,35 @@ const AdminFacilityForm = ({ onCreate }) => {
       />
       <select
         value={form.type}
-        onChange={(event) => setForm((prev) => ({ ...prev, type: event.target.value }))}
+        onChange={(event) =>
+          setForm((prev) => ({
+            ...prev,
+            type: event.target.value,
+            category: (categoriesByType[event.target.value] || []).includes(prev.category)
+              ? prev.category
+              : '',
+          }))
+        }
       >
-        <option value="ROOM">Room</option>
-        <option value="EQUIPMENT">Equipment</option>
-        <option value="LAB">Lab</option>
-        <option value="MEETING_ROOM">Meeting Room</option>
-        <option value="LECTURE_HALL">Lecture Hall</option>
+        <option value="">Select type</option>
+        {typeOptions.map((type) => (
+          <option key={type.id || type.name} value={type.name}>
+            {type.name}
+          </option>
+        ))}
       </select>
+      <input
+        required
+        list="admin-facility-category-options"
+        placeholder="Category"
+        value={form.category}
+        onChange={(event) => setForm((prev) => ({ ...prev, category: event.target.value }))}
+      />
+      <datalist id="admin-facility-category-options">
+        {categoryOptions.map((category) => (
+          <option key={category} value={category} />
+        ))}
+      </datalist>
       <input
         type="number"
         min="0"

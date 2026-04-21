@@ -1,7 +1,8 @@
 package com.paf.project.dto.facilities;
 
 public record FacilityFilter(
-        FacilityType type,
+        String type,
+        String category,
         Integer minCapacity,
         Integer maxCapacity,
         String location,

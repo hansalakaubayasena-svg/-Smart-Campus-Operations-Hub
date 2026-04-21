@@ -6,14 +6,7 @@ import { ResourceCard } from '../ui/ResourceCard'
 import { SkeletonCard } from '../ui/SkeletonCard'
 import { EmptyState } from '../ui/EmptyState'
 import { getFacilities } from '../../../services/facilities/facilityService'
-
-const typeToUi = (type) => {
-  if (type === 'EQUIPMENT') return { type: 'Equipment', category: 'Equipment' }
-  if (type === 'LAB') return { type: 'Room', category: 'Lab' }
-  if (type === 'LECTURE_HALL') return { type: 'Room', category: 'Lecture Hall' }
-  if (type === 'MEETING_ROOM') return { type: 'Room', category: 'Conference Room' }
-  return { type: 'Room', category: type === 'ROOM' ? 'Room' : 'Other' }
-}
+import { getFacilityTaxonomy } from '../../../services/facilities/taxonomyService'
 
 const toAvailabilityObjects = (windows = []) =>
   windows.map((window) => {
@@ -28,26 +21,24 @@ const toAvailabilityObjects = (windows = []) =>
     }
   })
 
-const mapFacilityToUiResource = (facility) => {
-  const uiType = typeToUi(facility.type)
-  return {
+const mapFacilityToUiResource = (facility) => ({
     id: facility.id || facility.resourceId,
     resourceId: facility.resourceId,
     name: facility.nameOrModel,
-    type: uiType.type,
-    category: uiType.category,
+    type: facility.type,
+    category: facility.category,
     location: facility.location,
     capacity: facility.capacity,
     status: facility.status,
     imageUrl: facility.imageUrl || '',
     description: facility.description || `${facility.nameOrModel} located at ${facility.location}.`,
     availabilityWindows: toAvailabilityObjects(facility.availabilityWindows),
-  }
-}
+  })
 
 export const FacilityDirectory = () => {
   const navigate = useNavigate()
   const [resources, setResources] = useState([])
+  const [taxonomy, setTaxonomy] = useState({ types: [] })
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false)
@@ -55,20 +46,13 @@ export const FacilityDirectory = () => {
   const initialFilters = {
     search: '',
     type: 'All',
+    category: 'All',
     location: '',
-    minCapacity: 0,
-    maxCapacity: '',
+    capacity: '',
   }
 
   const [filters, setFilters] = useState(initialFilters)
-
-  const uiTypeToApiType = {
-    Room: 'ROOM',
-    Lab: 'LAB',
-    'Lecture Hall': 'LECTURE_HALL',
-    'Meeting Room': 'MEETING_ROOM',
-    Equipment: 'EQUIPMENT',
-  }
+  const [filterErrors, setFilterErrors] = useState({})
 
   const loadFacilities = useCallback(async (showLoader = false) => {
     if (showLoader) {
@@ -78,11 +62,6 @@ export const FacilityDirectory = () => {
     try {
       const response = await getFacilities({
         role: 'USER',
-        q: filters.search,
-        type: filters.type === 'All' ? undefined : uiTypeToApiType[filters.type],
-        minCapacity: filters.minCapacity,
-        maxCapacity: filters.maxCapacity,
-        location: filters.location,
       })
       const mapped = (response.data || []).map(mapFacilityToUiResource)
       setResources(mapped)
@@ -93,11 +72,22 @@ export const FacilityDirectory = () => {
         setIsLoading(false)
       }
     }
-  }, [filters])
+  }, [])
+
+  const loadTaxonomy = useCallback(async () => {
+    try {
+      const response = await getFacilityTaxonomy({ role: 'USER' })
+      setTaxonomy(response.data || { types: [] })
+    } catch (err) {
+      setError(err?.response?.data?.message || 'Failed to load facility filters.')
+      setTaxonomy({ types: [] })
+    }
+  }, [])
 
   useEffect(() => {
     loadFacilities(true)
-  }, [loadFacilities])
+    loadTaxonomy()
+  }, [loadFacilities, loadTaxonomy])
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -107,10 +97,50 @@ export const FacilityDirectory = () => {
     return () => clearInterval(intervalId)
   }, [loadFacilities])
 
-  const filteredResources = useMemo(() => resources, [resources])
+  const validateFilters = useCallback((nextFilters) => {
+    const nextErrors = {}
+    if (nextFilters.capacity !== '') {
+      const capacityValue = Number(nextFilters.capacity)
+      if (!Number.isInteger(capacityValue) || capacityValue < 0) {
+        nextErrors.capacity = 'Capacity must be a whole number of 0 or greater.'
+      }
+    }
+    return nextErrors
+  }, [])
+
+  const filteredResources = useMemo(() => {
+    const searchTerm = filters.search.trim().toLowerCase()
+    const locationTerm = filters.location.trim().toLowerCase()
+    const capacityValue = filters.capacity === '' ? '' : Number(filters.capacity)
+
+    return resources.filter((resource) => {
+      const matchesSearch =
+        !searchTerm ||
+        [resource.name, resource.resourceId, resource.location, resource.type, resource.category]
+          .filter(Boolean)
+          .some((value) => value.toLowerCase().includes(searchTerm))
+
+      const matchesType = filters.type === 'All' || resource.type === filters.type
+      const matchesCategory = filters.category === 'All' || resource.category === filters.category
+      const matchesLocation = !locationTerm || resource.location.toLowerCase().includes(locationTerm)
+      const matchesCapacity =
+        capacityValue === '' || Number(resource.capacity) === Number(capacityValue)
+
+      return matchesSearch && matchesType && matchesCategory && matchesLocation && matchesCapacity
+    })
+  }, [filters, resources])
 
   const handleClearFilters = () => {
     setFilters(initialFilters)
+    setFilterErrors({})
+  }
+
+  const handleFiltersChange = (updater) => {
+    setFilters((prev) => {
+      const nextFilters = typeof updater === 'function' ? updater(prev) : updater
+      setFilterErrors(validateFilters(nextFilters))
+      return nextFilters
+    })
   }
 
   const handleViewDetails = (resource) => {
@@ -144,8 +174,10 @@ export const FacilityDirectory = () => {
         <div className="flex flex-col lg:flex-row gap-8">
           <FilterSidebar
             filters={filters}
-            setFilters={setFilters}
+            setFilters={handleFiltersChange}
             onClear={handleClearFilters}
+            filterErrors={filterErrors}
+            taxonomy={taxonomy}
             isMobileOpen={isMobileFilterOpen}
             setIsMobileOpen={setIsMobileFilterOpen}
           />

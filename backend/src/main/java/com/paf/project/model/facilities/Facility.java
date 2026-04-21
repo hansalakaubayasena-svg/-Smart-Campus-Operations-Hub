@@ -15,6 +15,7 @@ public class Facility {
 
     private String name;
     private String type;
+    private String category;
     private String nameOrModel;
     private Integer capacity;
     private String location;
@@ -28,12 +29,13 @@ public class Facility {
     }
 
     // All-args Constructor
-    public Facility(String id, String resourceId, String name, String type, String nameOrModel, Integer capacity, String location,
+    public Facility(String id, String resourceId, String name, String type, String category, String nameOrModel, Integer capacity, String location,
                     String description, List<String> availabilityWindows, String imageUrl, String status) {
         this.id = id;
         this.resourceId = resourceId;
         this.name = name;
         this.type = type;
+        this.category = category;
         this.nameOrModel = nameOrModel;
         this.capacity = capacity;
         this.location = location;
@@ -74,6 +76,14 @@ public class Facility {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
     }
 
     public String getNameOrModel() {
