@@ -114,11 +114,11 @@ export const FacilityDirectory = () => {
   }
 
   const handleViewDetails = (resource) => {
-    navigate(`/facilities/${resource.resourceId}`)
+    navigate(`/user/facilities/${resource.resourceId}`)
   }
 
   const handleBookResource = (resource) => {
-    navigate(`/facilities/${resource.resourceId}?mode=book`)
+    navigate(`/user/facilities/${resource.resourceId}?mode=book`)
   }
 
   return (

@@ -39,9 +39,9 @@ export const updateMyProfile = async (updateData) => {
 };
 
 export const initiateGoogleLogin = () => {
-  window.location.href = "http://localhost:8080/oauth2/authorization/google";
+  window.location.href = "http://localhost:8081/oauth2/authorization/google";
 };
 
 export const initiateGitHubLogin = () => {
-  window.location.href = "http://localhost:8080/oauth2/authorization/github";
+  window.location.href = "http://localhost:8081/oauth2/authorization/github";
 };

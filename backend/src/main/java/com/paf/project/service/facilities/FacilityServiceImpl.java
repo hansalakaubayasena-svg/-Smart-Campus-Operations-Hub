@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 @Service
 public class FacilityServiceImpl implements FacilityService {
@@ -103,7 +104,7 @@ public class FacilityServiceImpl implements FacilityService {
     @Override
     public void delete(String resourceId) {
         Facility facility = getRequiredByResourceId(resourceId);
-        facilityRepository.delete(facility);
+        facilityRepository.delete(Objects.requireNonNull(facility));
     }
 
     private Facility getRequiredByResourceId(String resourceId) {
@@ -138,14 +139,14 @@ public class FacilityServiceImpl implements FacilityService {
         return new FacilityResponse(
                 facility.getId(),
                 facility.getResourceId(),
-                FacilityType.valueOf(facility.getType()),
+                facility.getType() != null ? FacilityType.valueOf(facility.getType().toUpperCase(Locale.ROOT)) : null,
                 facility.getNameOrModel(),
                 facility.getCapacity(),
                 facility.getLocation(),
                 facility.getDescription(),
                 facility.getAvailabilityWindows(),
                 facility.getImageUrl(),
-                com.paf.project.dto.facilities.FacilityStatus.valueOf(facility.getStatus())
+                facility.getStatus() != null ? com.paf.project.dto.facilities.FacilityStatus.valueOf(facility.getStatus().toUpperCase(Locale.ROOT)) : null
         );
     }
 }

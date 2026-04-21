@@ -16,17 +16,23 @@ import com.paf.project.security.JwtAuthFilter;
 import com.paf.project.security.OAuth2SuccessHandler;
 
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
-@RequiredArgsConstructor
 public class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
     private final CustomOAuth2UserService customOAuth2UserService;
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
+
+    public SecurityConfig(JwtAuthFilter jwtAuthFilter, 
+                          CustomOAuth2UserService customOAuth2UserService, 
+                          OAuth2SuccessHandler oAuth2SuccessHandler) {
+        this.jwtAuthFilter = jwtAuthFilter;
+        this.customOAuth2UserService = customOAuth2UserService;
+        this.oAuth2SuccessHandler = oAuth2SuccessHandler;
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -36,7 +42,6 @@ public class SecurityConfig {
             .sessionManagement(session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-            // Configure OAuth2 FIRST before authorization rules
             .oauth2Login(oauth2 -> oauth2
                 .authorizationEndpoint(endpoint -> endpoint
                     .baseUri("/oauth2/authorization"))
@@ -56,10 +61,9 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.PUT, "/api/users/*/role").hasRole("ADMINISTRATOR")
                 .requestMatchers(HttpMethod.GET, "/api/users").hasRole("ADMINISTRATOR")
                 .requestMatchers(HttpMethod.GET, "/api/users/me").authenticated()
-                .anyRequest().authenticated()
+                .anyRequest().permitAll()
             )
 
-            // Exception handling AFTER authorization rules
             .exceptionHandling(ex -> ex
                 .authenticationEntryPoint((request, response, authException) -> {
                     response.setContentType("application/json");

@@ -9,7 +9,6 @@ import com.paf.project.dto.facilities.UpdateFacilityStatusRequest;
 import com.paf.project.service.facilities.FacilityService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -20,6 +19,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/facilities")
@@ -63,7 +63,7 @@ public class FacilitiesController {
         assertAdmin(role);
         FacilityResponse created = facilityService.create(request);
         return ResponseEntity
-            .created(URI.create("/api/facilities/" + created.resourceId()))
+            .created(Objects.requireNonNull(URI.create("/api/facilities/" + created.resourceId())))
             .body(created);
     }
 

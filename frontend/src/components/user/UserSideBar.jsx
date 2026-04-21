@@ -5,6 +5,7 @@ import {
   Bell,
   LogOut,
   ShieldCheck,
+  Building,
   Settings,
   ChevronRight,
 } from "lucide-react";
@@ -14,6 +15,7 @@ import ProfileSettingsModal from "./ProfileSettingsModal";
 
 const navItems = [
   { to: "/user/dashboard", icon: Home, label: "Home" },
+  { to: "/user/facilities", icon: Building, label: "Facilities" },
   { to: "/user/notifications", icon: Bell, label: "Notifications" },
 ];
 

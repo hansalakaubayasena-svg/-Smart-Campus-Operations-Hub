@@ -8,7 +8,7 @@ import axios from "axios";
  *  - Response interceptor handles 401 globally — token expired = auto logout
  */
 const axiosClient = axios.create({
-  baseURL: "http://localhost:8080",
+  baseURL: "http://localhost:8081",
   headers: {
     "Content-Type": "application/json",
   },

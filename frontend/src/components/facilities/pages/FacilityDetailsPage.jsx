@@ -81,7 +81,7 @@ export const FacilityDetailsPage = () => {
     <div className="min-h-screen bg-background py-8 md:py-10">
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <button
-          onClick={() => navigate('/facilities')}
+          onClick={() => navigate('/user/facilities')}
           className="mb-4 inline-flex items-center gap-2 text-sm text-slate-600 hover:text-text"
         >
           <ArrowLeft className="h-4 w-4" />
@@ -222,7 +222,7 @@ export const FacilityDetailsPage = () => {
 
             <div className="border border-border rounded-xl bg-white p-4 sm:p-5 flex flex-col sm:flex-row sm:justify-end gap-3">
               <button
-                onClick={() => navigate('/facilities')}
+                onClick={() => navigate('/user/facilities')}
                 className="px-4 py-2 border border-slate-300 rounded-lg text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 transition-colors"
               >
                 Back
