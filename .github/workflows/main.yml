@@ -37,7 +37,7 @@ jobs:
         run: npm install --legacy-peer-deps
       - name: Install Rollup Linux binary
         working-directory: ./frontend
-        run: npm install @rollup/rollup-linux-x64-gnu --save-optional
+        run: npm install @rollup/rollup-linux-x64-gnu --save-optional --legacy-peer-deps
       - name: Build
         working-directory: ./frontend
         run: CI=false npm run build
