@@ -1,50 +1,113 @@
-/* @import url() FONT IMPORTS MUST ALWAYS BE AT THE VERY TOP OF THIS FILE, ABOVE THE TAILWIND IMPORTS - DO NOT DELETE THIS COMMENT */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
 
-/* CRITICAL: THE FOLLOWING TAILWIND IMPORTS MUST NEVER BE DELETED OR REORDERED - DO NOT DELETE THIS COMMENT */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-/* END TAILWIND IMPORTS - ALL OTHER CSS MUST GO BELOW THIS LINE */
-
-:root {
-	--color-primary: #0f766e;
-	--color-secondary: #134e4a;
-	--color-accent: #14b8a6;
-	--color-background: #f1f5f9;
-	--color-card: #ffffff;
-	--color-text: #020617;
-	--color-border: #cbd5f5;
+@theme {
+  --font-sans: "Inter", "Avenir Next", "Segoe UI", sans-serif;
+  --font-display: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", "URW Palladio L", serif;
+  
+  --color-primary: #0f766e;
+  --color-primary-800: #1e3a5f;
+  --color-primary-900: #112240;
+  --color-secondary: #134e4a;
+  --color-accent: #14b8a6;
+  --color-accent-emerald: #10b981;
+  --color-accent-amber: #f59e0b;
+  --color-background: #f1f5f9;
+  --color-card: #ffffff;
+  --color-text: #020617;
+  --color-border: #cbd5f5;
 }
 
-* {
-	box-sizing: border-box;
+@layer base {
+  body {
+    @apply font-sans antialiased text-slate-800 min-h-screen relative z-0;
+    margin: 0;
+    background-color: var(--color-background);
+    background-image: 
+      radial-gradient(circle at 10% 20%, rgba(210, 225, 245, 0.45) 0%, transparent 40%),
+      radial-gradient(circle at 90% 40%, rgba(245, 235, 220, 0.45) 0%, transparent 40%),
+      radial-gradient(circle at 40% 80%, rgba(235, 220, 245, 0.35) 0%, transparent 40%);
+    background-attachment: fixed;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display text-slate-900 tracking-tight;
+  }
 }
 
-body {
-	margin: 0;
-	font-family: 'Inter', sans-serif;
-	background-color: var(--color-background);
-	color: var(--color-text);
-	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
+@layer utilities {
+  /* Scrollbar Styles from HEAD */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  .animate-slide-up {
+    animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    opacity: 0;
+  }
+  .animate-slide-down {
+    animation: slideDown 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    opacity: 0;
+  }
+  .animate-slide-left {
+    animation: slideLeft 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    opacity: 0;
+  }
+  .animate-slide-right {
+    animation: slideRight 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    opacity: 0;
+  }
+  .glass-panel {
+    @apply bg-white/70 backdrop-blur-xl border border-white/50 shadow-[0_8px_32px_0_rgba(31,38,135,0.07)];
+  }
+  .glass-card {
+    @apply bg-white/60 backdrop-blur-lg border border-white/40 shadow-sm hover:shadow-lg transition-all duration-300;
+  }
+  
+  .delay-75 { animation-delay: 75ms; }
+  .delay-100 { animation-delay: 100ms; }
+  .delay-150 { animation-delay: 150ms; }
+  .delay-200 { animation-delay: 200ms; }
+  .delay-300 { animation-delay: 300ms; }
+  .delay-400 { animation-delay: 400ms; }
+  .delay-500 { animation-delay: 500ms; }
 }
 
-::-webkit-scrollbar {
-	width: 8px;
-	height: 8px;
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
-::-webkit-scrollbar-track {
-	background: transparent;
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-::-webkit-scrollbar-thumb {
-	background: #cbd5e1;
-	border-radius: 4px;
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-30px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-::-webkit-scrollbar-thumb:hover {
-	background: #94a3b8;
+@keyframes slideLeft {
+  from { opacity: 0; transform: translateX(30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideRight {
+  from { opacity: 0; transform: translateX(-30px); }
+  to { opacity: 1; transform: translateX(0); }
 }

@@ -9,8 +9,6 @@ import java.util.Optional;
 @Repository
 public interface FacilityRepository extends MongoRepository<Facility, String> {
 	Optional<Facility> findByResourceId(String resourceId);
-
 	boolean existsByResourceId(String resourceId);
-
 	void deleteByResourceId(String resourceId);
 }

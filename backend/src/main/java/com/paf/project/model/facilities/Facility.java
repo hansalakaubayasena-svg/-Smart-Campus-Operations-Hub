@@ -3,7 +3,6 @@ package com.paf.project.model.facilities;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
-
 import java.util.List;
 
 @Document(collection = "facilities")
@@ -14,25 +13,26 @@ public class Facility {
     @Indexed(unique = true)
     private String resourceId;
 
+    private String name;
     private String type;
-
     private String nameOrModel;
-
     private Integer capacity;
     private String location;
     private String description;
     private List<String> availabilityWindows;
     private String imageUrl;
-
     private String status; // ACTIVE / OUT_OF_SERVICE
 
+    // Default Constructor
     public Facility() {
     }
 
-    public Facility(String id, String resourceId, String type, String nameOrModel, Integer capacity, String location,
+    // All-args Constructor
+    public Facility(String id, String resourceId, String name, String type, String nameOrModel, Integer capacity, String location,
                     String description, List<String> availabilityWindows, String imageUrl, String status) {
         this.id = id;
         this.resourceId = resourceId;
+        this.name = name;
         this.type = type;
         this.nameOrModel = nameOrModel;
         this.capacity = capacity;
@@ -43,6 +43,7 @@ public class Facility {
         this.status = status;
     }
 
+    // Getters and Setters
     public String getId() {
         return id;
     }
@@ -57,6 +58,14 @@ public class Facility {
 
     public void setResourceId(String resourceId) {
         this.resourceId = resourceId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getType() {
