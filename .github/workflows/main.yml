@@ -38,6 +38,9 @@ jobs:
       - name: Install Rollup Linux binary
         working-directory: ./frontend
         run: npm install @rollup/rollup-linux-x64-gnu --save-optional --legacy-peer-deps
+      - name: Install LightningCSS Linux binary
+        working-directory: ./frontend
+        run: npm install lightningcss-linux-x64-gnu --save-optional --legacy-peer-deps
       - name: Build
         working-directory: ./frontend
         run: CI=false npm run build
