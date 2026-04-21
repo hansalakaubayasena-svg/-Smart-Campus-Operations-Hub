@@ -5,7 +5,8 @@ import java.util.List;
 public record FacilityResponse(
         String id,
         String resourceId,
-        FacilityType type,
+        String type,
+        String category,
         String nameOrModel,
         Integer capacity,
         String location,

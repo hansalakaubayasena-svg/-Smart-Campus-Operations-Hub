@@ -6,14 +6,7 @@ import { ResourceCard } from '../ui/ResourceCard'
 import { SkeletonCard } from '../ui/SkeletonCard'
 import { EmptyState } from '../ui/EmptyState'
 import { getFacilities } from '../../../services/facilities/facilityService'
-
-const typeToUi = (type) => {
-  if (type === 'EQUIPMENT') return { type: 'Equipment', category: 'Equipment' }
-  if (type === 'LAB') return { type: 'Room', category: 'Lab' }
-  if (type === 'LECTURE_HALL') return { type: 'Room', category: 'Lecture Hall' }
-  if (type === 'MEETING_ROOM') return { type: 'Room', category: 'Conference Room' }
-  return { type: 'Room', category: type === 'ROOM' ? 'Room' : 'Other' }
-}
+import { getFacilityTaxonomy } from '../../../services/facilities/taxonomyService'
 
 const toAvailabilityObjects = (windows = []) =>
   windows.map((window) => {
@@ -28,26 +21,24 @@ const toAvailabilityObjects = (windows = []) =>
     }
   })
 
-const mapFacilityToUiResource = (facility) => {
-  const uiType = typeToUi(facility.type)
-  return {
+const mapFacilityToUiResource = (facility) => ({
     id: facility.id || facility.resourceId,
     resourceId: facility.resourceId,
     name: facility.nameOrModel,
-    type: uiType.type,
-    category: uiType.category,
+    type: facility.type,
+    category: facility.category,
     location: facility.location,
     capacity: facility.capacity,
     status: facility.status,
     imageUrl: facility.imageUrl || '',
     description: facility.description || `${facility.nameOrModel} located at ${facility.location}.`,
     availabilityWindows: toAvailabilityObjects(facility.availabilityWindows),
-  }
-}
+  })
 
 export const FacilityDirectory = () => {
   const navigate = useNavigate()
   const [resources, setResources] = useState([])
+  const [taxonomy, setTaxonomy] = useState({ types: [] })
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false)
@@ -62,14 +53,6 @@ export const FacilityDirectory = () => {
 
   const [filters, setFilters] = useState(initialFilters)
   const [filterErrors, setFilterErrors] = useState({})
-
-  const uiTypeToApiType = {
-    Room: 'ROOM',
-    Lab: 'LAB',
-    'Lecture Hall': 'LECTURE_HALL',
-    'Meeting Room': 'MEETING_ROOM',
-    Equipment: 'EQUIPMENT',
-  }
 
   const loadFacilities = useCallback(async (showLoader = false) => {
     if (showLoader) {
@@ -91,9 +74,20 @@ export const FacilityDirectory = () => {
     }
   }, [])
 
+  const loadTaxonomy = useCallback(async () => {
+    try {
+      const response = await getFacilityTaxonomy({ role: 'USER' })
+      setTaxonomy(response.data || { types: [] })
+    } catch (err) {
+      setError(err?.response?.data?.message || 'Failed to load facility filters.')
+      setTaxonomy({ types: [] })
+    }
+  }, [])
+
   useEffect(() => {
     loadFacilities(true)
-  }, [loadFacilities])
+    loadTaxonomy()
+  }, [loadFacilities, loadTaxonomy])
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -102,8 +96,6 @@ export const FacilityDirectory = () => {
 
     return () => clearInterval(intervalId)
   }, [loadFacilities])
-
-  const categoryOptions = ['All', 'Room', 'Lab', 'Lecture Hall', 'Conference Room', 'Workshop', 'Equipment', 'Other']
 
   const validateFilters = useCallback((nextFilters) => {
     const nextErrors = {}
@@ -185,6 +177,7 @@ export const FacilityDirectory = () => {
             setFilters={handleFiltersChange}
             onClear={handleClearFilters}
             filterErrors={filterErrors}
+            taxonomy={taxonomy}
             isMobileOpen={isMobileFilterOpen}
             setIsMobileOpen={setIsMobileFilterOpen}
           />

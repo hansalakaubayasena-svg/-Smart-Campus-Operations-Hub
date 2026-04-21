@@ -1,14 +1,25 @@
 import React from 'react'
 import { Search, Filter, X } from 'lucide-react'
+import { buildCategoriesByType, buildSearchSuggestions } from '../data/facilityTaxonomy'
 
 export const FilterSidebar = ({
   filters,
   setFilters,
   onClear,
   filterErrors = {},
+  taxonomy,
   isMobileOpen,
   setIsMobileOpen,
 }) => {
+  const types = taxonomy?.types || []
+  const categoriesByType = buildCategoriesByType(taxonomy?.types || [])
+  const allCategoryOptions = Array.from(new Set(Object.values(categoriesByType).flat().filter(Boolean)))
+  const categoryOptions =
+    filters.type && filters.type !== 'All'
+      ? categoriesByType[filters.type] || []
+      : allCategoryOptions
+  const searchSuggestions = buildSearchSuggestions(taxonomy?.types || [])
+
   const sidebarContent = (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -41,8 +52,14 @@ export const FilterSidebar = ({
               }))
             }
             placeholder="Search name, location, type, or category..."
+            list="facility-search-suggestions"
             className="block w-full pl-10 pr-3 py-2 border border-slate-300 rounded-lg focus:ring-primary focus:border-primary sm:text-sm outline-none transition-colors"
           />
+          <datalist id="facility-search-suggestions">
+            {searchSuggestions.map((option) => (
+              <option key={option} value={option} />
+            ))}
+          </datalist>
         </div>
       </div>
 
@@ -53,19 +70,28 @@ export const FilterSidebar = ({
         <select
           value={filters.type}
           onChange={(e) =>
-            setFilters((prev) => ({
-              ...prev,
-              type: e.target.value,
-            }))
+            setFilters((prev) => {
+              const nextType = e.target.value
+              const nextCategoryOptions =
+                nextType && nextType !== 'All'
+                  ? categoriesByType[nextType] || []
+                  : allCategoryOptions
+
+              return {
+                ...prev,
+                type: nextType,
+                category: nextCategoryOptions.includes(prev.category) ? prev.category : 'All',
+              }
+            })
           }
           className="block w-full pl-3 pr-10 py-2 text-base border border-slate-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-lg bg-white"
         >
           <option value="All">All Types</option>
-          <option value="Room">Room</option>
-          <option value="Lab">Lab</option>
-          <option value="Lecture Hall">Lecture Hall</option>
-          <option value="Meeting Room">Meeting Room</option>
-          <option value="Equipment">Equipment</option>
+          {types.map((typeOption) => (
+            <option key={typeOption.id || typeOption.name} value={typeOption.name}>
+              {typeOption.name}
+            </option>
+          ))}
         </select>
       </div>
 
@@ -84,13 +110,11 @@ export const FilterSidebar = ({
           className="block w-full pl-3 pr-10 py-2 text-base border border-slate-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-lg bg-white"
         >
           <option value="All">All Categories</option>
-          <option value="Room">Room</option>
-          <option value="Lab">Lab</option>
-          <option value="Lecture Hall">Lecture Hall</option>
-          <option value="Conference Room">Conference Room</option>
-          <option value="Workshop">Workshop</option>
-          <option value="Equipment">Equipment</option>
-          <option value="Other">Other</option>
+          {categoryOptions.map((category) => (
+            <option key={category} value={category}>
+              {category}
+            </option>
+          ))}
         </select>
       </div>
 

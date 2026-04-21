@@ -4,14 +4,6 @@ import { ArrowLeft, MapPin, Users, Tag, Clock, Calendar } from 'lucide-react'
 import { StatusBadge } from '../ui/StatusBadge'
 import { getFacilityByResourceId } from '../../../services/facilities/facilityService'
 
-const typeToUi = (type) => {
-  if (type === 'EQUIPMENT') return { type: 'Equipment', category: 'Equipment' }
-  if (type === 'LAB') return { type: 'Room', category: 'Lab' }
-  if (type === 'LECTURE_HALL') return { type: 'Room', category: 'Lecture Hall' }
-  if (type === 'MEETING_ROOM') return { type: 'Room', category: 'Conference Room' }
-  return { type: 'Room', category: type === 'ROOM' ? 'Room' : 'Other' }
-}
-
 const toAvailabilityObjects = (windows = []) =>
   windows.map((window) => {
     const match = /^(.+)\s(\d{2}:\d{2})-(\d{2}:\d{2})$/.exec(window)
@@ -25,22 +17,19 @@ const toAvailabilityObjects = (windows = []) =>
     }
   })
 
-const mapFacilityToUiResource = (facility) => {
-  const uiType = typeToUi(facility.type)
-  return {
+const mapFacilityToUiResource = (facility) => ({
     id: facility.id || facility.resourceId,
     resourceId: facility.resourceId,
     name: facility.nameOrModel,
-    type: uiType.type,
-    category: uiType.category,
+    type: facility.type,
+    category: facility.category,
     location: facility.location,
     capacity: facility.capacity,
     status: facility.status,
     imageUrl: facility.imageUrl || '',
     description: facility.description || `${facility.nameOrModel} located at ${facility.location}.`,
     availabilityWindows: toAvailabilityObjects(facility.availabilityWindows),
-  }
-}
+  })
 
 export const FacilityDetailsPage = () => {
   const navigate = useNavigate()
@@ -210,7 +199,7 @@ export const FacilityDetailsPage = () => {
                       <div>
                         <p className="text-sm font-medium text-slate-500">Capacity</p>
                         <p className="text-base font-semibold text-text">
-                          {resource.capacity} {resource.type === 'Room' ? 'people' : 'unit'}
+                          {resource.capacity} units
                         </p>
                       </div>
                     </div>

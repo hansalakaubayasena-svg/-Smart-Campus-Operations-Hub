@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { X, Plus, Trash2 } from 'lucide-react'
+import { buildCategoriesByType } from '../data/facilityTaxonomy'
 
 const defaultAvailability = {
   days: 'Mon-Fri',
@@ -7,25 +8,21 @@ const defaultAvailability = {
   endTime: '17:00',
 }
 
-const categoriesByType = {
-  Room: ['Lab', 'Lecture Hall', 'Conference Room', 'Workshop', 'Other'],
-  Equipment: ['Equipment', 'Other'],
-}
-
-const EQUIPMENT_CAPACITY = 1
-
 export const AddEditResourceModal = ({
   isOpen,
   onClose,
   onSave,
   resourceToEdit,
+  taxonomy,
 }) => {
-  const getDefaultCategory = (type) => categoriesByType[type]?.[0] || 'Other'
+  const typeOptions = taxonomy?.types || []
+  const categoriesByType = taxonomy?.categoriesByType || buildCategoriesByType(typeOptions)
+  const getDefaultCategory = (type) => categoriesByType[type]?.[0] || ''
 
   const [formData, setFormData] = useState({
     name: '',
-    type: 'Room',
-    category: getDefaultCategory('Room'),
+    type: '',
+    category: '',
     location: '',
     capacity: 0,
     status: 'ACTIVE',
@@ -44,8 +41,8 @@ export const AddEditResourceModal = ({
     } else {
       setFormData({
         name: '',
-        type: 'Room',
-        category: getDefaultCategory('Room'),
+        type: '',
+        category: '',
         location: '',
         capacity: 0,
         status: 'ACTIVE',
@@ -64,20 +61,12 @@ export const AddEditResourceModal = ({
     const newErrors = {}
     if (!formData.name.trim()) newErrors.name = 'Name is required'
     if (!formData.location.trim()) newErrors.location = 'Location is required'
+    if (!formData.type.trim()) newErrors.type = 'Type is required'
     if (!formData.category) newErrors.category = 'Category is required'
 
-    const allowedCategories = categoriesByType[formData.type] || []
-    if (formData.category && !allowedCategories.includes(formData.category)) {
-      newErrors.category = 'Selected category is not valid for this type'
-    }
-
     const capacity = Number(formData.capacity)
-    if (formData.type === 'Equipment') {
-      if (capacity !== EQUIPMENT_CAPACITY) {
-        newErrors.capacity = 'Equipment resources use 1 unit of capacity'
-      }
-    } else if (!Number.isInteger(capacity) || capacity <= 0) {
-      newErrors.capacity = 'Capacity is required for rooms'
+    if (!Number.isInteger(capacity) || capacity <= 0) {
+      newErrors.capacity = 'Capacity is required'
     }
 
     const invalidWindow = formData.availabilityWindows.find(
@@ -118,16 +107,8 @@ export const AddEditResourceModal = ({
       if (name === 'type') {
         const allowedCategories = categoriesByType[value] || []
         if (!allowedCategories.includes(next.category)) {
-          next.category = getDefaultCategory(value)
+          next.category = allowedCategories[0] || ''
         }
-
-        if (value === 'Equipment') {
-          next.capacity = EQUIPMENT_CAPACITY
-        }
-      }
-
-      if (name === 'type' && prev.type === 'Equipment' && value !== 'Equipment') {
-        next.capacity = 0
       }
 
       return next
@@ -183,7 +164,7 @@ export const AddEditResourceModal = ({
     }))
   }
 
-  const categories = categoriesByType[formData.type] || ['Other']
+  const categories = categoriesByType[formData.type] || []
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
@@ -231,10 +212,15 @@ export const AddEditResourceModal = ({
                   name="type"
                   value={formData.type}
                   onChange={handleChange}
+                  disabled={!typeOptions.length}
                   className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-colors bg-white"
                 >
-                  <option value="Room">Room</option>
-                  <option value="Equipment">Equipment</option>
+                  <option value="">Select a type</option>
+                  {typeOptions.map((typeOption) => (
+                    <option key={typeOption.id || typeOption.name} value={typeOption.name}>
+                      {typeOption.name}
+                    </option>
+                  ))}
                 </select>
               </div>
 
@@ -244,10 +230,18 @@ export const AddEditResourceModal = ({
                   name="category"
                   value={formData.category}
                   onChange={handleChange}
+                  disabled={!formData.type || !categories.length}
                   className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-colors bg-white ${
                     errors.category ? 'border-red-500' : 'border-slate-300'
                   }`}
                 >
+                  <option value="">
+                    {!formData.type
+                      ? 'Select a type first'
+                      : categories.length
+                        ? 'Select a category'
+                        : 'No categories available'}
+                  </option>
                   {categories.map((cat) => (
                     <option key={cat} value={cat}>
                       {cat}
@@ -276,26 +270,24 @@ export const AddEditResourceModal = ({
                 )}
               </div>
 
-              {formData.type !== 'Equipment' && (
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">
-                    Capacity
-                  </label>
-                  <input
-                    type="number"
-                    name="capacity"
-                    value={formData.capacity}
-                    onChange={handleChange}
-                    min="1"
-                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-colors ${
-                      errors.capacity ? 'border-red-500' : 'border-slate-300'
-                    }`}
-                  />
-                  {errors.capacity && (
-                    <p className="mt-1 text-sm text-red-500">{errors.capacity}</p>
-                  )}
-                </div>
-              )}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">
+                  Capacity
+                </label>
+                <input
+                  type="number"
+                  name="capacity"
+                  value={formData.capacity}
+                  onChange={handleChange}
+                  min="1"
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-colors ${
+                    errors.capacity ? 'border-red-500' : 'border-slate-300'
+                  }`}
+                />
+                {errors.capacity && (
+                  <p className="mt-1 text-sm text-red-500">{errors.capacity}</p>
+                )}
+              </div>
 
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Status</label>

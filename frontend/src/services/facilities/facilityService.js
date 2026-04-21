@@ -11,6 +11,7 @@ export const getFacilities = ({ role = 'USER', ...filters } = {}) =>
 		...roleHeaders(role),
 		params: {
 			type: filters.type || undefined,
+			category: filters.category || undefined,
 			minCapacity: filters.minCapacity || undefined,
 			maxCapacity: filters.maxCapacity || undefined,
 			location: filters.location || undefined,

@@ -3,7 +3,6 @@ package com.paf.project.service.facilities;
 import com.paf.project.dto.facilities.CreateFacilityRequest;
 import com.paf.project.dto.facilities.FacilityFilter;
 import com.paf.project.dto.facilities.FacilityResponse;
-import com.paf.project.dto.facilities.FacilityType;
 import com.paf.project.dto.facilities.UpdateFacilityRequest;
 import com.paf.project.dto.facilities.UpdateFacilityStatusRequest;
 import com.paf.project.exception.ResourceConflictException;
@@ -21,17 +20,24 @@ public class FacilityServiceImpl implements FacilityService {
 
     private final FacilityRepository facilityRepository;
     private final CloudinaryService cloudinaryService;
+    private final FacilityTaxonomyService facilityTaxonomyService;
 
-    public FacilityServiceImpl(FacilityRepository facilityRepository, CloudinaryService cloudinaryService) {
+    public FacilityServiceImpl(
+            FacilityRepository facilityRepository,
+            CloudinaryService cloudinaryService,
+            FacilityTaxonomyService facilityTaxonomyService
+    ) {
         this.facilityRepository = facilityRepository;
         this.cloudinaryService = cloudinaryService;
+        this.facilityTaxonomyService = facilityTaxonomyService;
     }
 
     @Override
     public List<FacilityResponse> getFacilities(FacilityFilter filter) {
         return facilityRepository.findAll()
                 .stream()
-                .filter(facility -> filter.type() == null || facility.getType().equalsIgnoreCase(filter.type().name()))
+                .filter(facility -> matches(filter.type(), facility.getType()))
+                .filter(facility -> matches(filter.category(), facility.getCategory()))
                 .filter(facility -> filter.minCapacity() == null || facility.getCapacity() >= filter.minCapacity())
                 .filter(facility -> filter.maxCapacity() == null || facility.getCapacity() <= filter.maxCapacity())
                 .filter(facility -> isLocationMatch(facility, filter.location()))
@@ -53,7 +59,8 @@ public class FacilityServiceImpl implements FacilityService {
 
         Facility facility = new Facility();
         facility.setResourceId(request.resourceId());
-        facility.setType(request.type().name());
+        facility.setType(facilityTaxonomyService.resolveTypeName(request.type()));
+        facility.setCategory(facilityTaxonomyService.resolveCategoryName(request.type(), request.category()));
         facility.setNameOrModel(request.nameOrModel());
         facility.setCapacity(request.capacity());
         facility.setLocation(request.location());
@@ -69,7 +76,8 @@ public class FacilityServiceImpl implements FacilityService {
     public FacilityResponse update(String resourceId, UpdateFacilityRequest request) {
         Facility facility = getRequiredByResourceId(resourceId);
 
-        facility.setType(request.type().name());
+        facility.setType(facilityTaxonomyService.resolveTypeName(request.type()));
+        facility.setCategory(facilityTaxonomyService.resolveCategoryName(request.type(), request.category()));
         facility.setNameOrModel(request.nameOrModel());
         facility.setCapacity(request.capacity());
         facility.setLocation(request.location());
@@ -127,18 +135,59 @@ public class FacilityServiceImpl implements FacilityService {
         return normalize(facility.getResourceId()).contains(q)
                 || normalize(facility.getNameOrModel()).contains(q)
                 || normalize(facility.getLocation()).contains(q)
-                || normalize(facility.getType()).contains(q);
+                || normalize(facility.getType()).contains(q)
+                || normalize(facility.getCategory()).contains(q);
+    }
+
+    private boolean matches(String filterValue, String actualValue) {
+        if (filterValue == null || filterValue.isBlank() || "All".equalsIgnoreCase(filterValue)) {
+            return true;
+        }
+        return normalize(actualValue).equals(normalize(filterValue));
     }
 
     private String normalize(String value) {
-        return value == null ? "" : value.toLowerCase(Locale.ROOT).trim();
+        return value == null ? "" : value.toLowerCase(Locale.ROOT).trim().replace('_', ' ');
+    }
+
+    private String displayLabel(String value) {
+        if (value == null || value.isBlank()) {
+            return "";
+        }
+
+        return toTitleCase(normalize(value));
+    }
+
+    private String toTitleCase(String value) {
+        String[] words = value.trim().split("\\s+");
+        StringBuilder builder = new StringBuilder();
+        for (String word : words) {
+            if (word.isBlank()) {
+                continue;
+            }
+            if (!builder.isEmpty()) {
+                builder.append(' ');
+            }
+            builder.append(Character.toUpperCase(word.charAt(0)));
+            if (word.length() > 1) {
+                builder.append(word.substring(1).toLowerCase(Locale.ROOT));
+            }
+        }
+        return builder.toString();
+    }
+
+    private String defaultCategoryForType(String type) {
+        return displayLabel(type);
     }
 
     private FacilityResponse toResponse(Facility facility) {
         return new FacilityResponse(
                 facility.getId(),
                 facility.getResourceId(),
-                FacilityType.valueOf(facility.getType()),
+                displayLabel(facility.getType()),
+                displayLabel(facility.getCategory() == null || facility.getCategory().isBlank()
+                        ? defaultCategoryForType(facility.getType())
+                        : facility.getCategory()),
                 facility.getNameOrModel(),
                 facility.getCapacity(),
                 facility.getLocation(),

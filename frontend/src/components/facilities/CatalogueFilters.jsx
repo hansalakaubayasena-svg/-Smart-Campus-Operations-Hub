@@ -1,6 +1,12 @@
 import React from 'react';
+import { buildCategoriesByType, buildSearchSuggestions } from './data/facilityTaxonomy';
 
-const CatalogueFilters = ({ filters, setFilters, onApply, onReset }) => {
+const CatalogueFilters = ({ filters, setFilters, taxonomy, onApply, onReset }) => {
+  const typeOptions = taxonomy?.types || [];
+  const categoriesByType = buildCategoriesByType(typeOptions);
+  const categoryOptions = Array.from(new Set(Object.values(categoriesByType).flat().filter(Boolean)));
+  const searchSuggestions = buildSearchSuggestions(typeOptions);
+
   return (
     <form
       className="facility-filters"
@@ -10,20 +16,37 @@ const CatalogueFilters = ({ filters, setFilters, onApply, onReset }) => {
       }}
     >
       <input
-        placeholder="Search by name, id, type"
+        placeholder="Search by name, id, type, or category"
+        list="facility-search-suggestions"
         value={filters.q}
         onChange={(event) => setFilters((prev) => ({ ...prev, q: event.target.value }))}
       />
+      <datalist id="facility-search-suggestions">
+        {searchSuggestions.map((option) => (
+          <option key={option} value={option} />
+        ))}
+      </datalist>
       <select
         value={filters.type}
         onChange={(event) => setFilters((prev) => ({ ...prev, type: event.target.value }))}
       >
         <option value="">All types</option>
-        <option value="ROOM">Room</option>
-        <option value="EQUIPMENT">Equipment</option>
-        <option value="LAB">Lab</option>
-        <option value="MEETING_ROOM">Meeting Room</option>
-        <option value="LECTURE_HALL">Lecture Hall</option>
+        {typeOptions.map((type) => (
+          <option key={type.id || type.name} value={type.name}>
+            {type.name}
+          </option>
+        ))}
+      </select>
+      <select
+        value={filters.category || ''}
+        onChange={(event) => setFilters((prev) => ({ ...prev, category: event.target.value }))}
+      >
+        <option value="">All categories</option>
+        {categoryOptions.map((category) => (
+          <option key={category} value={category}>
+            {category}
+          </option>
+        ))}
       </select>
       <input
         type="number"

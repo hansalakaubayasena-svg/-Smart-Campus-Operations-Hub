@@ -8,6 +8,7 @@ import {
   getFacilities,
   updateFacilityStatus,
 } from '../../services/facilities/facilityService';
+import { getFacilityTaxonomy } from '../../services/facilities/taxonomyService';
 import '../../index.css';
 
 const FacilitiesPage = ({ forcedRole }) => {
@@ -15,8 +16,10 @@ const FacilitiesPage = ({ forcedRole }) => {
     const [facilities, setFacilities] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+        const [taxonomy, setTaxonomy] = useState({ types: [] });
     const [filters, setFilters] = useState({
         type: '',
+            category: '',
         minCapacity: '',
         maxCapacity: '',
         location: '',
@@ -48,6 +51,29 @@ const FacilitiesPage = ({ forcedRole }) => {
         loadFacilities();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [role]);
+
+        useEffect(() => {
+            let active = true;
+
+            const loadTaxonomy = async () => {
+                try {
+                    const response = await getFacilityTaxonomy({ role });
+                    if (active) {
+                        setTaxonomy(response.data || { types: [] });
+                    }
+                } catch {
+                    if (active) {
+                        setTaxonomy({ types: [] });
+                    }
+                }
+            };
+
+            loadTaxonomy();
+
+            return () => {
+                active = false;
+            };
+        }, [role]);
 
     const handleCreate = async (payload) => {
         setError('');
@@ -83,6 +109,7 @@ const FacilitiesPage = ({ forcedRole }) => {
     const resetFilters = () => {
         setFilters({
             type: '',
+                category: '',
             minCapacity: '',
             maxCapacity: '',
             location: '',
@@ -116,6 +143,7 @@ const FacilitiesPage = ({ forcedRole }) => {
             <CatalogueFilters
                 filters={filters}
                 setFilters={setFilters}
+                    taxonomy={taxonomy}
                 onApply={loadFacilities}
                 onReset={() => {
                     resetFilters();
@@ -126,7 +154,7 @@ const FacilitiesPage = ({ forcedRole }) => {
             {error && <div className="error-banner">{error}</div>}
 
             {isAdmin && (
-                <AdminFacilityForm onCreate={handleCreate} />
+                 <AdminFacilityForm onCreate={handleCreate} taxonomy={taxonomy} />
             )}
 
             {loading ? (
