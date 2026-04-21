@@ -95,7 +95,9 @@ export const AdminManagement = () => {
   const filteredResources = resources.filter(
     (r) =>
       r.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      r.location.toLowerCase().includes(searchTerm.toLowerCase()),
+      r.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      r.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      r.category.toLowerCase().includes(searchTerm.toLowerCase()),
   )
 
   const handleAddClick = () => {
@@ -195,7 +197,7 @@ export const AdminManagement = () => {
               </div>
               <input
                 type="text"
-                placeholder="Search by Name or Location..."
+                placeholder="Search by name, location, type, or category..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="block w-full pl-10 pr-3 py-2 border border-slate-300 rounded-lg focus:ring-primary focus:border-primary sm:text-sm outline-none transition-colors"

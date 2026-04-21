@@ -5,6 +5,7 @@ export const FilterSidebar = ({
   filters,
   setFilters,
   onClear,
+  filterErrors = {},
   isMobileOpen,
   setIsMobileOpen,
 }) => {
@@ -39,7 +40,7 @@ export const FilterSidebar = ({
                 search: e.target.value,
               }))
             }
-            placeholder="Search name or location..."
+            placeholder="Search name, location, type, or category..."
             className="block w-full pl-10 pr-3 py-2 border border-slate-300 rounded-lg focus:ring-primary focus:border-primary sm:text-sm outline-none transition-colors"
           />
         </div>
@@ -70,6 +71,31 @@ export const FilterSidebar = ({
 
       <div>
         <label className="block text-sm font-medium text-slate-700 mb-2">
+          Category
+        </label>
+        <select
+          value={filters.category}
+          onChange={(e) =>
+            setFilters((prev) => ({
+              ...prev,
+              category: e.target.value,
+            }))
+          }
+          className="block w-full pl-3 pr-10 py-2 text-base border border-slate-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-lg bg-white"
+        >
+          <option value="All">All Categories</option>
+          <option value="Room">Room</option>
+          <option value="Lab">Lab</option>
+          <option value="Lecture Hall">Lecture Hall</option>
+          <option value="Conference Room">Conference Room</option>
+          <option value="Workshop">Workshop</option>
+          <option value="Equipment">Equipment</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-slate-700 mb-2">
           Location
         </label>
         <input
@@ -86,42 +112,29 @@ export const FilterSidebar = ({
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-2">
-            Min Capacity
-          </label>
-          <input
-            type="number"
-            min="0"
-            value={filters.minCapacity}
-            onChange={(e) =>
-              setFilters((prev) => ({
-                ...prev,
-                minCapacity: e.target.value === '' ? '' : parseInt(e.target.value, 10),
-              }))
-            }
-            className="block w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-primary focus:border-primary sm:text-sm outline-none transition-colors"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-2">
-            Max Capacity
-          </label>
-          <input
-            type="number"
-            min="0"
-            value={filters.maxCapacity}
-            onChange={(e) =>
-              setFilters((prev) => ({
-                ...prev,
-                maxCapacity: e.target.value === '' ? '' : parseInt(e.target.value, 10),
-              }))
-            }
-            className="block w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-primary focus:border-primary sm:text-sm outline-none transition-colors"
-          />
-        </div>
+      <div>
+        <label className="block text-sm font-medium text-slate-700 mb-2">
+          Capacity
+        </label>
+        <input
+          type="number"
+          min="0"
+          step="1"
+          value={filters.capacity}
+          onChange={(e) =>
+            setFilters((prev) => ({
+              ...prev,
+              capacity: e.target.value,
+            }))
+          }
+          placeholder="Exact capacity"
+          className={`block w-full px-3 py-2 border rounded-lg focus:ring-primary focus:border-primary sm:text-sm outline-none transition-colors ${
+            filterErrors.capacity ? 'border-red-500' : 'border-slate-300'
+          }`}
+        />
+        {filterErrors.capacity && (
+          <p className="mt-1 text-xs text-red-500">{filterErrors.capacity}</p>
+        )}
       </div>
     </div>
   )

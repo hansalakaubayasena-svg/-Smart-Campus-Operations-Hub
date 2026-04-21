@@ -12,6 +12,8 @@ const categoriesByType = {
   Equipment: ['Equipment', 'Other'],
 }
 
+const EQUIPMENT_CAPACITY = 1
+
 export const AddEditResourceModal = ({
   isOpen,
   onClose,
@@ -69,7 +71,27 @@ export const AddEditResourceModal = ({
       newErrors.category = 'Selected category is not valid for this type'
     }
 
-    if (formData.capacity < 0) newErrors.capacity = 'Capacity cannot be negative'
+    const capacity = Number(formData.capacity)
+    if (formData.type === 'Equipment') {
+      if (capacity !== EQUIPMENT_CAPACITY) {
+        newErrors.capacity = 'Equipment resources use 1 unit of capacity'
+      }
+    } else if (!Number.isInteger(capacity) || capacity <= 0) {
+      newErrors.capacity = 'Capacity is required for rooms'
+    }
+
+    const invalidWindow = formData.availabilityWindows.find(
+      (window) =>
+        !window.days.trim() ||
+        !window.startTime ||
+        !window.endTime ||
+        window.startTime >= window.endTime,
+    )
+    if (invalidWindow) {
+      newErrors.availability =
+        'Each availability window needs a day range and an end time after the start time'
+    }
+
     if (formData.availabilityWindows.length === 0) {
       newErrors.availability = 'At least one availability window is required'
     }
@@ -98,15 +120,24 @@ export const AddEditResourceModal = ({
         if (!allowedCategories.includes(next.category)) {
           next.category = getDefaultCategory(value)
         }
+
+        if (value === 'Equipment') {
+          next.capacity = EQUIPMENT_CAPACITY
+        }
+      }
+
+      if (name === 'type' && prev.type === 'Equipment' && value !== 'Equipment') {
+        next.capacity = 0
       }
 
       return next
     })
 
-    if (errors[name]) {
+    if (errors[name] || (name === 'type' && (errors.capacity || errors.category))) {
       setErrors((prev) => ({
         ...prev,
         [name]: '',
+        ...(name === 'type' ? { capacity: '', category: '' } : {}),
       }))
     }
   }
@@ -245,22 +276,26 @@ export const AddEditResourceModal = ({
                 )}
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Capacity</label>
-                <input
-                  type="number"
-                  name="capacity"
-                  value={formData.capacity}
-                  onChange={handleChange}
-                  min="0"
-                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-colors ${
-                    errors.capacity ? 'border-red-500' : 'border-slate-300'
-                  }`}
-                />
-                {errors.capacity && (
-                  <p className="mt-1 text-sm text-red-500">{errors.capacity}</p>
-                )}
-              </div>
+              {formData.type !== 'Equipment' && (
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    Capacity
+                  </label>
+                  <input
+                    type="number"
+                    name="capacity"
+                    value={formData.capacity}
+                    onChange={handleChange}
+                    min="1"
+                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-colors ${
+                      errors.capacity ? 'border-red-500' : 'border-slate-300'
+                    }`}
+                  />
+                  {errors.capacity && (
+                    <p className="mt-1 text-sm text-red-500">{errors.capacity}</p>
+                  )}
+                </div>
+              )}
 
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Status</label>
