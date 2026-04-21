@@ -19,6 +19,8 @@ import UserManagementPage from "./pages/admin/UserManagementPage";
 import { FacilityDirectory } from './components/facilities/pages/FacilityDirectory';
 import { AdminManagement } from './components/facilities/pages/AdminManagement';
 import { FacilityDetailsPage } from './components/facilities/pages/FacilityDetailsPage';
+import UserBookingsPage from './pages/user/UserBookingsPage';
+import AdminBookingsPage from './pages/admin/AdminBookingsPage';
 
 export function App() {
   return (
@@ -45,12 +47,13 @@ export function App() {
               <Route path="/user/notifications" element={<UserNotificationsPage />} />
               <Route path="/user/facilities" element={<FacilityDirectory />} />
               <Route path="/user/facilities/:resourceId" element={<FacilityDetailsPage />} />
+              <Route path="/user/bookings" element={<UserBookingsPage />} />
             </Route>
 
             {/* Protected — ADMIN only (all share AdminLayout) */}
             <Route
               element={
-                <ProtectedRoute requiredRole="ADMIN">
+                <ProtectedRoute requiredRole="ADMINISTRATOR">
                   <AdminLayout />
                 </ProtectedRoute>
               }
@@ -59,6 +62,7 @@ export function App() {
               <Route path="/admin/users" element={<UserManagementPage />} />
               <Route path="/admin/notifications" element={<NotificationPage />} />
               <Route path="/admin/facilities" element={<AdminManagement />} />
+              <Route path="/admin/bookings" element={<AdminBookingsPage />} />
             </Route>
 
             <Route path="*" element={<Navigate to="/" replace />} />

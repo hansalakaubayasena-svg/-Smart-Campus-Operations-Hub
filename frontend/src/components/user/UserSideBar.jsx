@@ -6,6 +6,7 @@ import {
   LogOut,
   ShieldCheck,
   Building,
+  Bookmark,
   Settings,
   ChevronRight,
 } from "lucide-react";
@@ -16,6 +17,7 @@ import ProfileSettingsModal from "./ProfileSettingsModal";
 const navItems = [
   { to: "/user/dashboard", icon: Home, label: "Home" },
   { to: "/user/facilities", icon: Building, label: "Facilities" },
+  { to: "/user/bookings", icon: Bookmark, label: "My Bookings" },
   { to: "/user/notifications", icon: Bell, label: "Notifications" },
 ];
 

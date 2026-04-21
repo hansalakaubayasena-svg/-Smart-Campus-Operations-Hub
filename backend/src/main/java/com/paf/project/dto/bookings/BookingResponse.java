@@ -1,49 +1,55 @@
-package com.paf.project.model.bookings;
+package com.paf.project.dto.bookings;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
 import java.time.LocalDateTime;
 
-@Document(collection = "bookings")
-public class Booking {
-    @Id
+public class BookingResponse {
     private String id;
     private String facilityId;
+    private String facilityName;
     private String userId;
+    private String userName;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private String purpose;
     private Integer expectedAttendees;
-    private String status; // PENDING / APPROVED / REJECTED / CANCELLED
+    private String status;
     private String adminNotes;
     private LocalDateTime createdAt;
 
-    public Booking() {
-        this.createdAt = LocalDateTime.now();
-    }
+    public BookingResponse() {}
 
-    public Booking(String id, String facilityId, String userId, LocalDateTime startTime, LocalDateTime endTime, 
-                   String purpose, Integer expectedAttendees, String status, String adminNotes) {
+    public BookingResponse(String id, String facilityId, String facilityName, String userId, String userName,
+                           LocalDateTime startTime, LocalDateTime endTime, String purpose, Integer expectedAttendees,
+                           String status, String adminNotes, LocalDateTime createdAt) {
         this.id = id;
         this.facilityId = facilityId;
+        this.facilityName = facilityName;
         this.userId = userId;
+        this.userName = userName;
         this.startTime = startTime;
         this.endTime = endTime;
         this.purpose = purpose;
         this.expectedAttendees = expectedAttendees;
         this.status = status;
         this.adminNotes = adminNotes;
-        this.createdAt = LocalDateTime.now();
+        this.createdAt = createdAt;
     }
 
+    // Getters and Setters
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
 
     public String getFacilityId() { return facilityId; }
     public void setFacilityId(String facilityId) { this.facilityId = facilityId; }
 
+    public String getFacilityName() { return facilityName; }
+    public void setFacilityName(String facilityName) { this.facilityName = facilityName; }
+
     public String getUserId() { return userId; }
     public void setUserId(String userId) { this.userId = userId; }
+
+    public String getUserName() { return userName; }
+    public void setUserName(String userName) { this.userName = userName; }
 
     public LocalDateTime getStartTime() { return startTime; }
     public void setStartTime(LocalDateTime startTime) { this.startTime = startTime; }

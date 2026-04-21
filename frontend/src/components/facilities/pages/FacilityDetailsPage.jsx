@@ -3,6 +3,7 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { ArrowLeft, MapPin, Users, Tag, Clock, Calendar } from 'lucide-react'
 import { StatusBadge } from '../ui/StatusBadge'
 import { getFacilityByResourceId } from '../../../services/facilities/facilityService'
+import { BookingModal } from '../../bookings/BookingModal'
 
 const toAvailabilityObjects = (windows = []) =>
   windows.map((window) => {
@@ -41,6 +42,7 @@ export const FacilityDetailsPage = () => {
   const [resource, setResource] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false)
 
   useEffect(() => {
     const load = async () => {
@@ -217,6 +219,7 @@ export const FacilityDetailsPage = () => {
                 Back
               </button>
               <button
+                onClick={() => setIsBookingModalOpen(true)}
                 disabled={isOutOfService}
                 className={`px-6 py-2 rounded-lg text-sm font-medium transition-all ${
                   isOutOfService
@@ -227,6 +230,12 @@ export const FacilityDetailsPage = () => {
                 {isBookMode ? 'Proceed to Booking' : 'Request Booking'}
               </button>
             </div>
+
+            <BookingModal 
+              isOpen={isBookingModalOpen} 
+              onClose={() => setIsBookingModalOpen(false)} 
+              facility={resource} 
+            />
           </section>
         )}
       </main>

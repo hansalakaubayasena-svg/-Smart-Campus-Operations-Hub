@@ -6,6 +6,8 @@ import {
   ShieldCheck,
   Users,
   Megaphone,
+  Building,
+  ClipboardCheck,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
@@ -16,6 +18,18 @@ const NAV_ITEMS = [
     label: "Dashboard",
     Icon: LayoutDashboard,
     hoverColor: "",
+  },
+  {
+    to: "/admin/facilities",
+    label: "Manage Facilities",
+    Icon: Building,
+    hoverColor: "group-hover:text-teal-400",
+  },
+  {
+    to: "/admin/bookings",
+    label: "Bookings Management",
+    Icon: ClipboardCheck,
+    hoverColor: "group-hover:text-orange-400",
   },
   {
     to: "/admin/users",
