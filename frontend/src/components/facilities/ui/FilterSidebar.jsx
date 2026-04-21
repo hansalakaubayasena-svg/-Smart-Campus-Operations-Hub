@@ -1,6 +1,6 @@
 import React from 'react'
 import { Search, Filter, X } from 'lucide-react'
-import { buildCategoriesByType, buildSearchSuggestions } from '../data/facilityTaxonomy'
+import { buildCategoriesByType } from '../data/facilityTaxonomy'
 
 export const FilterSidebar = ({
   filters,
@@ -18,7 +18,6 @@ export const FilterSidebar = ({
     filters.type && filters.type !== 'All'
       ? categoriesByType[filters.type] || []
       : allCategoryOptions
-  const searchSuggestions = buildSearchSuggestions(taxonomy?.types || [])
 
   const sidebarContent = (
     <div className="space-y-6">
@@ -52,14 +51,8 @@ export const FilterSidebar = ({
               }))
             }
             placeholder="Search name, location, type, or category..."
-            list="facility-search-suggestions"
             className="block w-full pl-10 pr-3 py-2 border border-slate-300 rounded-lg focus:ring-primary focus:border-primary sm:text-sm outline-none transition-colors"
           />
-          <datalist id="facility-search-suggestions">
-            {searchSuggestions.map((option) => (
-              <option key={option} value={option} />
-            ))}
-          </datalist>
         </div>
       </div>
 
