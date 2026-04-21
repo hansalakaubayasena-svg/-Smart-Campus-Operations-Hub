@@ -38,3 +38,4 @@ jobs:
       - name: Build
         working-directory: ./frontend
         run: CI=false npm run build
+# Forced update
