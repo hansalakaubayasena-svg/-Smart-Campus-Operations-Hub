@@ -1,4 +1,3 @@
-// src/components/user/UserSideBar.jsx
 import { useState } from "react";
 import {
   Home,
@@ -9,6 +8,7 @@ import {
   Bookmark,
   Settings,
   ChevronRight,
+  Wrench,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
@@ -18,6 +18,7 @@ const navItems = [
   { to: "/user/dashboard", icon: Home, label: "Home" },
   { to: "/user/facilities", icon: Building, label: "Facilities" },
   { to: "/user/bookings", icon: Bookmark, label: "My Bookings" },
+  { to: "/user/ticketing", icon: Wrench, label: "Ticketing" },
   { to: "/user/notifications", icon: Bell, label: "Notifications" },
 ];
 
