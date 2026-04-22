@@ -33,9 +33,13 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public BookingResponse createBooking(String userId, BookingRequest request) {
-        // Check if facility exists
+        // Check if facility exists and is active
         Facility facility = facilityRepository.findByResourceId(request.getFacilityId())
                 .orElseThrow(() -> new ResourceNotFoundException("Facility not found"));
+
+        if (!"ACTIVE".equalsIgnoreCase(facility.getStatus())) {
+            throw new ResourceConflictException("This facility is currently unavailable for bookings.");
+        }
 
         // Check for overlaps
         List<Booking> overlaps = bookingRepository.findOverlappingBookings(
