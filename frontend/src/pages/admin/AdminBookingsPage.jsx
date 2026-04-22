@@ -36,11 +36,18 @@ const AdminBookingsPage = () => {
   }, [filter]);
 
   const handleAction = async (id, status) => {
+    const notes = actionNotes[id]?.trim();
+    
+    if (status === 'REJECTED' && !notes) {
+      alert('Please provide a reason for rejection in the notes field.');
+      return;
+    }
+
     setProcessingId(id);
     try {
       await processBookingAction(id, { 
         status, 
-        notes: actionNotes[id] || (status === 'APPROVED' ? 'Approved by admin' : 'Rejected by admin')
+        notes: notes || (status === 'APPROVED' ? 'Approved by admin' : 'Rejected by admin')
       });
       loadData();
     } catch (err) {
