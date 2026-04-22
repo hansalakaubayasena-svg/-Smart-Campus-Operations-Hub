@@ -1,5 +1,8 @@
 import axiosClient from "../../api/axiosClient";
 
+const unwrapApiData = (response) => response?.data?.data ?? response?.data ?? response;
+const unwrapEntity = (payload) => payload?.content ?? payload;
+
 /**
  * All API calls for authentication.
  * Each function returns the inner `data` field from ApiResponse wrapper
@@ -14,7 +17,7 @@ export const registerUser = async ({ fullName, email, password, role = "STUDENT"
     password,
     role,
   });
-  return response.data.data;
+  return unwrapEntity(unwrapApiData(response));
 };
 
 // POST /api/users/login
@@ -23,19 +26,19 @@ export const loginUser = async ({ email, password }) => {
     email,
     password,
   });
-  return response.data.data;
+  return unwrapEntity(unwrapApiData(response));
 };
 
 // GET /api/users/me
 export const fetchCurrentUser = async () => {
   const response = await axiosClient.get("/api/users/me");
-  return response.data.data;
+  return unwrapEntity(unwrapApiData(response));
 };
 
 // PUT /api/users/me - Update current user profile
 export const updateMyProfile = async (updateData) => {
   const response = await axiosClient.put("/api/users/me", updateData);
-  return response.data.data;
+  return unwrapEntity(unwrapApiData(response));
 };
 
 export const initiateGoogleLogin = () => {

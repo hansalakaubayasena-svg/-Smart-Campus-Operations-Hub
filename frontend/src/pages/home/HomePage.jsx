@@ -33,7 +33,7 @@ export default function HomePage() {
               </h1>
 
               <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">
-                Streamline your university's facility management, bookings, and maintenance with our comprehensive platform. Designed for modern campuses.
+                Streamline your university&apos;s facility management, bookings, and maintenance with our comprehensive platform. Designed for modern campuses.
               </p>
 
               <div className="mt-10 flex flex-wrap items-center gap-4">
@@ -185,7 +185,9 @@ export default function HomePage() {
       {/* =====================================
          Part 2: Key Features/Modules
       ====================================== */}
-      <section className="relative bg-white" id="features"
+      <section
+        className="relative bg-white"
+        id="features"
         style={{
           backgroundImage: "radial-gradient(#e5e7eb 1px, transparent 1px)",
           backgroundSize: "30px 30px",
@@ -204,7 +206,7 @@ export default function HomePage() {
 
           <div className="mt-12 grid gap-6 md:mt-16 md:grid-cols-2 lg:grid-cols-3">
             {/* Feature 1 */}
-            <div className="rounded-2xl bg-slate-50 p-8 shadow-sm ring-1 ring-slate-200 hover:shadow-md transition">
+            <div className="rounded-2xl bg-slate-50 p-8 shadow-sm ring-1 ring-slate-200 transition hover:shadow-md">
               <div className="flex items-start">
                 <div className="mr-4 flex h-14 w-14 items-center justify-center rounded-full bg-blue-100">
                   <svg
@@ -230,7 +232,7 @@ export default function HomePage() {
             </div>
 
             {/* Feature 2 */}
-            <div className="rounded-2xl bg-slate-50 p-8 shadow-sm ring-1 ring-slate-200 hover:shadow-md transition">
+            <div className="rounded-2xl bg-slate-50 p-8 shadow-sm ring-1 ring-slate-200 transition hover:shadow-md">
               <div className="flex items-start">
                 <div className="mr-4 flex h-14 w-14 items-center justify-center rounded-full bg-green-100">
                   <svg
@@ -258,7 +260,7 @@ export default function HomePage() {
             </div>
 
             {/* Feature 3 */}
-            <div className="rounded-2xl bg-slate-50 p-8 shadow-sm ring-1 ring-slate-200 hover:shadow-md transition">
+            <div className="rounded-2xl bg-slate-50 p-8 shadow-sm ring-1 ring-slate-200 transition hover:shadow-md">
               <div className="flex items-start">
                 <div className="mr-4 flex h-14 w-14 items-center justify-center rounded-full bg-orange-100">
                   <svg
@@ -284,7 +286,7 @@ export default function HomePage() {
             </div>
 
             {/* Feature 4 */}
-            <div className="rounded-2xl bg-slate-50 p-8 shadow-sm ring-1 ring-slate-200 hover:shadow-md transition">
+            <div className="rounded-2xl bg-slate-50 p-8 shadow-sm ring-1 ring-slate-200 transition hover:shadow-md">
               <div className="flex items-start">
                 <div className="mr-4 flex h-14 w-14 items-center justify-center rounded-full bg-purple-100">
                   <svg
@@ -310,7 +312,7 @@ export default function HomePage() {
             </div>
 
             {/* Feature 5 */}
-            <div className="rounded-2xl bg-slate-50 p-8 shadow-sm ring-1 ring-slate-200 hover:shadow-md transition">
+            <div className="rounded-2xl bg-slate-50 p-8 shadow-sm ring-1 ring-slate-200 transition hover:shadow-md">
               <div className="flex items-start">
                 <div className="mr-4 flex h-14 w-14 items-center justify-center rounded-full bg-red-100">
                   <svg
@@ -336,7 +338,7 @@ export default function HomePage() {
             </div>
 
             {/* Feature 6 */}
-            <div className="rounded-2xl bg-slate-50 p-8 shadow-sm ring-1 ring-slate-200 hover:shadow-md transition">
+            <div className="rounded-2xl bg-slate-50 p-8 shadow-sm ring-1 ring-slate-200 transition hover:shadow-md">
               <div className="flex items-start">
                 <div className="mr-4 flex h-14 w-14 items-center justify-center rounded-full bg-indigo-100">
                   <svg
@@ -379,7 +381,6 @@ export default function HomePage() {
           </div>
 
           <div className="mt-12 grid gap-8 md:grid-cols-4">
-            {/* Step 1 */}
             <div className="text-center">
               <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-blue-600 text-2xl font-bold text-white">
                 1
@@ -390,7 +391,6 @@ export default function HomePage() {
               </p>
             </div>
 
-            {/* Step 2 */}
             <div className="text-center">
               <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-blue-600 text-2xl font-bold text-white">
                 2
@@ -401,7 +401,6 @@ export default function HomePage() {
               </p>
             </div>
 
-            {/* Step 3 */}
             <div className="text-center">
               <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-blue-600 text-2xl font-bold text-white">
                 3
@@ -412,7 +411,6 @@ export default function HomePage() {
               </p>
             </div>
 
-            {/* Step 4 */}
             <div className="text-center">
               <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-blue-600 text-2xl font-bold text-white">
                 4
@@ -463,7 +461,9 @@ export default function HomePage() {
       {/* =====================================
          Part 5: Benefits Section
       ====================================== */}
-      <section className="relative bg-white" id="benefits"
+      <section
+        className="relative bg-white"
+        id="benefits"
         style={{
           backgroundImage: "radial-gradient(#e5e7eb 1.2px, transparent 1.2px)",
           backgroundSize: "28px 28px",
@@ -655,7 +655,7 @@ export default function HomePage() {
          Part 6: CTA Section
       ====================================== */}
       <section className="bg-linear-to-r from-blue-600 to-blue-800">
-        <div className="mx-auto max-w-4xl px-6 py-16 sm:py-20 lg:py-24 text-center">
+        <div className="mx-auto max-w-4xl px-6 py-16 text-center sm:py-20 lg:py-24">
           <h2 className="text-3xl font-extrabold text-white sm:text-4xl md:text-5xl">
             Ready to Optimize Your Campus Operations?
           </h2>
