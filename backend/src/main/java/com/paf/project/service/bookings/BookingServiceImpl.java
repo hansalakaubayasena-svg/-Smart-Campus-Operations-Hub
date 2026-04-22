@@ -145,6 +145,35 @@ public class BookingServiceImpl implements BookingService {
         return toResponse(savedBooking);
     }
 
+    @Override
+    public BookingResponse updateBooking(String userId, String bookingId, BookingRequest request) {
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new ResourceNotFoundException("Booking not found"));
+
+        if (!booking.getUserId().equals(userId)) {
+            throw new RuntimeException("Unauthorized to update this booking");
+        }
+
+        // Update details
+        booking.setStartTime(request.getStartTime());
+        booking.setEndTime(request.getEndTime());
+        booking.setPurpose(request.getPurpose());
+        booking.setExpectedAttendees(request.getExpectedAttendees());
+
+        // RESET status to PENDING for re-approval
+        booking.setStatus("PENDING");
+        booking.setAdminNotes("Modified by user - re-approval required");
+        Booking savedBooking = bookingRepository.save(booking);
+
+        // Notify user
+        notificationService.notify(userId, 
+                NotificationType.BOOKING_PENDING, 
+                "Your booking has been updated and is pending re-approval.", 
+                savedBooking.getId(), "BOOKING");
+
+        return toResponse(savedBooking);
+    }
+
     private BookingResponse toResponse(Booking booking) {
         String facilityName = facilityRepository.findByResourceId(booking.getFacilityId())
                 .map(Facility::getNameOrModel)

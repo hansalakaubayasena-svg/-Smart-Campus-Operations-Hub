@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { getMyBookings, cancelBooking } from '../../services/bookings/bookingService';
-import { Calendar, Clock, MapPin, Trash2, AlertCircle, CheckCircle, Clock3, XCircle } from 'lucide-react';
+import { Calendar, Clock, MapPin, Trash2, AlertCircle, CheckCircle, Clock3, XCircle, Edit2 } from 'lucide-react';
+import { BookingModal } from '../../components/bookings/BookingModal';
 
 const StatusBadge = ({ status }) => {
   const configs = {
@@ -25,6 +26,7 @@ const UserBookingsPage = () => {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [editingBooking, setEditingBooking] = useState(null);
 
   const loadBookings = async () => {
     try {
@@ -108,18 +110,35 @@ const UserBookingsPage = () => {
                 )}
               </div>
 
-              {(booking.status === 'APPROVED' || booking.status === 'PENDING') && (
-                <button
-                  onClick={() => handleCancel(booking.id)}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold text-red-600 bg-red-50 hover:bg-red-100 rounded-xl transition-all"
-                >
-                  <Trash2 className="h-4 w-4" /> Cancel Booking
-                </button>
+              {(booking.status === 'APPROVED' || booking.status === 'PENDING' || booking.status === 'REJECTED') && (
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setEditingBooking(booking)}
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-xl transition-all"
+                  >
+                    <Edit2 className="h-4 w-4" /> Edit
+                  </button>
+                  <button
+                    onClick={() => handleCancel(booking.id)}
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold text-red-600 bg-red-50 hover:bg-red-100 rounded-xl transition-all"
+                  >
+                    <Trash2 className="h-4 w-4" /> Cancel
+                  </button>
+                </div>
               )}
             </div>
           ))}
         </div>
       )}
+
+      <BookingModal 
+        isOpen={!!editingBooking}
+        onClose={() => {
+          setEditingBooking(null);
+          loadBookings();
+        }}
+        initialData={editingBooking}
+      />
     </div>
   );
 };

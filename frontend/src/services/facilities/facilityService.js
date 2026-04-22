@@ -7,7 +7,7 @@ const roleHeaders = (role) => ({
 });
 
 export const getFacilities = ({ role = 'USER', ...filters } = {}) =>
-	api.get('/facilities', {
+	api.get('/api/facilities', {
 		...roleHeaders(role),
 		params: {
 			resourceKind: filters.resourceKind || undefined,
@@ -23,22 +23,22 @@ export const getFacilities = ({ role = 'USER', ...filters } = {}) =>
 	});
 
 export const getFacilityByResourceId = (resourceId, role = 'USER') =>
-	api.get(`/facilities/${resourceId}`, roleHeaders(role));
+	api.get(`/api/facilities/${resourceId}`, roleHeaders(role));
 
 export const createFacility = (payload, role = 'ADMIN') =>
-	api.post('/facilities', payload, roleHeaders(role));
+	api.post('/api/facilities', payload, roleHeaders(role));
 
 export const updateFacility = (resourceId, payload, role = 'ADMIN') =>
-	api.put(`/facilities/${resourceId}`, payload, roleHeaders(role));
+	api.put(`/api/facilities/${resourceId}`, payload, roleHeaders(role));
 
 export const updateFacilityStatus = (resourceId, status, role = 'ADMIN') =>
-	api.patch(`/facilities/${resourceId}/status`, { status }, roleHeaders(role));
+	api.patch(`/api/facilities/${resourceId}/status`, { status }, roleHeaders(role));
 
 export const deleteFacility = (resourceId, role = 'ADMIN') =>
-	api.delete(`/facilities/${resourceId}`, roleHeaders(role));
+	api.delete(`/api/facilities/${resourceId}`, roleHeaders(role));
 
 export const uploadFacilityImage = (resourceId, file, role = 'ADMIN') => {
 	const formData = new FormData();
 	formData.append('file', file);
-	return api.put(`/facilities/${resourceId}/image`, formData, roleHeaders(role));
+	return api.put(`/api/facilities/${resourceId}/image`, formData, roleHeaders(role));
 };

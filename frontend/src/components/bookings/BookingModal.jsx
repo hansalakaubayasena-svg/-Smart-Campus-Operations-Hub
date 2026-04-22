@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import { X, Calendar, Clock, Users, MessageSquare, AlertCircle, CheckCircle } from 'lucide-react';
-import { createBooking } from '../../services/bookings/bookingService';
+import React, { useState, useEffect } from 'react';
+import { X, Calendar, Clock, Users, MessageSquare, AlertCircle, CheckCircle, Edit2 } from 'lucide-react';
+import { createBooking, updateBooking } from '../../services/bookings/bookingService';
 
-export const BookingModal = ({ isOpen, onClose, facility }) => {
+export const BookingModal = ({ isOpen, onClose, facility, initialData = null }) => {
   const [formData, setFormData] = useState({
     date: '',
     startTime: '',
@@ -13,6 +13,29 @@ export const BookingModal = ({ isOpen, onClose, facility }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+
+  useEffect(() => {
+    if (initialData) {
+      const start = new Date(initialData.startTime);
+      const end = new Date(initialData.endTime);
+      
+      setFormData({
+        date: initialData.startTime.split('T')[0],
+        startTime: start.toTimeString().slice(0, 5),
+        endTime: end.toTimeString().slice(0, 5),
+        purpose: initialData.purpose,
+        expectedAttendees: initialData.expectedAttendees
+      });
+    } else {
+      setFormData({
+        date: '',
+        startTime: '',
+        endTime: '',
+        purpose: '',
+        expectedAttendees: 1
+      });
+    }
+  }, [initialData, isOpen]);
 
   if (!isOpen) return null;
 
@@ -41,13 +64,50 @@ export const BookingModal = ({ isOpen, onClose, facility }) => {
         return;
       }
 
-      await createBooking({
-        facilityId: facility.resourceId || facility.id,
+      // ── AVAILABILITY WINDOW VALIDATION ─────────────────────────────────────────
+      if (facility?.availabilityWindows?.length > 0) {
+        const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        const bookingDay = days[start.getDay()];
+        const bookingStartTime = formData.startTime;
+        const bookingEndTime = formData.endTime;
+
+        const isAvailable = facility.availabilityWindows.some(window => {
+          const match = /^(.+)\s(\d{2}:\d{2})-(\d{2}:\d{2})$/.exec(window);
+          if (!match) return true; 
+
+          const [_, dayRange, windowStart, windowEnd] = match;
+          
+          const isDayInRange = (range, day) => {
+            if (range.includes(day)) return true;
+            if (range === 'Mon-Fri' && ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'].includes(day)) return true;
+            if (range === 'Daily') return true;
+            return false;
+          };
+
+          if (!isDayInRange(dayRange, bookingDay)) return false;
+          return bookingStartTime >= windowStart && bookingEndTime <= windowEnd;
+        });
+
+        if (!isAvailable) {
+          setError(`This resource is only available during: ${facility.availabilityWindows.join(', ')}`);
+          setLoading(false);
+          return;
+        }
+      }
+
+      const payload = {
+        facilityId: facility?.resourceId || facility?.id || initialData?.facilityId,
         startTime: startStr,
         endTime: endStr,
         purpose: formData.purpose,
         expectedAttendees: parseInt(formData.expectedAttendees)
-      });
+      };
+
+      if (initialData) {
+        await updateBooking(initialData.id, payload);
+      } else {
+        await createBooking(payload);
+      }
 
       setSuccess(true);
       setTimeout(() => {
@@ -55,7 +115,7 @@ export const BookingModal = ({ isOpen, onClose, facility }) => {
         setSuccess(false);
       }, 2000);
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to request booking. Please check for overlaps.');
+      setError(err.response?.data?.message || 'Failed to process booking request.');
     } finally {
       setLoading(false);
     }
@@ -66,8 +126,10 @@ export const BookingModal = ({ isOpen, onClose, facility }) => {
       <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden border border-slate-200">
         <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
           <div>
-            <h2 className="text-xl font-bold text-slate-900">Request Booking</h2>
-            <p className="text-sm text-slate-500 mt-1">{facility?.name}</p>
+            <h2 className="text-xl font-bold text-slate-900">
+              {initialData ? 'Edit Booking' : 'Request Booking'}
+            </h2>
+            <p className="text-sm text-slate-500 mt-1">{facility?.name || initialData?.facilityName}</p>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-slate-200 rounded-full transition-colors">
             <X className="h-5 w-5 text-slate-500" />
@@ -80,8 +142,12 @@ export const BookingModal = ({ isOpen, onClose, facility }) => {
               <div className="h-16 w-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
                 <CheckCircle className="h-8 w-8" />
               </div>
-              <h3 className="text-lg font-bold text-slate-900">Booking Requested!</h3>
-              <p className="text-slate-500 mt-2">Your request is pending administrator approval.</p>
+              <h3 className="text-lg font-bold text-slate-900">
+                {initialData ? 'Booking Updated!' : 'Booking Requested!'}
+              </h3>
+              <p className="text-slate-500 mt-2">
+                {initialData ? 'Your changes have been saved and are pending re-approval.' : 'Your request is pending administrator approval.'}
+              </p>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -136,7 +202,11 @@ export const BookingModal = ({ isOpen, onClose, facility }) => {
 
                 <div>
                   <label className="block text-sm font-semibold text-slate-700 mb-1.5 flex items-center gap-2">
-                    <Users className="h-4 w-4 text-slate-400" /> Expected Attendees
+                    {facility?.resourceKind === 'ASSET' || initialData?.resourceKind === 'ASSET' ? (
+                      <>Quantity Needed</>
+                    ) : (
+                      <><Users className="h-4 w-4 text-slate-400" /> Expected Attendees</>
+                    )}
                   </label>
                   <input
                     type="number"
@@ -176,7 +246,7 @@ export const BookingModal = ({ isOpen, onClose, facility }) => {
                   disabled={loading}
                   className="flex-[2] px-4 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 shadow-lg shadow-blue-600/20 transition-all disabled:opacity-50"
                 >
-                  {loading ? 'Submitting...' : 'Confirm Request'}
+                  {loading ? 'Processing...' : (initialData ? 'Update Booking' : 'Confirm Request')}
                 </button>
               </div>
             </form>
