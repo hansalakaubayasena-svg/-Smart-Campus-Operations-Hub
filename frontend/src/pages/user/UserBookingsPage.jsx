@@ -108,7 +108,7 @@ const UserBookingsPage = () => {
                 )}
               </div>
 
-              {booking.status === 'APPROVED' && (
+              {(booking.status === 'APPROVED' || booking.status === 'PENDING') && (
                 <button
                   onClick={() => handleCancel(booking.id)}
                   className="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold text-red-600 bg-red-50 hover:bg-red-100 rounded-xl transition-all"
