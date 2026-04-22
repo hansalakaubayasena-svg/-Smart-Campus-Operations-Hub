@@ -9,8 +9,15 @@ const AdminBookingsPage = () => {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('ALL');
+  const [searchTerm, setSearchTerm] = useState('');
   const [actionNotes, setActionNotes] = useState({});
   const [processingId, setProcessingId] = useState(null);
+
+  const filteredBookings = bookings.filter(b => 
+    b.facilityName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    b.userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    b.purpose.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const loadData = async () => {
     setLoading(true);
@@ -51,18 +58,31 @@ const AdminBookingsPage = () => {
           <p className="text-sm text-slate-500">Review and moderate all facility reservation requests.</p>
         </div>
 
-        <div className="flex items-center gap-2 bg-slate-100 p-1 rounded-xl w-fit">
-          {['ALL', 'PENDING', 'APPROVED', 'REJECTED'].map((f) => (
-            <button
-              key={f}
-              onClick={() => setFilter(f)}
-              className={`px-4 py-2 text-xs font-bold rounded-lg transition-all ${
-                filter === f ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'
-              }`}
-            >
-              {f}
-            </button>
-          ))}
+        <div className="flex flex-wrap items-center gap-4 bg-slate-100 p-1.5 rounded-2xl w-fit">
+          <div className="relative ml-2">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <input
+              type="text"
+              placeholder="Search by user or facility..."
+              className="pl-9 pr-4 py-2 text-xs bg-white border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500/20 w-64 transition-all"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          <div className="h-6 w-px bg-slate-200 mx-1" />
+          <div className="flex items-center gap-1">
+            {['ALL', 'PENDING', 'APPROVED', 'REJECTED'].map((f) => (
+              <button
+                key={f}
+                onClick={() => setFilter(f)}
+                className={`px-4 py-2 text-xs font-bold rounded-lg transition-all ${
+                  filter === f ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+                }`}
+              >
+                {f}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -72,10 +92,10 @@ const AdminBookingsPage = () => {
             <div key={i} className="h-32 bg-slate-100 rounded-2xl animate-pulse" />
           ))}
         </div>
-      ) : bookings.length === 0 ? (
+      ) : filteredBookings.length === 0 ? (
         <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center text-slate-400">
           <Clock3 className="h-12 w-12 mx-auto mb-4 opacity-20" />
-          <p>No booking requests found.</p>
+          <p>{searchTerm ? 'No matches found for your search.' : 'No booking requests found.'}</p>
         </div>
       ) : (
         <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
@@ -90,7 +110,7 @@ const AdminBookingsPage = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {bookings.map((booking) => (
+              {filteredBookings.map((booking) => (
                 <tr key={booking.id} className="hover:bg-slate-50/50 transition-colors">
                   <td className="px-6 py-4">
                     <div className="font-bold text-slate-900">{booking.facilityName}</div>
