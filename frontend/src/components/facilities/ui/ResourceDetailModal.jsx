@@ -9,6 +9,9 @@ export const ResourceDetailModal = ({ resource, isOpen, onClose, mode = 'view' }
   const resourceKind = resource.resourceKind || (resource.quantity != null ? 'ASSET' : 'FACILITY')
   const metricLabel = resourceKind === 'ASSET' ? 'Quantity' : 'Capacity'
   const metricValue = resourceKind === 'ASSET' ? resource.quantity : resource.capacity
+  const loanDurationSummary = resourceKind === 'ASSET'
+    ? `${resource.minLoanHours ? `${resource.minLoanHours}h min / ` : ''}${resource.maxLoanHours ? `${resource.maxLoanHours}h max` : 'Not configured'}${resource.defaultLoanHours ? ` (default ${resource.defaultLoanHours}h)` : ''}`
+    : null
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
@@ -100,6 +103,18 @@ export const ResourceDetailModal = ({ resource, isOpen, onClose, mode = 'view' }
                 <p className="text-base font-semibold text-text font-mono">{resource.id}</p>
               </div>
             </div>
+
+            {resourceKind === 'ASSET' && (
+              <div className="flex items-start gap-3">
+                <div className="p-2 bg-slate-50 rounded-lg text-slate-500">
+                  <Clock className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-slate-500">Loan Duration</p>
+                  <p className="text-base font-semibold text-text">{loanDurationSummary}</p>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="mb-8">

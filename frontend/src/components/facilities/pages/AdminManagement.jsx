@@ -22,6 +22,14 @@ const getMetricLabel = (resourceKind) => (resourceKind === 'ASSET' ? 'Quantity' 
 const getMetricValue = (resource) =>
   resource.resourceKind === 'ASSET' ? resource.quantity : resource.capacity
 
+const toOptionalInt = (value) => {
+  if (value === '' || value == null) {
+    return null
+  }
+  const numeric = Number(value)
+  return Number.isFinite(numeric) ? numeric : null
+}
+
 const mapFacilityToUiResource = (facility) => ({
   id: facility.id || facility.resourceId,
   resourceId: facility.resourceId,
@@ -32,6 +40,9 @@ const mapFacilityToUiResource = (facility) => ({
   location: facility.location,
   capacity: facility.capacity,
   quantity: facility.quantity,
+  minLoanHours: facility.minLoanHours,
+  maxLoanHours: facility.maxLoanHours,
+  defaultLoanHours: facility.defaultLoanHours,
   status: facility.status,
   imageUrl: facility.imageUrl || '',
   imageFile: null,
@@ -52,6 +63,9 @@ const uiToApiPayload = (resourceData) => ({
   nameOrModel: resourceData.name,
   capacity: resourceData.resourceKind === 'FACILITY' ? Number(resourceData.capacity) : null,
   quantity: resourceData.resourceKind === 'ASSET' ? Number(resourceData.quantity) : null,
+  minLoanHours: resourceData.resourceKind === 'ASSET' ? toOptionalInt(resourceData.minLoanHours) : null,
+  maxLoanHours: resourceData.resourceKind === 'ASSET' ? toOptionalInt(resourceData.maxLoanHours) : null,
+  defaultLoanHours: resourceData.resourceKind === 'ASSET' ? toOptionalInt(resourceData.defaultLoanHours) : null,
   location: resourceData.location,
   description: resourceData.description?.trim() || null,
   imageUrl: resourceData.imageUrl || null,

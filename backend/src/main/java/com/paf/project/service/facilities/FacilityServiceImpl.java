@@ -64,13 +64,23 @@ public class FacilityServiceImpl implements FacilityService {
         Facility facility = new Facility();
         facility.setResourceId(request.resourceId());
         ResourceKind resourceKind = request.resourceKind();
-        validateResourceMetrics(resourceKind, request.capacity(), request.quantity());
+        validateResourceMetrics(
+            resourceKind,
+            request.capacity(),
+            request.quantity(),
+            request.minLoanHours(),
+            request.maxLoanHours(),
+            request.defaultLoanHours()
+        );
         facility.setResourceKind(resourceKind.name());
         facility.setType(facilityTaxonomyService.resolveTypeName(request.type()));
         facility.setCategory(facilityTaxonomyService.resolveCategoryName(request.type(), request.category()));
         facility.setNameOrModel(request.nameOrModel());
         facility.setCapacity(resourceKind == ResourceKind.FACILITY ? request.capacity() : null);
         facility.setQuantity(resourceKind == ResourceKind.ASSET ? request.quantity() : null);
+        facility.setMinLoanHours(resourceKind == ResourceKind.ASSET ? request.minLoanHours() : null);
+        facility.setMaxLoanHours(resourceKind == ResourceKind.ASSET ? request.maxLoanHours() : null);
+        facility.setDefaultLoanHours(resourceKind == ResourceKind.ASSET ? request.defaultLoanHours() : null);
         facility.setLocation(request.location());
         facility.setDescription(request.description());
         facility.setAvailabilityWindows(request.availabilityWindows());
@@ -84,7 +94,14 @@ public class FacilityServiceImpl implements FacilityService {
     public FacilityResponse update(String resourceId, UpdateFacilityRequest request) {
         Facility facility = getRequiredByResourceId(resourceId);
         ResourceKind resourceKind = request.resourceKind();
-        validateResourceMetrics(resourceKind, request.capacity(), request.quantity());
+        validateResourceMetrics(
+            resourceKind,
+            request.capacity(),
+            request.quantity(),
+            request.minLoanHours(),
+            request.maxLoanHours(),
+            request.defaultLoanHours()
+        );
 
         facility.setResourceKind(resourceKind.name());
         facility.setType(facilityTaxonomyService.resolveTypeName(request.type()));
@@ -92,6 +109,9 @@ public class FacilityServiceImpl implements FacilityService {
         facility.setNameOrModel(request.nameOrModel());
         facility.setCapacity(resourceKind == ResourceKind.FACILITY ? request.capacity() : null);
         facility.setQuantity(resourceKind == ResourceKind.ASSET ? request.quantity() : null);
+        facility.setMinLoanHours(resourceKind == ResourceKind.ASSET ? request.minLoanHours() : null);
+        facility.setMaxLoanHours(resourceKind == ResourceKind.ASSET ? request.maxLoanHours() : null);
+        facility.setDefaultLoanHours(resourceKind == ResourceKind.ASSET ? request.defaultLoanHours() : null);
         facility.setLocation(request.location());
         facility.setDescription(request.description());
         facility.setAvailabilityWindows(request.availabilityWindows());
@@ -234,7 +254,14 @@ public class FacilityServiceImpl implements FacilityService {
         return facility.getQuantity() != null ? ResourceKind.ASSET : ResourceKind.FACILITY;
     }
 
-    private void validateResourceMetrics(ResourceKind resourceKind, Integer capacity, Integer quantity) {
+    private void validateResourceMetrics(
+            ResourceKind resourceKind,
+            Integer capacity,
+            Integer quantity,
+            Integer minLoanHours,
+            Integer maxLoanHours,
+            Integer defaultLoanHours
+    ) {
         if (resourceKind == ResourceKind.FACILITY) {
             if (capacity == null) {
                 throw new BadRequestException("capacity is required for FACILITY resources.");
@@ -242,8 +269,24 @@ public class FacilityServiceImpl implements FacilityService {
             return;
         }
 
-        if (resourceKind == ResourceKind.ASSET && quantity == null) {
-            throw new BadRequestException("quantity is required for ASSET resources.");
+        if (resourceKind == ResourceKind.ASSET) {
+            if (quantity == null) {
+                throw new BadRequestException("quantity is required for ASSET resources.");
+            }
+            if (maxLoanHours == null) {
+                throw new BadRequestException("maxLoanHours is required for ASSET resources.");
+            }
+            if (minLoanHours != null && minLoanHours > maxLoanHours) {
+                throw new BadRequestException("minLoanHours cannot be greater than maxLoanHours.");
+            }
+            if (defaultLoanHours != null) {
+                if (defaultLoanHours > maxLoanHours) {
+                    throw new BadRequestException("defaultLoanHours cannot exceed maxLoanHours.");
+                }
+                if (minLoanHours != null && defaultLoanHours < minLoanHours) {
+                    throw new BadRequestException("defaultLoanHours cannot be less than minLoanHours.");
+                }
+            }
         }
     }
 
@@ -260,6 +303,9 @@ public class FacilityServiceImpl implements FacilityService {
                 facility.getNameOrModel(),
                 facility.getCapacity(),
                 facility.getQuantity(),
+                facility.getMinLoanHours(),
+                facility.getMaxLoanHours(),
+                facility.getDefaultLoanHours(),
                 facility.getLocation(),
                 facility.getDescription(),
                 facility.getAvailabilityWindows(),

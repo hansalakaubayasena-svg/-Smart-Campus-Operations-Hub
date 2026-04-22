@@ -8,6 +8,7 @@ const initialForm = {
   nameOrModel: '',
   capacity: 0,
   quantity: 0,
+  maxLoanHours: '',
   location: '',
   availabilityWindows: 'Mon-Fri 08:00-17:00',
   status: 'ACTIVE',
@@ -29,6 +30,7 @@ const AdminFacilityForm = ({ onCreate, taxonomy }) => {
     ...form,
     capacity: form.resourceKind === 'FACILITY' ? Number(form.capacity) : null,
     quantity: form.resourceKind === 'ASSET' ? Number(form.quantity) : null,
+    maxLoanHours: form.resourceKind === 'ASSET' ? Number(form.maxLoanHours) : null,
     availabilityWindows: form.availabilityWindows
       .split(',')
       .map((value) => value.trim())
@@ -112,6 +114,16 @@ const AdminFacilityForm = ({ onCreate, taxonomy }) => {
           }))
         }
       />
+      {form.resourceKind === 'ASSET' && (
+        <input
+          type="number"
+          min="1"
+          required
+          placeholder="Max loan hours"
+          value={form.maxLoanHours}
+          onChange={(event) => setForm((prev) => ({ ...prev, maxLoanHours: event.target.value }))}
+        />
+      )}
       <input
         required
         placeholder="Location"

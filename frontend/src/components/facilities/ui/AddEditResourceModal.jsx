@@ -27,6 +27,9 @@ export const AddEditResourceModal = ({
     location: '',
     capacity: 0,
     quantity: 0,
+    minLoanHours: '',
+    maxLoanHours: '',
+    defaultLoanHours: '',
     status: 'ACTIVE',
     imageUrl: '',
     imageFile: null,
@@ -44,6 +47,9 @@ export const AddEditResourceModal = ({
         resourceKind: rest.resourceKind || (rest.quantity != null ? 'ASSET' : 'FACILITY'),
         capacity: rest.capacity ?? 0,
         quantity: rest.quantity ?? 0,
+        minLoanHours: rest.minLoanHours ?? '',
+        maxLoanHours: rest.maxLoanHours ?? '',
+        defaultLoanHours: rest.defaultLoanHours ?? '',
       })
     } else {
       setFormData({
@@ -54,6 +60,9 @@ export const AddEditResourceModal = ({
         location: '',
         capacity: 0,
         quantity: 0,
+        minLoanHours: '',
+        maxLoanHours: '',
+        defaultLoanHours: '',
         status: 'ACTIVE',
         imageUrl: '',
         imageFile: null,
@@ -85,6 +94,36 @@ export const AddEditResourceModal = ({
         formData.resourceKind === 'ASSET'
           ? `${metricLabel} must be a whole number of 0 or greater`
           : `${metricLabel} must be greater than 0`
+    }
+
+    if (formData.resourceKind === 'ASSET') {
+      const minLoan = formData.minLoanHours === '' ? null : Number(formData.minLoanHours)
+      const maxLoan = formData.maxLoanHours === '' ? null : Number(formData.maxLoanHours)
+      const defaultLoan = formData.defaultLoanHours === '' ? null : Number(formData.defaultLoanHours)
+
+      if (!Number.isInteger(maxLoan) || maxLoan <= 0) {
+        newErrors.maxLoanHours = 'Max loan duration is required and must be greater than 0'
+      }
+
+      if (minLoan !== null && (!Number.isInteger(minLoan) || minLoan <= 0)) {
+        newErrors.minLoanHours = 'Min loan duration must be greater than 0'
+      }
+
+      if (defaultLoan !== null && (!Number.isInteger(defaultLoan) || defaultLoan <= 0)) {
+        newErrors.defaultLoanHours = 'Default loan duration must be greater than 0'
+      }
+
+      if (Number.isInteger(minLoan) && Number.isInteger(maxLoan) && minLoan > maxLoan) {
+        newErrors.minLoanHours = 'Min loan duration cannot be greater than max loan duration'
+      }
+
+      if (Number.isInteger(defaultLoan) && Number.isInteger(maxLoan) && defaultLoan > maxLoan) {
+        newErrors.defaultLoanHours = 'Default loan duration cannot exceed max loan duration'
+      }
+
+      if (Number.isInteger(defaultLoan) && Number.isInteger(minLoan) && defaultLoan < minLoan) {
+        newErrors.defaultLoanHours = 'Default loan duration cannot be less than min loan duration'
+      }
     }
 
     const invalidWindow = formData.availabilityWindows.find(
@@ -127,6 +166,9 @@ export const AddEditResourceModal = ({
           next.capacity = 0
         } else {
           next.quantity = 0
+          next.minLoanHours = ''
+          next.maxLoanHours = ''
+          next.defaultLoanHours = ''
         }
       }
 
@@ -140,11 +182,18 @@ export const AddEditResourceModal = ({
       return next
     })
 
-    if (errors[name] || (name === 'type' && (errors.capacity || errors.quantity || errors.category))) {
+    if (
+      errors[name]
+      || (name === 'type' && (errors.capacity || errors.quantity || errors.category))
+      || (name === 'resourceKind' && (errors.minLoanHours || errors.maxLoanHours || errors.defaultLoanHours))
+    ) {
       setErrors((prev) => ({
         ...prev,
         [name]: '',
         ...(name === 'type' ? { capacity: '', quantity: '', category: '' } : {}),
+        ...(name === 'resourceKind'
+          ? { minLoanHours: '', maxLoanHours: '', defaultLoanHours: '' }
+          : {}),
       }))
     }
 
@@ -339,6 +388,63 @@ export const AddEditResourceModal = ({
                   </p>
                 )}
               </div>
+
+              {formData.resourceKind === 'ASSET' && (
+                <>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Min Loan Hours</label>
+                    <input
+                      type="number"
+                      name="minLoanHours"
+                      value={formData.minLoanHours}
+                      onChange={handleChange}
+                      min="1"
+                      placeholder="Optional"
+                      className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-colors ${
+                        errors.minLoanHours ? 'border-red-500' : 'border-slate-300'
+                      }`}
+                    />
+                    {errors.minLoanHours && (
+                      <p className="mt-1 text-sm text-red-500">{errors.minLoanHours}</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Max Loan Hours *</label>
+                    <input
+                      type="number"
+                      name="maxLoanHours"
+                      value={formData.maxLoanHours}
+                      onChange={handleChange}
+                      min="1"
+                      className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-colors ${
+                        errors.maxLoanHours ? 'border-red-500' : 'border-slate-300'
+                      }`}
+                    />
+                    {errors.maxLoanHours && (
+                      <p className="mt-1 text-sm text-red-500">{errors.maxLoanHours}</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Default Loan Hours</label>
+                    <input
+                      type="number"
+                      name="defaultLoanHours"
+                      value={formData.defaultLoanHours}
+                      onChange={handleChange}
+                      min="1"
+                      placeholder="Optional"
+                      className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-colors ${
+                        errors.defaultLoanHours ? 'border-red-500' : 'border-slate-300'
+                      }`}
+                    />
+                    {errors.defaultLoanHours && (
+                      <p className="mt-1 text-sm text-red-500">{errors.defaultLoanHours}</p>
+                    )}
+                  </div>
+                </>
+              )}
 
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Status</label>

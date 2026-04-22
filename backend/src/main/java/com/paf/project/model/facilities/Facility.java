@@ -20,6 +20,9 @@ public class Facility {
     private String nameOrModel;
     private Integer capacity;
     private Integer quantity;
+    private Integer minLoanHours;
+    private Integer maxLoanHours;
+    private Integer defaultLoanHours;
     private String location;
     private String description;
     private List<String> availabilityWindows;
@@ -32,8 +35,8 @@ public class Facility {
 
     // All-args Constructor
     public Facility(String id, String resourceId, String name, String resourceKind, String type, String category, String nameOrModel,
-                    Integer capacity, Integer quantity, String location, String description, List<String> availabilityWindows,
-                    String imageUrl, String status) {
+                    Integer capacity, Integer quantity, Integer minLoanHours, Integer maxLoanHours, Integer defaultLoanHours,
+                    String location, String description, List<String> availabilityWindows, String imageUrl, String status) {
         this.id = id;
         this.resourceId = resourceId;
         this.name = name;
@@ -43,6 +46,9 @@ public class Facility {
         this.nameOrModel = nameOrModel;
         this.capacity = capacity;
         this.quantity = quantity;
+        this.minLoanHours = minLoanHours;
+        this.maxLoanHours = maxLoanHours;
+        this.defaultLoanHours = defaultLoanHours;
         this.location = location;
         this.description = description;
         this.availabilityWindows = availabilityWindows;
@@ -121,6 +127,30 @@ public class Facility {
 
     public void setQuantity(Integer quantity) {
         this.quantity = quantity;
+    }
+
+    public Integer getMinLoanHours() {
+        return minLoanHours;
+    }
+
+    public void setMinLoanHours(Integer minLoanHours) {
+        this.minLoanHours = minLoanHours;
+    }
+
+    public Integer getMaxLoanHours() {
+        return maxLoanHours;
+    }
+
+    public void setMaxLoanHours(Integer maxLoanHours) {
+        this.maxLoanHours = maxLoanHours;
+    }
+
+    public Integer getDefaultLoanHours() {
+        return defaultLoanHours;
+    }
+
+    public void setDefaultLoanHours(Integer defaultLoanHours) {
+        this.defaultLoanHours = defaultLoanHours;
     }
 
     public String getLocation() {
