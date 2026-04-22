@@ -41,6 +41,41 @@ export const BookingModal = ({ isOpen, onClose, facility }) => {
         return;
       }
 
+      // ── AVAILABILITY WINDOW VALIDATION ─────────────────────────────────────────
+      if (facility?.availabilityWindows?.length > 0) {
+        const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        const bookingDay = days[start.getDay()];
+        const bookingStartTime = formData.startTime;
+        const bookingEndTime = formData.endTime;
+
+        const isAvailable = facility.availabilityWindows.some(window => {
+          // Format is usually "Mon-Fri 08:00-17:00" or similar
+          const match = /^(.+)\s(\d{2}:\d{2})-(\d{2}:\d{2})$/.exec(window);
+          if (!match) return true; // Skip if format is unknown
+
+          const [_, dayRange, windowStart, windowEnd] = match;
+          
+          // Check if day matches (simple range check for Mon-Fri)
+          const isDayInRange = (range, day) => {
+            if (range.includes(day)) return true;
+            if (range === 'Mon-Fri' && ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'].includes(day)) return true;
+            if (range === 'Daily') return true;
+            return false;
+          };
+
+          if (!isDayInRange(dayRange, bookingDay)) return false;
+
+          // Check if time matches
+          return bookingStartTime >= windowStart && bookingEndTime <= windowEnd;
+        });
+
+        if (!isAvailable) {
+          setError(`This resource is only available during: ${facility.availabilityWindows.join(', ')}`);
+          setLoading(false);
+          return;
+        }
+      }
+
       await createBooking({
         facilityId: facility.resourceId || facility.id,
         startTime: startStr,
