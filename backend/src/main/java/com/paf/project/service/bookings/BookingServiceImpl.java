@@ -41,6 +41,12 @@ public class BookingServiceImpl implements BookingService {
             throw new ResourceConflictException("This facility is currently unavailable for bookings.");
         }
 
+        if (request.getExpectedAttendees() != null && facility.getCapacity() != null) {
+            if (request.getExpectedAttendees() > facility.getCapacity()) {
+                throw new ResourceConflictException("Expected attendees exceed the facility capacity (" + facility.getCapacity() + ").");
+            }
+        }
+
         // Check for overlaps
         List<Booking> overlaps = bookingRepository.findOverlappingBookings(
                 request.getFacilityId(), request.getStartTime(), request.getEndTime());
