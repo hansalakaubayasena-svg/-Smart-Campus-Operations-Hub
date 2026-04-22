@@ -25,12 +25,12 @@ const normalizeTickets = (tickets) =>
   Array.isArray(tickets) ? tickets.map(normalizeTicket).filter(Boolean) : [];
 
 export const getTickets = async () => {
-  const response = await api.get("/tickets");
+  const response = await api.get("/api/tickets");
   return normalizeTickets(unwrapApiData(response));
 };
 
 export const createTicket = async (payload) => {
-  const response = await api.post("/tickets", {
+  const response = await api.post("/api/tickets", {
     resourceId: payload.resourceId ?? "",
     resourceName: payload.resourceName ?? payload.category ?? "General Issue",
     location: payload.location ?? "Not specified",
@@ -54,7 +54,7 @@ export const createTicket = async (payload) => {
 };
 
 export const assignTicket = async (ticketId, payload) => {
-  const response = await api.post(`/tickets/${ticketId}/assign`, {
+  const response = await api.post(`/api/tickets/${ticketId}/assign`, {
     staffUserId: String(payload.assigneeUserId ?? payload.staffUserId ?? ""),
   });
 
@@ -62,7 +62,7 @@ export const assignTicket = async (ticketId, payload) => {
 };
 
 export const updateTicketStatus = async (ticketId, payload) => {
-  const response = await api.post(`/tickets/${ticketId}/status`, {
+  const response = await api.post(`/api/tickets/${ticketId}/status`, {
     status: payload.status,
     resolutionNotes: payload.resolutionNotes ?? payload.solutionText ?? "",
     rejectionReason: payload.rejectionReason ?? "",
