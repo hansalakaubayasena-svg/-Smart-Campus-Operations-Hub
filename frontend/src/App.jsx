@@ -65,6 +65,7 @@ export function App() {
               <Route path="/admin/notifications" element={<NotificationPage />} />
               <Route path="/admin/facilities" element={<AdminManagement />} />
               <Route path="/admin/bookings" element={<AdminBookingsPage />} />
+              <Route path="/admin/ticketing" element={<IncidentsPage />} />
             </Route>
 
             <Route path="*" element={<Navigate to="/" replace />} />
