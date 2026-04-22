@@ -14,10 +14,12 @@ public class Facility {
     private String resourceId;
 
     private String name;
+    private String resourceKind;
     private String type;
     private String category;
     private String nameOrModel;
     private Integer capacity;
+    private Integer quantity;
     private String location;
     private String description;
     private List<String> availabilityWindows;
@@ -29,15 +31,18 @@ public class Facility {
     }
 
     // All-args Constructor
-    public Facility(String id, String resourceId, String name, String type, String category, String nameOrModel, Integer capacity, String location,
-                    String description, List<String> availabilityWindows, String imageUrl, String status) {
+    public Facility(String id, String resourceId, String name, String resourceKind, String type, String category, String nameOrModel,
+                    Integer capacity, Integer quantity, String location, String description, List<String> availabilityWindows,
+                    String imageUrl, String status) {
         this.id = id;
         this.resourceId = resourceId;
         this.name = name;
+        this.resourceKind = resourceKind;
         this.type = type;
         this.category = category;
         this.nameOrModel = nameOrModel;
         this.capacity = capacity;
+        this.quantity = quantity;
         this.location = location;
         this.description = description;
         this.availabilityWindows = availabilityWindows;
@@ -74,6 +79,14 @@ public class Facility {
         return type;
     }
 
+    public String getResourceKind() {
+        return resourceKind;
+    }
+
+    public void setResourceKind(String resourceKind) {
+        this.resourceKind = resourceKind;
+    }
+
     public void setType(String type) {
         this.type = type;
     }
@@ -100,6 +113,14 @@ public class Facility {
 
     public void setCapacity(Integer capacity) {
         this.capacity = capacity;
+    }
+
+    public Integer getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(Integer quantity) {
+        this.quantity = quantity;
     }
 
     public String getLocation() {

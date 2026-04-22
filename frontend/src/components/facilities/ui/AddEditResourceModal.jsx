@@ -21,10 +21,12 @@ export const AddEditResourceModal = ({
 
   const [formData, setFormData] = useState({
     name: '',
+    resourceKind: 'FACILITY',
     type: '',
     category: '',
     location: '',
     capacity: 0,
+    quantity: 0,
     status: 'ACTIVE',
     imageUrl: '',
     imageFile: null,
@@ -37,14 +39,21 @@ export const AddEditResourceModal = ({
   useEffect(() => {
     if (resourceToEdit) {
       const { id, ...rest } = resourceToEdit
-      setFormData(rest)
+      setFormData({
+        ...rest,
+        resourceKind: rest.resourceKind || (rest.quantity != null ? 'ASSET' : 'FACILITY'),
+        capacity: rest.capacity ?? 0,
+        quantity: rest.quantity ?? 0,
+      })
     } else {
       setFormData({
         name: '',
+        resourceKind: 'FACILITY',
         type: '',
         category: '',
         location: '',
         capacity: 0,
+        quantity: 0,
         status: 'ACTIVE',
         imageUrl: '',
         imageFile: null,
@@ -64,9 +73,18 @@ export const AddEditResourceModal = ({
     if (!formData.type.trim()) newErrors.type = 'Type is required'
     if (!formData.category) newErrors.category = 'Category is required'
 
-    const capacity = Number(formData.capacity)
-    if (!Number.isInteger(capacity) || capacity <= 0) {
-      newErrors.capacity = 'Capacity is required'
+    const metricField = formData.resourceKind === 'ASSET' ? 'quantity' : 'capacity'
+    const metricLabel = formData.resourceKind === 'ASSET' ? 'Quantity' : 'Capacity'
+    const metricValue = Number(formData[metricField])
+    const isValidMetric =
+      formData.resourceKind === 'ASSET'
+        ? Number.isInteger(metricValue) && metricValue >= 0
+        : Number.isInteger(metricValue) && metricValue > 0
+    if (!isValidMetric) {
+      newErrors[metricField] =
+        formData.resourceKind === 'ASSET'
+          ? `${metricLabel} must be a whole number of 0 or greater`
+          : `${metricLabel} must be greater than 0`
     }
 
     const invalidWindow = formData.availabilityWindows.find(
@@ -101,7 +119,15 @@ export const AddEditResourceModal = ({
     setFormData((prev) => {
       const next = {
         ...prev,
-        [name]: name === 'capacity' ? parseInt(value) || 0 : value,
+        [name]: ['capacity', 'quantity'].includes(name) ? parseInt(value) || 0 : value,
+      }
+
+      if (name === 'resourceKind') {
+        if (value === 'ASSET') {
+          next.capacity = 0
+        } else {
+          next.quantity = 0
+        }
       }
 
       if (name === 'type') {
@@ -114,11 +140,19 @@ export const AddEditResourceModal = ({
       return next
     })
 
-    if (errors[name] || (name === 'type' && (errors.capacity || errors.category))) {
+    if (errors[name] || (name === 'type' && (errors.capacity || errors.quantity || errors.category))) {
       setErrors((prev) => ({
         ...prev,
         [name]: '',
-        ...(name === 'type' ? { capacity: '', category: '' } : {}),
+        ...(name === 'type' ? { capacity: '', quantity: '', category: '' } : {}),
+      }))
+    }
+
+    if (name === 'resourceKind') {
+      setErrors((prev) => ({
+        ...prev,
+        capacity: '',
+        quantity: '',
       }))
     }
   }
@@ -207,6 +241,19 @@ export const AddEditResourceModal = ({
               </div>
 
               <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Resource Kind</label>
+                <select
+                  name="resourceKind"
+                  value={formData.resourceKind}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-colors bg-white"
+                >
+                  <option value="FACILITY">Facility</option>
+                  <option value="ASSET">Asset</option>
+                </select>
+              </div>
+
+              <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Type</label>
                 <select
                   name="type"
@@ -272,20 +319,24 @@ export const AddEditResourceModal = ({
 
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">
-                  Capacity
+                  {formData.resourceKind === 'ASSET' ? 'Quantity' : 'Capacity'}
                 </label>
                 <input
                   type="number"
-                  name="capacity"
-                  value={formData.capacity}
+                  name={formData.resourceKind === 'ASSET' ? 'quantity' : 'capacity'}
+                  value={formData.resourceKind === 'ASSET' ? formData.quantity : formData.capacity}
                   onChange={handleChange}
-                  min="1"
+                  min={formData.resourceKind === 'ASSET' ? '0' : '1'}
                   className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-colors ${
-                    errors.capacity ? 'border-red-500' : 'border-slate-300'
+                    (formData.resourceKind === 'ASSET' ? errors.quantity : errors.capacity)
+                      ? 'border-red-500'
+                      : 'border-slate-300'
                   }`}
                 />
-                {errors.capacity && (
-                  <p className="mt-1 text-sm text-red-500">{errors.capacity}</p>
+                {(formData.resourceKind === 'ASSET' ? errors.quantity : errors.capacity) && (
+                  <p className="mt-1 text-sm text-red-500">
+                    {formData.resourceKind === 'ASSET' ? errors.quantity : errors.capacity}
+                  </p>
                 )}
               </div>
 

@@ -18,10 +18,13 @@ const FacilitiesPage = ({ forcedRole }) => {
     const [error, setError] = useState('');
         const [taxonomy, setTaxonomy] = useState({ types: [] });
     const [filters, setFilters] = useState({
+        resourceKind: '',
         type: '',
             category: '',
         minCapacity: '',
         maxCapacity: '',
+        minQuantity: '',
+        maxQuantity: '',
         location: '',
         q: '',
     });
@@ -108,10 +111,13 @@ const FacilitiesPage = ({ forcedRole }) => {
 
     const resetFilters = () => {
         setFilters({
+            resourceKind: '',
             type: '',
                 category: '',
             minCapacity: '',
             maxCapacity: '',
+            minQuantity: '',
+            maxQuantity: '',
             location: '',
             q: '',
         });

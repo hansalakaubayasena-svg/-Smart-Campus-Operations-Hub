@@ -58,6 +58,26 @@ export const FilterSidebar = ({
 
       <div>
         <label className="block text-sm font-medium text-slate-700 mb-2">
+          Resource Kind
+        </label>
+        <select
+          value={filters.resourceKind}
+          onChange={(e) =>
+            setFilters((prev) => ({
+              ...prev,
+              resourceKind: e.target.value,
+            }))
+          }
+          className="block w-full pl-3 pr-10 py-2 text-base border border-slate-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-lg bg-white"
+        >
+          <option value="All">All Kinds</option>
+          <option value="FACILITY">Facilities</option>
+          <option value="ASSET">Assets</option>
+        </select>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-slate-700 mb-2">
           Type
         </label>
         <select
@@ -131,26 +151,26 @@ export const FilterSidebar = ({
 
       <div>
         <label className="block text-sm font-medium text-slate-700 mb-2">
-          Capacity
+          {filters.resourceKind === 'ASSET' ? 'Quantity' : 'Capacity / Quantity'}
         </label>
         <input
           type="number"
           min="0"
           step="1"
-          value={filters.capacity}
+          value={filters.metric}
           onChange={(e) =>
             setFilters((prev) => ({
               ...prev,
-              capacity: e.target.value,
+              metric: e.target.value,
             }))
           }
-          placeholder="Exact capacity"
+          placeholder={filters.resourceKind === 'ASSET' ? 'Exact quantity' : 'Exact metric value'}
           className={`block w-full px-3 py-2 border rounded-lg focus:ring-primary focus:border-primary sm:text-sm outline-none transition-colors ${
-            filterErrors.capacity ? 'border-red-500' : 'border-slate-300'
+            filterErrors.metric ? 'border-red-500' : 'border-slate-300'
           }`}
         />
-        {filterErrors.capacity && (
-          <p className="mt-1 text-xs text-red-500">{filterErrors.capacity}</p>
+        {filterErrors.metric && (
+          <p className="mt-1 text-xs text-red-500">{filterErrors.metric}</p>
         )}
       </div>
     </div>
@@ -158,7 +178,7 @@ export const FilterSidebar = ({
 
   return (
     <>
-      <div className="hidden lg:block w-72 flex-shrink-0">
+      <div className="hidden lg:block w-72 shrink-0">
         <div className="bg-card border border-border rounded-xl p-5 sticky top-24 shadow-sm">
           {sidebarContent}
         </div>

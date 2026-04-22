@@ -3,6 +3,7 @@ package com.paf.project.controller.facilities;
 import com.paf.project.dto.facilities.CreateFacilityRequest;
 import com.paf.project.dto.facilities.FacilityFilter;
 import com.paf.project.dto.facilities.FacilityResponse;
+import com.paf.project.dto.facilities.ResourceKind;
 import com.paf.project.dto.facilities.UpdateFacilityRequest;
 import com.paf.project.dto.facilities.UpdateFacilityStatusRequest;
 import com.paf.project.service.facilities.FacilityService;
@@ -34,15 +35,28 @@ public class FacilitiesController {
     @GetMapping
     public ResponseEntity<List<FacilityResponse>> getFacilities(
             @RequestHeader("X-ROLE") String role,
+            @RequestParam(required = false) ResourceKind resourceKind,
             @RequestParam(required = false) String type,
             @RequestParam(required = false) String category,
             @RequestParam(required = false) @Min(0) Integer minCapacity,
             @RequestParam(required = false) @Min(0) Integer maxCapacity,
+            @RequestParam(required = false) @Min(0) Integer minQuantity,
+            @RequestParam(required = false) @Min(0) Integer maxQuantity,
             @RequestParam(required = false) String location,
             @RequestParam(required = false, name = "q") String search
     ) {
         assertCanRead(role);
-        FacilityFilter filter = new FacilityFilter(type, category, minCapacity, maxCapacity, location, search);
+        FacilityFilter filter = new FacilityFilter(
+                resourceKind,
+                type,
+                category,
+                minCapacity,
+                maxCapacity,
+                minQuantity,
+                maxQuantity,
+                location,
+                search
+        );
         return ResponseEntity.ok(facilityService.getFacilities(filter));
     }
 

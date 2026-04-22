@@ -2,10 +2,12 @@ import React, { useMemo, useState } from 'react';
 
 const initialForm = {
   resourceId: '',
+  resourceKind: 'FACILITY',
   type: '',
   category: '',
   nameOrModel: '',
   capacity: 0,
+  quantity: 0,
   location: '',
   availabilityWindows: 'Mon-Fri 08:00-17:00',
   status: 'ACTIVE',
@@ -25,7 +27,8 @@ const AdminFacilityForm = ({ onCreate, taxonomy }) => {
 
   const payload = useMemo(() => ({
     ...form,
-    capacity: Number(form.capacity),
+    capacity: form.resourceKind === 'FACILITY' ? Number(form.capacity) : null,
+    quantity: form.resourceKind === 'ASSET' ? Number(form.quantity) : null,
     availabilityWindows: form.availabilityWindows
       .split(',')
       .map((value) => value.trim())
@@ -53,6 +56,18 @@ const AdminFacilityForm = ({ onCreate, taxonomy }) => {
         value={form.nameOrModel}
         onChange={(event) => setForm((prev) => ({ ...prev, nameOrModel: event.target.value }))}
       />
+      <select
+        value={form.resourceKind}
+        onChange={(event) =>
+          setForm((prev) => ({
+            ...prev,
+            resourceKind: event.target.value,
+          }))
+        }
+      >
+        <option value="FACILITY">Facility</option>
+        <option value="ASSET">Asset</option>
+      </select>
       <select
         value={form.type}
         onChange={(event) =>
@@ -88,9 +103,14 @@ const AdminFacilityForm = ({ onCreate, taxonomy }) => {
         type="number"
         min="0"
         required
-        placeholder="Capacity"
-        value={form.capacity}
-        onChange={(event) => setForm((prev) => ({ ...prev, capacity: event.target.value }))}
+        placeholder={form.resourceKind === 'ASSET' ? 'Quantity' : 'Capacity'}
+        value={form.resourceKind === 'ASSET' ? form.quantity : form.capacity}
+        onChange={(event) =>
+          setForm((prev) => ({
+            ...prev,
+            [form.resourceKind === 'ASSET' ? 'quantity' : 'capacity']: event.target.value,
+          }))
+        }
       />
       <input
         required

@@ -10,10 +10,13 @@ export const getFacilities = ({ role = 'USER', ...filters } = {}) =>
 	api.get('/facilities', {
 		...roleHeaders(role),
 		params: {
+			resourceKind: filters.resourceKind || undefined,
 			type: filters.type || undefined,
 			category: filters.category || undefined,
 			minCapacity: filters.minCapacity || undefined,
 			maxCapacity: filters.maxCapacity || undefined,
+			minQuantity: filters.minQuantity || undefined,
+			maxQuantity: filters.maxQuantity || undefined,
 			location: filters.location || undefined,
 			q: filters.q || undefined,
 		},

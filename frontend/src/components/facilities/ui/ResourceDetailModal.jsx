@@ -1,11 +1,14 @@
 import React from 'react'
-import { X, MapPin, Users, Tag, Clock, Info, Calendar } from 'lucide-react'
+import { X, MapPin, Users, Tag, Clock, Info, Calendar, Boxes } from 'lucide-react'
 import { StatusBadge } from './StatusBadge'
 
 export const ResourceDetailModal = ({ resource, isOpen, onClose, mode = 'view' }) => {
   if (!isOpen || !resource) return null
   const isOutOfService = resource.status === 'OUT_OF_SERVICE'
   const isBookMode = mode === 'book'
+  const resourceKind = resource.resourceKind || (resource.quantity != null ? 'ASSET' : 'FACILITY')
+  const metricLabel = resourceKind === 'ASSET' ? 'Quantity' : 'Capacity'
+  const metricValue = resourceKind === 'ASSET' ? resource.quantity : resource.capacity
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
@@ -37,7 +40,7 @@ export const ResourceDetailModal = ({ resource, isOpen, onClose, mode = 'view' }
         </div>
 
         <div className="p-6 overflow-y-auto flex-1 space-y-6">
-          <div className="h-[420px] rounded-xl overflow-hidden border border-border bg-slate-100 flex items-center justify-center">
+          <div className="h-105 rounded-xl overflow-hidden border border-border bg-slate-100 flex items-center justify-center">
             {resource.imageUrl ? (
               <img
                 src={resource.imageUrl}
@@ -74,12 +77,16 @@ export const ResourceDetailModal = ({ resource, isOpen, onClose, mode = 'view' }
 
             <div className="flex items-start gap-3">
               <div className="p-2 bg-slate-50 rounded-lg text-slate-500">
-                <Users className="h-5 w-5" />
+                {resourceKind === 'ASSET' ? (
+                  <Boxes className="h-5 w-5" />
+                ) : (
+                  <Users className="h-5 w-5" />
+                )}
               </div>
               <div>
-                <p className="text-sm font-medium text-slate-500">Capacity</p>
+                <p className="text-sm font-medium text-slate-500">{metricLabel}</p>
                 <p className="text-base font-semibold text-text">
-                  {resource.capacity} units
+                  {metricValue ?? '-'} units
                 </p>
               </div>
             </div>

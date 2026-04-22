@@ -5,10 +5,12 @@ import java.util.List;
 public record FacilityResponse(
         String id,
         String resourceId,
+        ResourceKind resourceKind,
         String type,
         String category,
         String nameOrModel,
         Integer capacity,
+        Integer quantity,
         String location,
         String description,
         List<String> availabilityWindows,

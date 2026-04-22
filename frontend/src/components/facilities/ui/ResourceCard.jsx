@@ -1,9 +1,12 @@
 import React from 'react'
-import { MapPin, Users, LayoutGrid } from 'lucide-react'
+import { MapPin, Users, LayoutGrid, Boxes } from 'lucide-react'
 import { StatusBadge } from './StatusBadge'
 
 export const ResourceCard = ({ resource, onViewDetails, onBook }) => {
   const isOutOfService = resource.status === 'OUT_OF_SERVICE'
+  const resourceKind = resource.resourceKind || (resource.quantity != null ? 'ASSET' : 'FACILITY')
+  const metricLabel = resourceKind === 'ASSET' ? 'Quantity' : 'Capacity'
+  const metricValue = resourceKind === 'ASSET' ? resource.quantity : resource.capacity
 
   const getCategoryColor = (category) => {
     const variants = [
@@ -24,7 +27,7 @@ export const ResourceCard = ({ resource, onViewDetails, onBook }) => {
 
   return (
     <div className="bg-card rounded-2xl border border-border shadow-card hover:shadow-md transition-shadow duration-200 flex flex-col h-full overflow-hidden group">
-      <div className="aspect-[4/3] bg-slate-100 overflow-hidden relative">
+      <div className="aspect-4/3 bg-slate-100 overflow-hidden relative">
         {resource.imageUrl ? (
           <img
             src={resource.imageUrl}
@@ -40,7 +43,7 @@ export const ResourceCard = ({ resource, onViewDetails, onBook }) => {
           <StatusBadge status={resource.status} size="sm" />
         </div>
       </div>
-      <div className="p-5 flex-grow flex flex-col">
+      <div className="p-5 grow flex flex-col">
         <div className="flex justify-between items-start mb-3 gap-2">
           <h3 className="text-lg font-bold text-text leading-tight group-hover:text-primary transition-colors">
             {resource.name}
@@ -61,9 +64,13 @@ export const ResourceCard = ({ resource, onViewDetails, onBook }) => {
 
         <div className="space-y-2 mt-auto">
           <div className="flex items-center text-sm text-slate-600">
-            <Users className="h-4 w-4 mr-2 text-slate-400 shrink-0" />
+            {resourceKind === 'ASSET' ? (
+              <Boxes className="h-4 w-4 mr-2 text-slate-400 shrink-0" />
+            ) : (
+              <Users className="h-4 w-4 mr-2 text-slate-400 shrink-0" />
+            )}
             <span>
-              Capacity: <span className="font-medium text-text">{resource.capacity}</span>
+              {metricLabel}: <span className="font-medium text-text">{metricValue ?? '-'}</span>
             </span>
           </div>
           <div className="flex items-center text-sm text-slate-600">
