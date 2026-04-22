@@ -136,7 +136,11 @@ export const BookingModal = ({ isOpen, onClose, facility }) => {
 
                 <div>
                   <label className="block text-sm font-semibold text-slate-700 mb-1.5 flex items-center gap-2">
-                    <Users className="h-4 w-4 text-slate-400" /> Expected Attendees
+                    {facility?.resourceKind === 'ASSET' ? (
+                      <>Quantity Needed</>
+                    ) : (
+                      <><Users className="h-4 w-4 text-slate-400" /> Expected Attendees</>
+                    )}
                   </label>
                   <input
                     type="number"
