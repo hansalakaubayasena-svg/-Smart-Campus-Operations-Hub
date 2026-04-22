@@ -11,6 +11,7 @@ import com.paf.project.model.facilities.Facility;
 import com.paf.project.repository.bookings.BookingRepository;
 import com.paf.project.repository.auth.UserRepository;
 import com.paf.project.repository.facilities.FacilityRepository;
+import com.paf.project.model.notifications.Notification.NotificationType;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,13 +23,16 @@ public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
     private final FacilityRepository facilityRepository;
     private final UserRepository userRepository;
+    private final com.paf.project.service.notifications.NotificationService notificationService;
 
     public BookingServiceImpl(BookingRepository bookingRepository, 
                               FacilityRepository facilityRepository, 
-                              UserRepository userRepository) {
+                              UserRepository userRepository,
+                              com.paf.project.service.notifications.NotificationService notificationService) {
         this.bookingRepository = bookingRepository;
         this.facilityRepository = facilityRepository;
         this.userRepository = userRepository;
+        this.notificationService = notificationService;
     }
 
     @Override
@@ -63,8 +67,15 @@ public class BookingServiceImpl implements BookingService {
         booking.setPurpose(request.getPurpose());
         booking.setExpectedAttendees(request.getExpectedAttendees());
         booking.setStatus("PENDING");
+        Booking savedBooking = bookingRepository.save(booking);
 
-        return toResponse(bookingRepository.save(booking));
+        // Notify user
+        notificationService.notify(userId, 
+                NotificationType.BOOKING_PENDING, 
+                "Your booking request for " + facility.getNameOrModel() + " has been submitted.", 
+                savedBooking.getId(), "BOOKING");
+
+        return toResponse(savedBooking);
     }
 
     @Override
@@ -94,8 +105,23 @@ public class BookingServiceImpl implements BookingService {
 
         booking.setStatus(action.getStatus().toUpperCase());
         booking.setAdminNotes(action.getNotes());
+        Booking savedBooking = bookingRepository.save(booking);
 
-        return toResponse(bookingRepository.save(booking));
+        // Notify user of the action
+        NotificationType type = "APPROVED".equalsIgnoreCase(action.getStatus()) ? 
+                NotificationType.BOOKING_APPROVED : NotificationType.BOOKING_REJECTED;
+        
+        String facilityName = facilityRepository.findByResourceId(booking.getFacilityId())
+                .map(Facility::getNameOrModel)
+                .orElse("facility");
+
+        notificationService.notify(booking.getUserId(), 
+                type, 
+                "Your booking for " + facilityName + " has been " + action.getStatus().toLowerCase() + ". " + 
+                (action.getNotes() != null ? "Note: " + action.getNotes() : ""), 
+                savedBooking.getId(), "BOOKING");
+
+        return toResponse(savedBooking);
     }
 
     @Override
@@ -108,7 +134,15 @@ public class BookingServiceImpl implements BookingService {
         }
 
         booking.setStatus("CANCELLED");
-        return toResponse(bookingRepository.save(booking));
+        Booking savedBooking = bookingRepository.save(booking);
+
+        // Notify user
+        notificationService.notify(userId, 
+                NotificationType.BOOKING_CANCELLED, 
+                "Your booking has been cancelled successfully.", 
+                savedBooking.getId(), "BOOKING");
+
+        return toResponse(savedBooking);
     }
 
     private BookingResponse toResponse(Booking booking) {
