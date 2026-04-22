@@ -21,14 +21,24 @@ const toAvailabilityObjects = (windows = []) =>
     }
   })
 
+const resolveResourceKind = (resource) =>
+  resource.resourceKind || (resource.quantity != null ? 'ASSET' : 'FACILITY')
+
+const resolveMetricValue = (resource) =>
+  resolveResourceKind(resource) === 'ASSET' ? resource.quantity : resource.capacity
+
 const mapFacilityToUiResource = (facility) => ({
     id: facility.id || facility.resourceId,
     resourceId: facility.resourceId,
     name: facility.nameOrModel,
+    resourceKind: resolveResourceKind(facility),
     type: facility.type,
     category: facility.category,
     location: facility.location,
     capacity: facility.capacity,
+    quantity: facility.quantity,
+    minLoanHours: facility.minLoanHours,
+    maxLoanHours: facility.maxLoanHours,
     status: facility.status,
     imageUrl: facility.imageUrl || '',
     description: facility.description || `${facility.nameOrModel} located at ${facility.location}.`,
@@ -48,7 +58,7 @@ export const FacilityDirectory = () => {
     type: 'All',
     category: 'All',
     location: '',
-    capacity: '',
+    metric: '',
   }
 
   const [filters, setFilters] = useState(initialFilters)
@@ -99,10 +109,10 @@ export const FacilityDirectory = () => {
 
   const validateFilters = useCallback((nextFilters) => {
     const nextErrors = {}
-    if (nextFilters.capacity !== '') {
-      const capacityValue = Number(nextFilters.capacity)
-      if (!Number.isInteger(capacityValue) || capacityValue < 0) {
-        nextErrors.capacity = 'Capacity must be a whole number of 0 or greater.'
+    if (nextFilters.metric !== '') {
+      const metricValue = Number(nextFilters.metric)
+      if (!Number.isInteger(metricValue) || metricValue < 0) {
+        nextErrors.metric = 'Value must be a whole number of 0 or greater.'
       }
     }
     return nextErrors
@@ -111,7 +121,7 @@ export const FacilityDirectory = () => {
   const filteredResources = useMemo(() => {
     const searchTerm = filters.search.trim().toLowerCase()
     const locationTerm = filters.location.trim().toLowerCase()
-    const capacityValue = filters.capacity === '' ? '' : Number(filters.capacity)
+    const metricValue = filters.metric === '' ? '' : Number(filters.metric)
 
     return resources.filter((resource) => {
       const matchesSearch =
@@ -123,10 +133,16 @@ export const FacilityDirectory = () => {
       const matchesType = filters.type === 'All' || resource.type === filters.type
       const matchesCategory = filters.category === 'All' || resource.category === filters.category
       const matchesLocation = !locationTerm || resource.location.toLowerCase().includes(locationTerm)
-      const matchesCapacity =
-        capacityValue === '' || Number(resource.capacity) === Number(capacityValue)
+      const matchesMetric =
+        metricValue === '' || Number(resolveMetricValue(resource)) === Number(metricValue)
 
-      return matchesSearch && matchesType && matchesCategory && matchesLocation && matchesCapacity
+      return (
+        matchesSearch
+        && matchesType
+        && matchesCategory
+        && matchesLocation
+        && matchesMetric
+      )
     })
   }, [filters, resources])
 

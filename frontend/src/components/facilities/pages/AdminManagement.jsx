@@ -14,14 +14,34 @@ import {
 import { getFacilityTaxonomy } from '../../../services/facilities/taxonomyService'
 import { buildCategoriesByType } from '../data/facilityTaxonomy'
 
+const resolveResourceKind = (facility) =>
+  facility.resourceKind || (facility.quantity != null ? 'ASSET' : 'FACILITY')
+
+const getMetricLabel = (resourceKind) => (resourceKind === 'ASSET' ? 'Quantity' : 'Capacity')
+
+const getMetricValue = (resource) =>
+  resource.resourceKind === 'ASSET' ? resource.quantity : resource.capacity
+
+const toOptionalInt = (value) => {
+  if (value === '' || value == null) {
+    return null
+  }
+  const numeric = Number(value)
+  return Number.isFinite(numeric) ? numeric : null
+}
+
 const mapFacilityToUiResource = (facility) => ({
   id: facility.id || facility.resourceId,
   resourceId: facility.resourceId,
   name: facility.nameOrModel,
+  resourceKind: resolveResourceKind(facility),
   type: facility.type,
   category: facility.category,
   location: facility.location,
   capacity: facility.capacity,
+  quantity: facility.quantity,
+  minLoanHours: facility.minLoanHours,
+  maxLoanHours: facility.maxLoanHours,
   status: facility.status,
   imageUrl: facility.imageUrl || '',
   imageFile: null,
@@ -36,10 +56,14 @@ const mapFacilityToUiResource = (facility) => ({
 })
 
 const uiToApiPayload = (resourceData) => ({
+  resourceKind: resourceData.resourceKind,
   type: resourceData.type,
   category: resourceData.category,
   nameOrModel: resourceData.name,
-  capacity: Number(resourceData.capacity),
+  capacity: resourceData.resourceKind === 'FACILITY' ? Number(resourceData.capacity) : null,
+  quantity: resourceData.resourceKind === 'ASSET' ? Number(resourceData.quantity) : null,
+  minLoanHours: resourceData.resourceKind === 'ASSET' ? toOptionalInt(resourceData.minLoanHours) : null,
+  maxLoanHours: resourceData.resourceKind === 'ASSET' ? toOptionalInt(resourceData.maxLoanHours) : null,
   location: resourceData.location,
   description: resourceData.description?.trim() || null,
   imageUrl: resourceData.imageUrl || null,
@@ -96,7 +120,7 @@ export const AdminManagement = () => {
     }
 
     return resources.filter((resource) =>
-      [resource.name, resource.location, resource.type, resource.category, resource.resourceId]
+      [resource.name, resource.location, resource.type, resource.category, resource.resourceId, resource.resourceKind]
         .filter(Boolean)
         .some((value) => value.toLowerCase().includes(query)),
     )
@@ -249,7 +273,7 @@ export const AdminManagement = () => {
                     scope="col"
                     className="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider"
                   >
-                    Capacity
+                    Capacity / Quantity
                   </th>
                   <th
                     scope="col"
@@ -295,7 +319,7 @@ export const AdminManagement = () => {
                         {resource.location}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
-                        {resource.capacity}
+                        {getMetricLabel(resource.resourceKind)}: {getMetricValue(resource) ?? '-'}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <StatusBadge status={resource.status} size="sm" />

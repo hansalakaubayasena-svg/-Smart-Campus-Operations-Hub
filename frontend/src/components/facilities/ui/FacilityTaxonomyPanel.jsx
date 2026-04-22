@@ -243,7 +243,6 @@ export const FacilityTaxonomyPanel = ({ taxonomy, onChanged }) => {
                 <div className="mb-3 flex items-start justify-between gap-3">
                   <div>
                     <h3 className="text-base font-semibold text-text">{type.name}</h3>
-                    <p className="text-xs text-slate-500 break-all">ID: {type.id}</p>
                   </div>
                   <button
                     type="button"

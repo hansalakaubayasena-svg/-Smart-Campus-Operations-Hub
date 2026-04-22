@@ -27,6 +27,14 @@ const CatalogueFilters = ({ filters, setFilters, taxonomy, onApply, onReset }) =
         ))}
       </datalist>
       <select
+        value={filters.resourceKind || ''}
+        onChange={(event) => setFilters((prev) => ({ ...prev, resourceKind: event.target.value }))}
+      >
+        <option value="">All kinds</option>
+        <option value="FACILITY">Facilities</option>
+        <option value="ASSET">Assets</option>
+      </select>
+      <select
         value={filters.type}
         onChange={(event) => setFilters((prev) => ({ ...prev, type: event.target.value }))}
       >
@@ -61,6 +69,20 @@ const CatalogueFilters = ({ filters, setFilters, taxonomy, onApply, onReset }) =
         placeholder="Max capacity"
         value={filters.maxCapacity}
         onChange={(event) => setFilters((prev) => ({ ...prev, maxCapacity: event.target.value }))}
+      />
+      <input
+        type="number"
+        min="0"
+        placeholder="Min quantity"
+        value={filters.minQuantity}
+        onChange={(event) => setFilters((prev) => ({ ...prev, minQuantity: event.target.value }))}
+      />
+      <input
+        type="number"
+        min="0"
+        placeholder="Max quantity"
+        value={filters.maxQuantity}
+        onChange={(event) => setFilters((prev) => ({ ...prev, maxQuantity: event.target.value }))}
       />
       <input
         placeholder="Location"

@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
-import { ArrowLeft, MapPin, Users, Tag, Clock, Calendar } from 'lucide-react'
+import { ArrowLeft, MapPin, Users, Tag, Clock, Calendar, Boxes } from 'lucide-react'
 import { StatusBadge } from '../ui/StatusBadge'
 import { getFacilityByResourceId } from '../../../services/facilities/facilityService'
 import { BookingModal } from '../../bookings/BookingModal'
@@ -22,10 +22,14 @@ const mapFacilityToUiResource = (facility) => ({
     id: facility.id || facility.resourceId,
     resourceId: facility.resourceId,
     name: facility.nameOrModel,
+  resourceKind: facility.resourceKind || (facility.quantity != null ? 'ASSET' : 'FACILITY'),
     type: facility.type,
     category: facility.category,
     location: facility.location,
     capacity: facility.capacity,
+  quantity: facility.quantity,
+    minLoanHours: facility.minLoanHours,
+    maxLoanHours: facility.maxLoanHours,
     status: facility.status,
     imageUrl: facility.imageUrl || '',
     description: facility.description || `${facility.nameOrModel} located at ${facility.location}.`,
@@ -67,6 +71,9 @@ export const FacilityDetailsPage = () => {
     () => resource?.status === 'OUT_OF_SERVICE',
     [resource],
   )
+  const metricLabel = resource?.resourceKind === 'ASSET' ? 'Quantity' : 'Capacity'
+  const metricValue = resource?.resourceKind === 'ASSET' ? resource?.quantity : resource?.capacity
+  const metricUnit = resource?.resourceKind === 'ASSET' ? 'units' : 'attendees'
 
   return (
     <div className="min-h-screen bg-background py-8 md:py-10">
@@ -93,13 +100,13 @@ export const FacilityDetailsPage = () => {
           </div>
         ) : (
           <section className="space-y-6">
-            <header className="rounded-xl border border-border bg-gradient-to-r from-white via-white to-teal-50/50 p-6 md:p-8">
+            <header className="rounded-xl border border-border bg-linear-to-r from-white via-white to-teal-50/50 p-6 md:p-8">
               <h1 className="text-3xl md:text-4xl font-bold text-text tracking-tight">{resource.name}</h1>
             </header>
 
             <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
               <div className="xl:col-span-8 space-y-6">
-                <div className="w-full aspect-[16/9] max-h-[520px] rounded-xl overflow-hidden border border-border bg-slate-100 flex items-center justify-center">
+                <div className="w-full aspect-video max-h-130 rounded-xl overflow-hidden border border-border bg-slate-100 flex items-center justify-center">
                   {resource.imageUrl ? (
                     <img
                       src={resource.imageUrl}
@@ -196,15 +203,34 @@ export const FacilityDetailsPage = () => {
 
                     <div className="flex items-start gap-3">
                       <div className="p-2 bg-slate-50 rounded-lg text-slate-500">
-                        <Users className="h-5 w-5" />
+                        {resource.resourceKind === 'ASSET' ? (
+                          <Boxes className="h-5 w-5" />
+                        ) : (
+                          <Users className="h-5 w-5" />
+                        )}
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-slate-500">Capacity</p>
+                        <p className="text-sm font-medium text-slate-500">{metricLabel}</p>
                         <p className="text-base font-semibold text-text">
-                          {resource.capacity} units
+                          {metricValue ?? '-'} {metricUnit}
                         </p>
                       </div>
                     </div>
+
+                    {resource.resourceKind === 'ASSET' && (
+                      <div className="flex items-start gap-3">
+                        <div className="p-2 bg-slate-50 rounded-lg text-slate-500">
+                          <Clock className="h-5 w-5" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-slate-500">Loan Duration</p>
+                          <p className="text-base font-semibold text-text">
+                            {resource.minLoanHours ? `${resource.minLoanHours}h min / ` : ''}
+                            {resource.maxLoanHours ? `${resource.maxLoanHours}h max` : 'Not configured'}
+                          </p>
+                        </div>
+                      </div>
+                    )}
 
                   </div>
                 </section>

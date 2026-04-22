@@ -12,6 +12,9 @@ public record CreateFacilityRequest(
         @NotBlank(message = "resourceId is required")
         String resourceId,
 
+        @NotNull(message = "resourceKind is required")
+        ResourceKind resourceKind,
+
         @NotBlank(message = "type is required")
         @Size(max = 120, message = "type must be at most 120 characters")
         String type,
@@ -24,9 +27,17 @@ public record CreateFacilityRequest(
         @Size(max = 120, message = "nameOrModel must be at most 120 characters")
         String nameOrModel,
 
-        @NotNull(message = "capacity is required")
         @Min(value = 0, message = "capacity must be 0 or greater")
         Integer capacity,
+
+        @Min(value = 0, message = "quantity must be 0 or greater")
+        Integer quantity,
+
+        @Min(value = 1, message = "minLoanHours must be at least 1")
+        Integer minLoanHours,
+
+        @Min(value = 1, message = "maxLoanHours must be at least 1")
+        Integer maxLoanHours,
 
         @NotBlank(message = "location is required")
         @Size(max = 120, message = "location must be at most 120 characters")

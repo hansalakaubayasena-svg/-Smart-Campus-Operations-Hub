@@ -3,8 +3,10 @@ package com.paf.project.service.facilities;
 import com.paf.project.dto.facilities.CreateFacilityRequest;
 import com.paf.project.dto.facilities.FacilityFilter;
 import com.paf.project.dto.facilities.FacilityResponse;
+import com.paf.project.dto.facilities.ResourceKind;
 import com.paf.project.dto.facilities.UpdateFacilityRequest;
 import com.paf.project.dto.facilities.UpdateFacilityStatusRequest;
+import com.paf.project.core.exception.CustomExceptions.BadRequestException;
 import com.paf.project.exception.ResourceConflictException;
 import com.paf.project.exception.ResourceNotFoundException;
 import com.paf.project.model.facilities.Facility;
@@ -37,10 +39,11 @@ public class FacilityServiceImpl implements FacilityService {
     public List<FacilityResponse> getFacilities(FacilityFilter filter) {
         return facilityRepository.findAll()
                 .stream()
+                .filter(facility -> matchesResourceKind(filter.resourceKind(), facility))
                 .filter(facility -> matches(filter.type(), facility.getType()))
                 .filter(facility -> matches(filter.category(), facility.getCategory()))
-                .filter(facility -> filter.minCapacity() == null || facility.getCapacity() >= filter.minCapacity())
-                .filter(facility -> filter.maxCapacity() == null || facility.getCapacity() <= filter.maxCapacity())
+                .filter(facility -> matchesCapacityRange(filter, facility))
+                .filter(facility -> matchesQuantityRange(filter, facility))
                 .filter(facility -> isLocationMatch(facility, filter.location()))
                 .filter(facility -> isSearchMatch(facility, filter.search()))
                 .map(this::toResponse)
@@ -60,10 +63,22 @@ public class FacilityServiceImpl implements FacilityService {
 
         Facility facility = new Facility();
         facility.setResourceId(request.resourceId());
+        ResourceKind resourceKind = request.resourceKind();
+        validateResourceMetrics(
+            resourceKind,
+            request.capacity(),
+            request.quantity(),
+            request.minLoanHours(),
+            request.maxLoanHours()
+        );
+        facility.setResourceKind(resourceKind.name());
         facility.setType(facilityTaxonomyService.resolveTypeName(request.type()));
         facility.setCategory(facilityTaxonomyService.resolveCategoryName(request.type(), request.category()));
         facility.setNameOrModel(request.nameOrModel());
-        facility.setCapacity(request.capacity());
+        facility.setCapacity(resourceKind == ResourceKind.FACILITY ? request.capacity() : null);
+        facility.setQuantity(resourceKind == ResourceKind.ASSET ? request.quantity() : null);
+        facility.setMinLoanHours(resourceKind == ResourceKind.ASSET ? request.minLoanHours() : null);
+        facility.setMaxLoanHours(resourceKind == ResourceKind.ASSET ? request.maxLoanHours() : null);
         facility.setLocation(request.location());
         facility.setDescription(request.description());
         facility.setAvailabilityWindows(request.availabilityWindows());
@@ -76,11 +91,23 @@ public class FacilityServiceImpl implements FacilityService {
     @Override
     public FacilityResponse update(String resourceId, UpdateFacilityRequest request) {
         Facility facility = getRequiredByResourceId(resourceId);
+        ResourceKind resourceKind = request.resourceKind();
+        validateResourceMetrics(
+            resourceKind,
+            request.capacity(),
+            request.quantity(),
+            request.minLoanHours(),
+            request.maxLoanHours()
+        );
 
+        facility.setResourceKind(resourceKind.name());
         facility.setType(facilityTaxonomyService.resolveTypeName(request.type()));
         facility.setCategory(facilityTaxonomyService.resolveCategoryName(request.type(), request.category()));
         facility.setNameOrModel(request.nameOrModel());
-        facility.setCapacity(request.capacity());
+        facility.setCapacity(resourceKind == ResourceKind.FACILITY ? request.capacity() : null);
+        facility.setQuantity(resourceKind == ResourceKind.ASSET ? request.quantity() : null);
+        facility.setMinLoanHours(resourceKind == ResourceKind.ASSET ? request.minLoanHours() : null);
+        facility.setMaxLoanHours(resourceKind == ResourceKind.ASSET ? request.maxLoanHours() : null);
         facility.setLocation(request.location());
         facility.setDescription(request.description());
         facility.setAvailabilityWindows(request.availabilityWindows());
@@ -125,6 +152,37 @@ public class FacilityServiceImpl implements FacilityService {
             return true;
         }
         return normalize(facility.getLocation()).contains(normalize(location));
+    }
+
+    private boolean matchesResourceKind(ResourceKind filterKind, Facility facility) {
+        if (filterKind == null) {
+            return true;
+        }
+        return resolveResourceKind(facility) == filterKind;
+    }
+
+    private boolean matchesCapacityRange(FacilityFilter filter, Facility facility) {
+        if (filter.minCapacity() == null && filter.maxCapacity() == null) {
+            return true;
+        }
+        Integer capacity = facility.getCapacity();
+        if (capacity == null) {
+            return false;
+        }
+        return (filter.minCapacity() == null || capacity >= filter.minCapacity())
+                && (filter.maxCapacity() == null || capacity <= filter.maxCapacity());
+    }
+
+    private boolean matchesQuantityRange(FacilityFilter filter, Facility facility) {
+        if (filter.minQuantity() == null && filter.maxQuantity() == null) {
+            return true;
+        }
+        Integer quantity = facility.getQuantity();
+        if (quantity == null) {
+            return false;
+        }
+        return (filter.minQuantity() == null || quantity >= filter.minQuantity())
+                && (filter.maxQuantity() == null || quantity <= filter.maxQuantity());
     }
 
     private boolean isSearchMatch(Facility facility, String search) {
@@ -181,16 +239,59 @@ public class FacilityServiceImpl implements FacilityService {
         return displayLabel(type);
     }
 
+    private ResourceKind resolveResourceKind(Facility facility) {
+        if (facility.getResourceKind() != null && !facility.getResourceKind().isBlank()) {
+            try {
+                return ResourceKind.valueOf(facility.getResourceKind().trim().toUpperCase(Locale.ROOT));
+            } catch (IllegalArgumentException ignored) {
+                // fall through to legacy inference
+            }
+        }
+        return facility.getQuantity() != null ? ResourceKind.ASSET : ResourceKind.FACILITY;
+    }
+
+    private void validateResourceMetrics(
+            ResourceKind resourceKind,
+            Integer capacity,
+            Integer quantity,
+            Integer minLoanHours,
+            Integer maxLoanHours
+    ) {
+        if (resourceKind == ResourceKind.FACILITY) {
+            if (capacity == null) {
+                throw new BadRequestException("capacity is required for FACILITY resources.");
+            }
+            return;
+        }
+
+        if (resourceKind == ResourceKind.ASSET) {
+            if (quantity == null) {
+                throw new BadRequestException("quantity is required for ASSET resources.");
+            }
+            if (maxLoanHours == null) {
+                throw new BadRequestException("maxLoanHours is required for ASSET resources.");
+            }
+            if (minLoanHours != null && minLoanHours > maxLoanHours) {
+                throw new BadRequestException("minLoanHours cannot be greater than maxLoanHours.");
+            }
+        }
+    }
+
     private FacilityResponse toResponse(Facility facility) {
+        ResourceKind resourceKind = resolveResourceKind(facility);
         return new FacilityResponse(
                 facility.getId(),
                 facility.getResourceId(),
+                resourceKind,
                 displayLabel(facility.getType()),
                 displayLabel(facility.getCategory() == null || facility.getCategory().isBlank()
                         ? defaultCategoryForType(facility.getType())
                         : facility.getCategory()),
                 facility.getNameOrModel(),
                 facility.getCapacity(),
+                facility.getQuantity(),
+                facility.getMinLoanHours(),
+                facility.getMaxLoanHours(),
                 facility.getLocation(),
                 facility.getDescription(),
                 facility.getAvailabilityWindows(),
