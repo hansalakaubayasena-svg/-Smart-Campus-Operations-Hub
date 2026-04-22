@@ -4,6 +4,7 @@ import axiosClient from '../../api/axiosClient';
 export const createBooking = (bookingData) => axiosClient.post('/api/bookings', bookingData);
 export const getMyBookings = () => axiosClient.get('/api/bookings/my');
 export const cancelBooking = (id) => axiosClient.delete(`/api/bookings/${id}`);
+export const updateBooking = (id, bookingData) => axiosClient.put(`/api/bookings/${id}`, bookingData);
 
 // Admin endpoints
 export const getAllBookings = (status) => axiosClient.get('/api/bookings', { params: { status } });

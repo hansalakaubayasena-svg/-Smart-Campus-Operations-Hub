@@ -52,4 +52,10 @@ public class BookingController {
         String userId = userService.getCurrentUser().getId();
         return ResponseEntity.ok(bookingService.cancelBooking(userId, id));
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<BookingResponse> update(@PathVariable String id, @RequestBody BookingRequest request) {
+        String userId = userService.getCurrentUser().getId();
+        return ResponseEntity.ok(bookingService.updateBooking(userId, id, request));
+    }
 }

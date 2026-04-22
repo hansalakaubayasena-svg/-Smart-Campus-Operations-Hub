@@ -44,4 +44,14 @@ public interface BookingService {
      * @return The updated booking response with CANCELLED status.
      */
     BookingResponse cancelBooking(String userId, String bookingId);
+
+    /**
+     * Allows a user to update their own booking request.
+     * If the booking was already APPROVED, it reverts to PENDING.
+     * @param userId The ID of the user.
+     * @param bookingId The ID of the booking to update.
+     * @param request The updated booking details.
+     * @return The updated booking response.
+     */
+    BookingResponse updateBooking(String userId, String bookingId, BookingRequest request);
 }
