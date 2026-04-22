@@ -9,8 +9,9 @@ export const ResourceDetailModal = ({ resource, isOpen, onClose, mode = 'view' }
   const resourceKind = resource.resourceKind || (resource.quantity != null ? 'ASSET' : 'FACILITY')
   const metricLabel = resourceKind === 'ASSET' ? 'Quantity' : 'Capacity'
   const metricValue = resourceKind === 'ASSET' ? resource.quantity : resource.capacity
+  const metricUnit = resourceKind === 'ASSET' ? 'units' : 'attendees'
   const loanDurationSummary = resourceKind === 'ASSET'
-    ? `${resource.minLoanHours ? `${resource.minLoanHours}h min / ` : ''}${resource.maxLoanHours ? `${resource.maxLoanHours}h max` : 'Not configured'}${resource.defaultLoanHours ? ` (default ${resource.defaultLoanHours}h)` : ''}`
+    ? `${resource.minLoanHours ? `${resource.minLoanHours}h min / ` : ''}${resource.maxLoanHours ? `${resource.maxLoanHours}h max` : 'Not configured'}`
     : null
 
   return (
@@ -89,7 +90,7 @@ export const ResourceDetailModal = ({ resource, isOpen, onClose, mode = 'view' }
               <div>
                 <p className="text-sm font-medium text-slate-500">{metricLabel}</p>
                 <p className="text-base font-semibold text-text">
-                  {metricValue ?? '-'} units
+                  {metricValue ?? '-'} {metricUnit}
                 </p>
               </div>
             </div>

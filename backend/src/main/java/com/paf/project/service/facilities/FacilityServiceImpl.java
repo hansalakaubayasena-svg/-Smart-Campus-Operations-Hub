@@ -69,8 +69,7 @@ public class FacilityServiceImpl implements FacilityService {
             request.capacity(),
             request.quantity(),
             request.minLoanHours(),
-            request.maxLoanHours(),
-            request.defaultLoanHours()
+            request.maxLoanHours()
         );
         facility.setResourceKind(resourceKind.name());
         facility.setType(facilityTaxonomyService.resolveTypeName(request.type()));
@@ -80,7 +79,6 @@ public class FacilityServiceImpl implements FacilityService {
         facility.setQuantity(resourceKind == ResourceKind.ASSET ? request.quantity() : null);
         facility.setMinLoanHours(resourceKind == ResourceKind.ASSET ? request.minLoanHours() : null);
         facility.setMaxLoanHours(resourceKind == ResourceKind.ASSET ? request.maxLoanHours() : null);
-        facility.setDefaultLoanHours(resourceKind == ResourceKind.ASSET ? request.defaultLoanHours() : null);
         facility.setLocation(request.location());
         facility.setDescription(request.description());
         facility.setAvailabilityWindows(request.availabilityWindows());
@@ -99,8 +97,7 @@ public class FacilityServiceImpl implements FacilityService {
             request.capacity(),
             request.quantity(),
             request.minLoanHours(),
-            request.maxLoanHours(),
-            request.defaultLoanHours()
+            request.maxLoanHours()
         );
 
         facility.setResourceKind(resourceKind.name());
@@ -111,7 +108,6 @@ public class FacilityServiceImpl implements FacilityService {
         facility.setQuantity(resourceKind == ResourceKind.ASSET ? request.quantity() : null);
         facility.setMinLoanHours(resourceKind == ResourceKind.ASSET ? request.minLoanHours() : null);
         facility.setMaxLoanHours(resourceKind == ResourceKind.ASSET ? request.maxLoanHours() : null);
-        facility.setDefaultLoanHours(resourceKind == ResourceKind.ASSET ? request.defaultLoanHours() : null);
         facility.setLocation(request.location());
         facility.setDescription(request.description());
         facility.setAvailabilityWindows(request.availabilityWindows());
@@ -259,8 +255,7 @@ public class FacilityServiceImpl implements FacilityService {
             Integer capacity,
             Integer quantity,
             Integer minLoanHours,
-            Integer maxLoanHours,
-            Integer defaultLoanHours
+            Integer maxLoanHours
     ) {
         if (resourceKind == ResourceKind.FACILITY) {
             if (capacity == null) {
@@ -278,14 +273,6 @@ public class FacilityServiceImpl implements FacilityService {
             }
             if (minLoanHours != null && minLoanHours > maxLoanHours) {
                 throw new BadRequestException("minLoanHours cannot be greater than maxLoanHours.");
-            }
-            if (defaultLoanHours != null) {
-                if (defaultLoanHours > maxLoanHours) {
-                    throw new BadRequestException("defaultLoanHours cannot exceed maxLoanHours.");
-                }
-                if (minLoanHours != null && defaultLoanHours < minLoanHours) {
-                    throw new BadRequestException("defaultLoanHours cannot be less than minLoanHours.");
-                }
             }
         }
     }
@@ -305,7 +292,6 @@ public class FacilityServiceImpl implements FacilityService {
                 facility.getQuantity(),
                 facility.getMinLoanHours(),
                 facility.getMaxLoanHours(),
-                facility.getDefaultLoanHours(),
                 facility.getLocation(),
                 facility.getDescription(),
                 facility.getAvailabilityWindows(),

@@ -39,9 +39,6 @@ public record CreateFacilityRequest(
         @Min(value = 1, message = "maxLoanHours must be at least 1")
         Integer maxLoanHours,
 
-        @Min(value = 1, message = "defaultLoanHours must be at least 1")
-        Integer defaultLoanHours,
-
         @NotBlank(message = "location is required")
         @Size(max = 120, message = "location must be at most 120 characters")
         String location,

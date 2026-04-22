@@ -22,7 +22,6 @@ public class Facility {
     private Integer quantity;
     private Integer minLoanHours;
     private Integer maxLoanHours;
-    private Integer defaultLoanHours;
     private String location;
     private String description;
     private List<String> availabilityWindows;
@@ -35,7 +34,7 @@ public class Facility {
 
     // All-args Constructor
     public Facility(String id, String resourceId, String name, String resourceKind, String type, String category, String nameOrModel,
-                    Integer capacity, Integer quantity, Integer minLoanHours, Integer maxLoanHours, Integer defaultLoanHours,
+                    Integer capacity, Integer quantity, Integer minLoanHours, Integer maxLoanHours,
                     String location, String description, List<String> availabilityWindows, String imageUrl, String status) {
         this.id = id;
         this.resourceId = resourceId;
@@ -48,7 +47,6 @@ public class Facility {
         this.quantity = quantity;
         this.minLoanHours = minLoanHours;
         this.maxLoanHours = maxLoanHours;
-        this.defaultLoanHours = defaultLoanHours;
         this.location = location;
         this.description = description;
         this.availabilityWindows = availabilityWindows;
@@ -143,14 +141,6 @@ public class Facility {
 
     public void setMaxLoanHours(Integer maxLoanHours) {
         this.maxLoanHours = maxLoanHours;
-    }
-
-    public Integer getDefaultLoanHours() {
-        return defaultLoanHours;
-    }
-
-    public void setDefaultLoanHours(Integer defaultLoanHours) {
-        this.defaultLoanHours = defaultLoanHours;
     }
 
     public String getLocation() {

@@ -30,7 +30,6 @@ const mapFacilityToUiResource = (facility) => ({
   quantity: facility.quantity,
     minLoanHours: facility.minLoanHours,
     maxLoanHours: facility.maxLoanHours,
-    defaultLoanHours: facility.defaultLoanHours,
     status: facility.status,
     imageUrl: facility.imageUrl || '',
     description: facility.description || `${facility.nameOrModel} located at ${facility.location}.`,
@@ -74,6 +73,7 @@ export const FacilityDetailsPage = () => {
   )
   const metricLabel = resource?.resourceKind === 'ASSET' ? 'Quantity' : 'Capacity'
   const metricValue = resource?.resourceKind === 'ASSET' ? resource?.quantity : resource?.capacity
+  const metricUnit = resource?.resourceKind === 'ASSET' ? 'units' : 'attendees'
 
   return (
     <div className="min-h-screen bg-background py-8 md:py-10">
@@ -212,7 +212,7 @@ export const FacilityDetailsPage = () => {
                       <div>
                         <p className="text-sm font-medium text-slate-500">{metricLabel}</p>
                         <p className="text-base font-semibold text-text">
-                          {metricValue ?? '-'} units
+                          {metricValue ?? '-'} {metricUnit}
                         </p>
                       </div>
                     </div>
@@ -227,7 +227,6 @@ export const FacilityDetailsPage = () => {
                           <p className="text-base font-semibold text-text">
                             {resource.minLoanHours ? `${resource.minLoanHours}h min / ` : ''}
                             {resource.maxLoanHours ? `${resource.maxLoanHours}h max` : 'Not configured'}
-                            {resource.defaultLoanHours ? ` (default ${resource.defaultLoanHours}h)` : ''}
                           </p>
                         </div>
                       </div>

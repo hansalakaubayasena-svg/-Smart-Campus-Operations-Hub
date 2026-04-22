@@ -13,7 +13,6 @@ public record FacilityResponse(
         Integer quantity,
         Integer minLoanHours,
         Integer maxLoanHours,
-        Integer defaultLoanHours,
         String location,
         String description,
         List<String> availabilityWindows,

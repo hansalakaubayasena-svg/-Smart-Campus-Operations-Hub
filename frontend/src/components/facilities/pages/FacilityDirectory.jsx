@@ -39,7 +39,6 @@ const mapFacilityToUiResource = (facility) => ({
     quantity: facility.quantity,
     minLoanHours: facility.minLoanHours,
     maxLoanHours: facility.maxLoanHours,
-    defaultLoanHours: facility.defaultLoanHours,
     status: facility.status,
     imageUrl: facility.imageUrl || '',
     description: facility.description || `${facility.nameOrModel} located at ${facility.location}.`,
@@ -56,7 +55,6 @@ export const FacilityDirectory = () => {
 
   const initialFilters = {
     search: '',
-    resourceKind: 'All',
     type: 'All',
     category: 'All',
     location: '',
@@ -132,9 +130,6 @@ export const FacilityDirectory = () => {
           .filter(Boolean)
           .some((value) => value.toLowerCase().includes(searchTerm))
 
-      const resourceKind = resolveResourceKind(resource)
-      const matchesResourceKind =
-        filters.resourceKind === 'All' || resourceKind === filters.resourceKind
       const matchesType = filters.type === 'All' || resource.type === filters.type
       const matchesCategory = filters.category === 'All' || resource.category === filters.category
       const matchesLocation = !locationTerm || resource.location.toLowerCase().includes(locationTerm)
@@ -143,7 +138,6 @@ export const FacilityDirectory = () => {
 
       return (
         matchesSearch
-        && matchesResourceKind
         && matchesType
         && matchesCategory
         && matchesLocation
