@@ -15,6 +15,7 @@ import NotificationPage from "./pages/admin/NotificationPage";
 import AdminLayout from "./components/admin/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import UserManagementPage from "./pages/admin/UserManagementPage";
+import IncidentsPage from "./pages/incidents/IncidentsPage";
 
 import { FacilityDirectory } from './components/facilities/pages/FacilityDirectory';
 import { AdminManagement } from './components/facilities/pages/AdminManagement';
@@ -48,6 +49,7 @@ export function App() {
               <Route path="/user/facilities" element={<FacilityDirectory />} />
               <Route path="/user/facilities/:resourceId" element={<FacilityDetailsPage />} />
               <Route path="/user/bookings" element={<UserBookingsPage />} />
+              <Route path="/user/ticketing" element={<IncidentsPage />} />
             </Route>
 
             {/* Protected — ADMIN only (all share AdminLayout) */}
