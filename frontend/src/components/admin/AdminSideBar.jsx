@@ -1,4 +1,3 @@
-// src/components/admin/AdminSideBar.jsx
 import {
   LayoutDashboard,
   Settings,
@@ -9,6 +8,7 @@ import {
   Building,
   ClipboardCheck,
   Wrench,
+  BarChart3,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
@@ -19,6 +19,12 @@ const NAV_ITEMS = [
     label: "Dashboard",
     Icon: LayoutDashboard,
     hoverColor: "",
+  },
+  {
+    to: "/admin/analytics",
+    label: "Analytics Insights",
+    Icon: BarChart3,
+    hoverColor: "group-hover:text-blue-400",
   },
   {
     to: "/admin/facilities",
