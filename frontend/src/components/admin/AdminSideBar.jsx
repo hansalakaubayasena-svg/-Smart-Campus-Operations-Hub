@@ -8,6 +8,7 @@ import {
   Megaphone,
   Building,
   ClipboardCheck,
+  Wrench,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
@@ -42,6 +43,12 @@ const NAV_ITEMS = [
     label: "Manage Notifications",
     Icon: Megaphone,
     hoverColor: "group-hover:text-amber-400",
+  },
+  {
+    to: "/admin/ticketing",
+    label: "Ticketing Queue",
+    Icon: Wrench,
+    hoverColor: "group-hover:text-cyan-400",
   },
 ];
 

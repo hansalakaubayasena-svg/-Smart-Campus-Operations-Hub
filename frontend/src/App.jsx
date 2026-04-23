@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider } from "./context/AuthContext";
+import { AuthProvider, useAuth } from "./context/AuthContext";
 import { ResourceProvider } from './components/facilities/context/ResourceContext';
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 
@@ -21,6 +21,18 @@ import { AdminManagement } from './components/facilities/pages/AdminManagement';
 import { FacilityDetailsPage } from './components/facilities/pages/FacilityDetailsPage';
 import UserBookingsPage from './pages/user/UserBookingsPage';
 import AdminBookingsPage from './pages/admin/AdminBookingsPage';
+import IncidentsPage from './pages/incidents/IncidentsPage';
+
+const IncidentsRouteRedirect = () => {
+  const { user } = useAuth();
+
+  return (
+    <Navigate
+      to={user?.role === "ADMIN" ? "/admin/ticketing" : "/user/ticketing"}
+      replace
+    />
+  );
+};
 
 export function App() {
   return (
@@ -48,12 +60,13 @@ export function App() {
               <Route path="/user/facilities" element={<FacilityDirectory />} />
               <Route path="/user/facilities/:resourceId" element={<FacilityDetailsPage />} />
               <Route path="/user/bookings" element={<UserBookingsPage />} />
+              <Route path="/user/ticketing" element={<IncidentsPage />} />
             </Route>
 
             {/* Protected — ADMIN only (all share AdminLayout) */}
             <Route
               element={
-                <ProtectedRoute requiredRole="ADMINISTRATOR">
+                <ProtectedRoute requiredRole="ADMIN">
                   <AdminLayout />
                 </ProtectedRoute>
               }
@@ -63,7 +76,17 @@ export function App() {
               <Route path="/admin/notifications" element={<NotificationPage />} />
               <Route path="/admin/facilities" element={<AdminManagement />} />
               <Route path="/admin/bookings" element={<AdminBookingsPage />} />
+              <Route path="/admin/ticketing" element={<IncidentsPage />} />
             </Route>
+
+            <Route
+              path="/incidents"
+              element={
+                <ProtectedRoute>
+                  <IncidentsRouteRedirect />
+                </ProtectedRoute>
+              }
+            />
 
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
