@@ -13,6 +13,9 @@ public interface BookingRepository extends MongoRepository<Booking, String> {
 
     List<Booking> findByStatus(String status);
 
+    List<Booking> findByUserIdAndPurposeContainingIgnoreCase(String userId, String purpose);
+
+
     @Query("{ 'facilityId': ?0, 'status': { $in: ['PENDING', 'APPROVED'] }, " +
            "  $and: [ { 'startTime': { $lt: ?2 } }, { 'endTime': { $gt: ?1 } } ] }")
     List<Booking> findOverlappingBookings(String facilityId, LocalDateTime startTime, LocalDateTime endTime);

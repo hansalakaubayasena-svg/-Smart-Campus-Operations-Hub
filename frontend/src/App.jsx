@@ -22,6 +22,7 @@ import { AdminManagement } from './components/facilities/pages/AdminManagement';
 import { FacilityDetailsPage } from './components/facilities/pages/FacilityDetailsPage';
 import UserBookingsPage from './pages/user/UserBookingsPage';
 import AdminBookingsPage from './pages/admin/AdminBookingsPage';
+import AdminAnalyticsPage from './pages/admin/AdminAnalyticsPage';
 
 export function App() {
   return (
@@ -65,6 +66,7 @@ export function App() {
               <Route path="/admin/notifications" element={<NotificationPage />} />
               <Route path="/admin/facilities" element={<AdminManagement />} />
               <Route path="/admin/bookings" element={<AdminBookingsPage />} />
+              <Route path="/admin/analytics" element={<AdminAnalyticsPage />} />
               <Route path="/admin/ticketing" element={<IncidentsPage />} />
             </Route>
 

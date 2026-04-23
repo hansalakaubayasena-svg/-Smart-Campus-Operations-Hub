@@ -18,7 +18,7 @@ public class ProjectApplication {
 
     private static void loadEnvFile() {
         // Possible paths: root, backend folder, or parent folder
-        String[] paths = {".env", "backend/.env", "../.env"};
+        String[] paths = { ".env", "backend/.env", "../.env" };
         File envFile = null;
 
         for (String path : paths) {
@@ -30,7 +30,8 @@ public class ProjectApplication {
         }
 
         if (envFile == null) {
-            System.err.println("⚠️ .env file not found in common locations. Using defaults from application.properties.");
+            System.err
+                    .println("⚠️ .env file not found in common locations. Using defaults from application.properties.");
             return;
         }
 
@@ -38,12 +39,14 @@ public class ProjectApplication {
             String line;
             while ((line = reader.readLine()) != null) {
                 line = line.trim();
-                if (line.isEmpty() || line.startsWith("#")) continue;
+                if (line.isEmpty() || line.startsWith("#"))
+                    continue;
 
                 int equalIndex = line.indexOf('=');
-                if (equalIndex == -1) continue;
+                if (equalIndex == -1)
+                    continue;
 
-                String key   = line.substring(0, equalIndex).trim();
+                String key = line.substring(0, equalIndex).trim();
                 String value = line.substring(equalIndex + 1).trim();
 
                 if (System.getProperty(key) == null) {

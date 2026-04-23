@@ -30,9 +30,10 @@ public class BookingController {
     }
 
     @GetMapping("/my")
-    public ResponseEntity<List<BookingResponse>> getMyBookings() {
+    public ResponseEntity<List<BookingResponse>> getMyBookings(@RequestParam(name = "query", required = false) String query) {
+        System.out.println("DEBUG: Searching for bookings with keyword: " + query);
         String userId = userService.getCurrentUser().getId();
-        return ResponseEntity.ok(bookingService.getUserBookings(userId));
+        return ResponseEntity.ok(bookingService.getUserBookings(userId, query));
     }
 
     @GetMapping
@@ -43,7 +44,8 @@ public class BookingController {
 
     @PutMapping("/{id}/action")
     @PreAuthorize("hasRole('ADMINISTRATOR')")
-    public ResponseEntity<BookingResponse> processAction(@PathVariable String id, @RequestBody AdminBookingAction action) {
+    public ResponseEntity<BookingResponse> processAction(@PathVariable String id,
+            @RequestBody AdminBookingAction action) {
         return ResponseEntity.ok(bookingService.processBookingAction(id, action));
     }
 
@@ -57,5 +59,11 @@ public class BookingController {
     public ResponseEntity<BookingResponse> update(@PathVariable String id, @RequestBody BookingRequest request) {
         String userId = userService.getCurrentUser().getId();
         return ResponseEntity.ok(bookingService.updateBooking(userId, id, request));
+    }
+
+    @GetMapping("/analytics")
+    @PreAuthorize("hasRole('ADMINISTRATOR')")
+    public ResponseEntity<java.util.Map<String, Object>> getAnalytics() {
+        return ResponseEntity.ok(bookingService.getBookingAnalytics());
     }
 }

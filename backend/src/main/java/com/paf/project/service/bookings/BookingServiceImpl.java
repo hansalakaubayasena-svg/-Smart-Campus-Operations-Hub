@@ -15,7 +15,11 @@ import com.paf.project.model.notifications.Notification.NotificationType;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.stream.Collectors;
+import java.util.Comparator;
 
 @Service
 public class BookingServiceImpl implements BookingService {
@@ -25,10 +29,10 @@ public class BookingServiceImpl implements BookingService {
     private final UserRepository userRepository;
     private final com.paf.project.service.notifications.NotificationService notificationService;
 
-    public BookingServiceImpl(BookingRepository bookingRepository, 
-                              FacilityRepository facilityRepository, 
-                              UserRepository userRepository,
-                              com.paf.project.service.notifications.NotificationService notificationService) {
+    public BookingServiceImpl(BookingRepository bookingRepository,
+            FacilityRepository facilityRepository,
+            UserRepository userRepository,
+            com.paf.project.service.notifications.NotificationService notificationService) {
         this.bookingRepository = bookingRepository;
         this.facilityRepository = facilityRepository;
         this.userRepository = userRepository;
@@ -47,14 +51,15 @@ public class BookingServiceImpl implements BookingService {
 
         if (request.getExpectedAttendees() != null && facility.getCapacity() != null) {
             if (request.getExpectedAttendees() > facility.getCapacity()) {
-                throw new ResourceConflictException("Expected attendees exceed the facility capacity (" + facility.getCapacity() + ").");
+                throw new ResourceConflictException(
+                        "Expected attendees exceed the facility capacity (" + facility.getCapacity() + ").");
             }
         }
 
         // Check for overlaps
         List<Booking> overlaps = bookingRepository.findOverlappingBookings(
                 request.getFacilityId(), request.getStartTime(), request.getEndTime());
-        
+
         if (!overlaps.isEmpty()) {
             throw new ResourceConflictException("The requested time slot overlaps with an existing booking.");
         }
@@ -70,17 +75,24 @@ public class BookingServiceImpl implements BookingService {
         Booking savedBooking = bookingRepository.save(booking);
 
         // Notify user
-        notificationService.notify(userId, 
-                NotificationType.BOOKING_PENDING, 
-                "Your booking request for " + facility.getNameOrModel() + " has been submitted.", 
+        notificationService.notify(userId,
+                NotificationType.BOOKING_PENDING,
+                "Your booking request for " + facility.getNameOrModel() + " has been submitted.",
                 savedBooking.getId(), "BOOKING");
 
         return toResponse(savedBooking);
     }
 
     @Override
-    public List<BookingResponse> getUserBookings(String userId) {
-        return bookingRepository.findByUserId(userId).stream()
+    public List<BookingResponse> getUserBookings(String userId, String search) {
+        List<Booking> bookings;
+        if (search != null && !search.isBlank()) {
+            bookings = bookingRepository.findByUserIdAndPurposeContainingIgnoreCase(userId, search);
+        } else {
+            bookings = bookingRepository.findByUserId(userId);
+        }
+        
+        return bookings.stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
     }
@@ -108,17 +120,17 @@ public class BookingServiceImpl implements BookingService {
         Booking savedBooking = bookingRepository.save(booking);
 
         // Notify user of the action
-        NotificationType type = "APPROVED".equalsIgnoreCase(action.getStatus()) ? 
-                NotificationType.BOOKING_APPROVED : NotificationType.BOOKING_REJECTED;
-        
+        NotificationType type = "APPROVED".equalsIgnoreCase(action.getStatus()) ? NotificationType.BOOKING_APPROVED
+                : NotificationType.BOOKING_REJECTED;
+
         String facilityName = facilityRepository.findByResourceId(booking.getFacilityId())
                 .map(Facility::getNameOrModel)
                 .orElse("facility");
 
-        notificationService.notify(booking.getUserId(), 
-                type, 
-                "Your booking for " + facilityName + " has been " + action.getStatus().toLowerCase() + ". " + 
-                (action.getNotes() != null ? "Note: " + action.getNotes() : ""), 
+        notificationService.notify(booking.getUserId(),
+                type,
+                "Your booking for " + facilityName + " has been " + action.getStatus().toLowerCase() + ". " +
+                        (action.getNotes() != null ? "Note: " + action.getNotes() : ""),
                 savedBooking.getId(), "BOOKING");
 
         return toResponse(savedBooking);
@@ -137,9 +149,9 @@ public class BookingServiceImpl implements BookingService {
         Booking savedBooking = bookingRepository.save(booking);
 
         // Notify user
-        notificationService.notify(userId, 
-                NotificationType.BOOKING_CANCELLED, 
-                "Your booking has been cancelled successfully.", 
+        notificationService.notify(userId,
+                NotificationType.BOOKING_CANCELLED,
+                "Your booking has been cancelled successfully.",
                 savedBooking.getId(), "BOOKING");
 
         return toResponse(savedBooking);
@@ -166,9 +178,9 @@ public class BookingServiceImpl implements BookingService {
         Booking savedBooking = bookingRepository.save(booking);
 
         // Notify user
-        notificationService.notify(userId, 
-                NotificationType.BOOKING_PENDING, 
-                "Your booking has been updated and is pending re-approval.", 
+        notificationService.notify(userId,
+                NotificationType.BOOKING_PENDING,
+                "Your booking has been updated and is pending re-approval.",
                 savedBooking.getId(), "BOOKING");
 
         return toResponse(savedBooking);
@@ -178,7 +190,7 @@ public class BookingServiceImpl implements BookingService {
         String facilityName = facilityRepository.findByResourceId(booking.getFacilityId())
                 .map(Facility::getNameOrModel)
                 .orElse("Unknown Facility");
-        
+
         String userName = userRepository.findById(booking.getUserId())
                 .map(User::getFullName)
                 .orElse("Unknown User");
@@ -195,7 +207,46 @@ public class BookingServiceImpl implements BookingService {
                 booking.getExpectedAttendees(),
                 booking.getStatus(),
                 booking.getAdminNotes(),
-                booking.getCreatedAt()
-        );
+                booking.getCreatedAt());
+    }
+
+    @Override
+    public Map<String, Object> getBookingAnalytics() {
+        List<Booking> allBookings = bookingRepository.findAll();
+        Map<String, Object> analytics = new HashMap<>();
+
+        // Status Distribution
+        Map<String, Long> statusCounts = allBookings.stream()
+                .collect(Collectors.groupingBy(Booking::getStatus, Collectors.counting()));
+        
+        List<Map<String, Object>> statusData = new ArrayList<>();
+        statusCounts.forEach((status, count) -> {
+            Map<String, Object> item = new HashMap<>();
+            item.put("name", status);
+            item.put("value", count);
+            statusData.add(item);
+        });
+        analytics.put("statusDistribution", statusData);
+
+        // Top Facilities
+        Map<String, Long> facilityCounts = allBookings.stream()
+                .collect(Collectors.groupingBy(Booking::getFacilityId, Collectors.counting()));
+
+        List<Map<String, Object>> facilityData = facilityCounts.entrySet().stream()
+                .sorted(Map.Entry.<String, Long>comparingByValue(Comparator.reverseOrder()))
+                .limit(5)
+                .map(entry -> {
+                    Map<String, Object> item = new HashMap<>();
+                    String name = facilityRepository.findById(entry.getKey())
+                            .map(f -> f.getNameOrModel())
+                            .orElse("Unknown");
+                    item.put("name", name);
+                    item.put("value", entry.getValue());
+                    return item;
+                })
+                .collect(Collectors.toList());
+        analytics.put("topFacilities", facilityData);
+
+        return analytics;
     }
 }
