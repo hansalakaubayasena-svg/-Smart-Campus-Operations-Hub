@@ -22,13 +22,29 @@ export const BookingModal = ({ isOpen, onClose, facility }) => {
     setError('');
 
     try {
-      const startTime = `${formData.date}T${formData.startTime}:00`;
-      const endTime = `${formData.date}T${formData.endTime}:00`;
+      const startStr = `${formData.date}T${formData.startTime}:00`;
+      const endStr = `${formData.date}T${formData.endTime}:00`;
+      
+      const start = new Date(startStr);
+      const end = new Date(endStr);
+      const now = new Date();
+
+      if (start < now) {
+        setError('Booking time cannot be in the past.');
+        setLoading(false);
+        return;
+      }
+
+      if (end <= start) {
+        setError('End time must be after the start time.');
+        setLoading(false);
+        return;
+      }
 
       await createBooking({
         facilityId: facility.resourceId || facility.id,
-        startTime,
-        endTime,
+        startTime: startStr,
+        endTime: endStr,
         purpose: formData.purpose,
         expectedAttendees: parseInt(formData.expectedAttendees)
       });
