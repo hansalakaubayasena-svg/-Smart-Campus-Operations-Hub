@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/bookings")
+@RequestMapping("/api/bookings") 
 public class BookingController {
 
     private final BookingService bookingService;
@@ -23,51 +23,51 @@ public class BookingController {
         this.userService = userService;
     }
 
-    @PostMapping
+    @PostMapping // Create a new booking request for the current user
     public ResponseEntity<BookingResponse> create(@RequestBody BookingRequest request) {
         String userId = userService.getCurrentUser().getId();
         return ResponseEntity.ok(bookingService.createBooking(userId, request));
     }
 
-    @GetMapping("/my")
+    @GetMapping("/my") // Get personal bookings of the logged-in user with optional search
     public ResponseEntity<List<BookingResponse>> getMyBookings(@RequestParam(name = "query", required = false) String query) {
         System.out.println("DEBUG: Searching for bookings with keyword: " + query);
         String userId = userService.getCurrentUser().getId();
         return ResponseEntity.ok(bookingService.getUserBookings(userId, query));
     }
 
-    @GetMapping
+    @GetMapping // Admin only: Retrieve all bookings in the system (filtered by status)
     @PreAuthorize("hasRole('ADMINISTRATOR')")
     public ResponseEntity<List<BookingResponse>> getAll(@RequestParam(required = false) String status) {
         return ResponseEntity.ok(bookingService.getAllBookings(status));
     }
 
-    @PutMapping("/{id}/action")
+    @PutMapping("/{id}/action") // Admin only: Approve or Reject a specific booking
     @PreAuthorize("hasRole('ADMINISTRATOR')")
     public ResponseEntity<BookingResponse> processAction(@PathVariable String id,
             @RequestBody AdminBookingAction action) {
         return ResponseEntity.ok(bookingService.processBookingAction(id, action));
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{id}") // Allow a user to cancel their own booking
     public ResponseEntity<BookingResponse> cancel(@PathVariable String id) {
         String userId = userService.getCurrentUser().getId();
         return ResponseEntity.ok(bookingService.cancelBooking(userId, id));
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/{id}") // Allow a user to edit/update their booking details
     public ResponseEntity<BookingResponse> update(@PathVariable String id, @RequestBody BookingRequest request) {
         String userId = userService.getCurrentUser().getId();
         return ResponseEntity.ok(bookingService.updateBooking(userId, id, request));
     }
 
-    @GetMapping("/analytics")
+    @GetMapping("/analytics") // Admin only: Fetch data for the analytics dashboard charts
     @PreAuthorize("hasRole('ADMINISTRATOR')")
     public ResponseEntity<java.util.Map<String, Object>> getAnalytics() {
         return ResponseEntity.ok(bookingService.getBookingAnalytics());
     }
 
-    @DeleteMapping("/{id}/admin")
+    @DeleteMapping("/{id}/admin") // Admin only: Permanently delete a booking from the system
     @PreAuthorize("hasRole('ADMINISTRATOR')")
     public ResponseEntity<Void> deleteBooking(@PathVariable String id) {
         bookingService.deleteBooking(id);
