@@ -172,7 +172,7 @@ const AdminAnalyticsPage = () => {
         </div>
         <div className="flex items-center gap-3 bg-white px-5 py-2.5 rounded-2xl border border-slate-200 shadow-sm">
           <div className="h-3 w-3 rounded-full bg-emerald-500 animate-pulse" />
-          <span className="text-sm font-bold text-slate-600">Live Data Feed</span>
+          <span className="text-sm font-semibold text-slate-600">Live Data Feed</span>
         </div>
       </div>
 
@@ -218,7 +218,7 @@ const AdminAnalyticsPage = () => {
           <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:opacity-[0.05] transition-opacity">
             <BarChart3 className="h-32 w-32" />
           </div>
-          <h3 className="text-xl font-bold text-slate-900 mb-1">Capacity vs Utilization</h3>
+          <h3 className="text-xl font-semibold text-slate-900 mb-1">Capacity vs Utilization</h3>
           <p className="text-sm text-slate-500 mb-6">Each facility's total capacity compared with average usage per booking.</p>
           <div className="h-[350px]">
             <ResponsiveContainer width="100%" height="100%">
@@ -254,7 +254,7 @@ const AdminAnalyticsPage = () => {
           </div>
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
             <div>
-              <h3 className="text-xl font-bold text-slate-900 mb-1">Booking Demand Over Time</h3>
+              <h3 className="text-xl font-semibold text-slate-900 mb-1">Booking Demand Over Time</h3>
               <p className="text-sm text-slate-500">Daily, weekly, and monthly booking trends with peak periods.</p>
             </div>
             <div className="inline-flex bg-slate-100 rounded-xl p-1">
@@ -308,7 +308,7 @@ const AdminAnalyticsPage = () => {
           <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:opacity-[0.05] transition-opacity">
             <PieChartIcon className="h-32 w-32" />
           </div>
-          <h3 className="text-xl font-bold text-slate-900 mb-8">Booking Status Distribution</h3>
+          <h3 className="text-xl font-semibold text-slate-900 mb-8">Booking Status Distribution</h3>
           <div className="h-[350px]">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -341,7 +341,7 @@ const AdminAnalyticsPage = () => {
           <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:opacity-[0.05] transition-opacity">
             <BarChart3 className="h-32 w-32" />
           </div>
-          <h3 className="text-xl font-bold text-slate-900 mb-8">Top Requested Facilities</h3>
+          <h3 className="text-xl font-semibold text-slate-900 mb-8">Top Requested Facilities</h3>
           <div className="h-[350px]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={analytics.topFacilities || []} layout="vertical" margin={{ left: 20 }}>
@@ -378,7 +378,7 @@ const AdminAnalyticsPage = () => {
       {/* Visual Accent */}
       <div className="mt-10 p-8 bg-gradient-to-r from-blue-600 to-indigo-700 rounded-[2.5rem] text-white overflow-hidden relative shadow-2xl shadow-blue-200">
         <div className="relative z-10">
-            <h4 className="text-2xl font-bold mb-2">Smart Campus Efficiency</h4>
+            <h4 className="text-2xl font-semibold mb-2">Smart Campus Efficiency</h4>
             <p className="text-blue-100 max-w-xl">
                 Our reservation engine is processing requests with a 98.4% uptime. 
                 Resource allocation is currently optimized based on the latest traffic patterns.
@@ -406,13 +406,13 @@ const StatCard = ({ title, value, icon, trend, positive, color }) => {
         <div className={`p-3 rounded-2xl ${colorClasses[color]}`}>
           {icon}
         </div>
-        <div className={`flex items-center gap-1 text-xs font-bold px-2 py-1 rounded-full ${positive ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'}`}>
+        <div className={`flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-full ${positive ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'}`}>
           {positive ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
           {trend}
         </div>
       </div>
       <p className="text-sm font-medium text-slate-400 uppercase tracking-wider mb-1">{title}</p>
-      <p className="text-2xl font-black text-slate-900">{value}</p>
+      <p className="text-2xl font-extrabold text-slate-900">{value}</p>
     </div>
   );
 };

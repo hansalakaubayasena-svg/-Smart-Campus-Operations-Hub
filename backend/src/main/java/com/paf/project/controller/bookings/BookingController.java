@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/bookings") 
+@RequestMapping("/api/bookings")
 public class BookingController {
 
     private final BookingService bookingService;
@@ -30,7 +30,8 @@ public class BookingController {
     }
 
     @GetMapping("/my") // Get personal bookings of the logged-in user with optional search
-    public ResponseEntity<List<BookingResponse>> getMyBookings(@RequestParam(name = "query", required = false) String query) {
+    public ResponseEntity<List<BookingResponse>> getMyBookings(
+            @RequestParam(name = "query", required = false) String query) {
         System.out.println("DEBUG: Searching for bookings with keyword: " + query);
         String userId = userService.getCurrentUser().getId();
         return ResponseEntity.ok(bookingService.getUserBookings(userId, query));
