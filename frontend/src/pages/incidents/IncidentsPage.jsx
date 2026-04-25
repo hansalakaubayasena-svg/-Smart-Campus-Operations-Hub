@@ -1,118 +1,143 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, RefreshCw, Shield, UserCog, Wrench } from 'lucide-react';
-import TicketForm from '../../components/incidents/TicketForm';
-import { getUsers } from '../../services/auth/authService';
+import { useEffect, useMemo, useState } from "react";
+import {
+  AlertCircle,
+  CheckCircle2,
+  Clock3,
+  Loader2,
+  RefreshCw,
+  ShieldCheck,
+  UserRound,
+  Wrench,
+} from "lucide-react";
+import TicketForm from "../../components/incidents/TicketForm";
+import { useAuth } from "../../context/AuthContext";
+import { getUsers } from "../../services/auth/authService";
 import {
   assignTicket,
   createTicket,
   getTickets,
   updateTicketStatus,
-} from '../../services/incidents/ticketService';
+} from "../../services/incidents/ticketService";
 
-const statusMessages = {
-  OPEN: 'Your ticket has been received and is waiting for staff attention.',
-  IN_PROGRESS: 'A technician is actively checking the issue and working on a solution.',
-  RESOLVED: 'The technician has marked this issue as solved and shared the solution below.',
-  CLOSED: 'This issue is completed and closed.',
-  REJECTED: 'This ticket was rejected by the admin team.',
+const STATUS_COPY = {
+  OPEN: "Waiting for a technician to review the issue.",
+  IN_PROGRESS: "A technician is actively checking and working on the problem.",
+  RESOLVED: "A solution has been provided. Review the technician response.",
+  CLOSED: "This ticket is complete and closed.",
+  REJECTED: "This ticket was rejected. Check the support note for details.",
 };
 
-const nextStepMessages = {
-  OPEN: 'Our support team will review your request and assign it to a technician.',
-  IN_PROGRESS: 'Please wait while the technician continues the work and sends the next update.',
-  RESOLVED: 'Review the solution from the technician. If everything is fine, the ticket can be closed.',
-  CLOSED: 'This support request is complete.',
-  REJECTED: 'Please review the rejection reason and raise a new ticket if needed.',
+const PRIORITY_STYLES = {
+  LOW: "bg-slate-100 text-slate-700",
+  MEDIUM: "bg-amber-100 text-amber-800",
+  HIGH: "bg-orange-100 text-orange-800",
+  CRITICAL: "bg-red-100 text-red-700",
 };
 
-const getTechnicianResponse = (ticket) => {
-  if (ticket.status === 'REJECTED') {
-    return ticket.rejectionReason || 'No rejection reason was provided.';
-  }
-  return ticket.resolutionNotes || 'No response from technician yet.';
+const STATUS_STYLES = {
+  OPEN: "bg-sky-100 text-sky-700",
+  IN_PROGRESS: "bg-amber-100 text-amber-800",
+  RESOLVED: "bg-emerald-100 text-emerald-700",
+  CLOSED: "bg-slate-200 text-slate-700",
+  REJECTED: "bg-rose-100 text-rose-700",
 };
+
+const normalizeRole = (role) => {
+  if (role === "ADMINISTRATOR" || role === "ADMIN") return "ADMIN";
+  if (role === "STUDENT" || role === "USER") return "USER";
+  return role ?? "USER";
+};
+
+const getDisplayName = (user) =>
+  user
+    ? user.fullName || user.username || user.email || `User #${user.id ?? "Unknown"}`
+    : "";
+
+const getUserById = (users, userId) =>
+  users.find((user) => String(user.id) === String(userId)) ?? null;
 
 const IncidentsPage = () => {
-  const navigate = useNavigate();
-  const [users, setUsers] = useState([]);
+  const { user } = useAuth();
+  const role = normalizeRole(user?.role);
+  const isUser = role === "USER";
+  const isTechnician = role === "TECHNICIAN";
+  const isAdmin = role === "ADMIN";
+  const canManageWorkflow = isTechnician || isAdmin;
+
   const [tickets, setTickets] = useState([]);
+  const [users, setUsers] = useState([]);
   const [selectedTicketId, setSelectedTicketId] = useState(null);
-  const [activeUserId, setActiveUserId] = useState('');
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [feedback, setFeedback] = useState('');
-  const [showSolutionForm, setShowSolutionForm] = useState(false);
-  const [statusForm, setStatusForm] = useState({ status: 'IN_PROGRESS', solutionText: '', rejectionReason: '' });
+  const [feedback, setFeedback] = useState({ type: "", message: "" });
+  const [statusForm, setStatusForm] = useState({
+    status: "IN_PROGRESS",
+    solutionText: "",
+    rejectionReason: "",
+  });
 
-  const activeUser = useMemo(
-    () => users.find((user) => String(user.id) === String(activeUserId)),
-    [users, activeUserId],
+  const visibleTickets = useMemo(() => {
+    if (!isUser) return tickets;
+    return tickets.filter(
+      (ticket) => String(ticket.createdByUserId) === String(user?.id ?? user?.userId),
+    );
+  }, [isUser, tickets, user]);
+
+  const selectedTicket = useMemo(() => {
+    if (!visibleTickets.length) return null;
+    return (
+      visibleTickets.find((ticket) => String(ticket.id) === String(selectedTicketId)) ??
+      visibleTickets[0]
+    );
+  }, [selectedTicketId, visibleTickets]);
+
+  const technicianUsers = useMemo(
+    () => users.filter((entry) => normalizeRole(entry.role) === "TECHNICIAN"),
+    [users],
   );
 
-  const canCreateTickets = activeUser?.role === 'USER';
-  const canManageWorkflow = activeUser?.role === 'TECHNICIAN' || activeUser?.role === 'ADMIN';
-  const canAssignTickets = activeUser?.role === 'ADMIN';
-  const visibleTickets = useMemo(() => {
-    if (activeUser?.role === 'USER') {
-      return tickets.filter((ticket) => ticket.createdByUserId === activeUser.id);
-    }
-    return tickets;
-  }, [tickets, activeUser]);
-
-  const selectedTicket = useMemo(
-    () => visibleTickets.find((ticket) => ticket.id === selectedTicketId) || visibleTickets[0] || null,
-    [visibleTickets, selectedTicketId],
+  const queueSummary = useMemo(
+    () => ({
+      total: visibleTickets.length,
+      open: visibleTickets.filter((ticket) => ticket.status === "OPEN").length,
+      active: visibleTickets.filter((ticket) => ticket.status === "IN_PROGRESS").length,
+      resolved: visibleTickets.filter((ticket) => ticket.status === "RESOLVED").length,
+    }),
+    [visibleTickets],
   );
 
   const allowedStatusOptions = useMemo(() => {
-    if (!selectedTicket) return [];
+    if (!selectedTicket || !canManageWorkflow) return [];
 
-    if (selectedTicket.status === 'OPEN') {
-      return activeUser?.role === 'ADMIN' ? ['IN_PROGRESS', 'REJECTED'] : ['IN_PROGRESS'];
+    if (selectedTicket.status === "OPEN") {
+      return isAdmin ? ["IN_PROGRESS", "RESOLVED", "REJECTED"] : ["IN_PROGRESS", "RESOLVED"];
     }
-    if (selectedTicket.status === 'IN_PROGRESS') {
-      return activeUser?.role === 'ADMIN' ? ['RESOLVED', 'REJECTED'] : ['RESOLVED'];
+    if (selectedTicket.status === "IN_PROGRESS") {
+      return isAdmin ? ["RESOLVED", "REJECTED"] : ["RESOLVED"];
     }
-    if (selectedTicket.status === 'RESOLVED') {
-      return activeUser?.role === 'ADMIN' ? ['CLOSED', 'REJECTED'] : ['CLOSED'];
+    if (selectedTicket.status === "RESOLVED") {
+      return ["CLOSED"];
     }
     return [];
-  }, [selectedTicket, activeUser]);
-
-  const technicianUpdateLabel =
-    statusForm.status === 'RESOLVED'
-      ? 'Final Solution For User'
-      : statusForm.status === 'REJECTED'
-        ? 'Admin Decision Update'
-        : 'Technician Progress Update';
-  const technicianUpdatePlaceholder =
-    statusForm.status === 'RESOLVED'
-      ? 'Explain clearly what was fixed and the final solution given to the user.'
-      : statusForm.status === 'REJECTED'
-        ? 'Explain clearly why this ticket cannot be processed.'
-        : 'Explain what the technician checked, what is happening now, and what the user should know.';
-
-  const staffUsers = useMemo(
-    () => users.filter((user) => ['TECHNICIAN', 'ADMIN'].includes(user.role)),
-    [users],
-  );
+  }, [selectedTicket, canManageWorkflow, isAdmin]);
 
   const loadData = async () => {
     setLoading(true);
     try {
-      const [userData, ticketData] = await Promise.all([getUsers(), getTickets()]);
-      setUsers(userData);
+      const [ticketData, userData] = await Promise.all([
+        getTickets(),
+        canManageWorkflow || isAdmin ? getUsers() : Promise.resolve([]),
+      ]);
       setTickets(ticketData);
-      if (!activeUserId && userData.length > 0) {
-        setActiveUserId(String(userData[0].id));
-      }
-      if (ticketData.length > 0) {
-        setSelectedTicketId((current) => current || ticketData[0].id);
-      }
-      setFeedback('');
+      setUsers(userData);
+      setFeedback({ type: "", message: "" });
     } catch (error) {
-      setFeedback('Backend connection failed. Start Spring Boot on port 8080 and refresh.');
+      setFeedback({
+        type: "error",
+        message:
+          error?.response?.data?.message ||
+          "Ticket data could not be loaded. Please check the backend connection.",
+      });
     } finally {
       setLoading(false);
     }
@@ -120,28 +145,33 @@ const IncidentsPage = () => {
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [canManageWorkflow, isAdmin]);
 
   useEffect(() => {
-    if (selectedTicket) {
-      setStatusForm({
-        status:
-          selectedTicket.status === 'OPEN'
-            ? 'IN_PROGRESS'
-            : selectedTicket.status === 'IN_PROGRESS'
-              ? 'RESOLVED'
-              : selectedTicket.status === 'RESOLVED'
-                ? 'CLOSED'
-                : selectedTicket.status,
-        solutionText: selectedTicket.resolutionNotes || '',
-        rejectionReason: selectedTicket.rejectionReason || '',
-      });
-      setShowSolutionForm(false);
+    if (!visibleTickets.some((ticket) => String(ticket.id) === String(selectedTicketId))) {
+      setSelectedTicketId(visibleTickets[0]?.id ?? null);
     }
+  }, [selectedTicketId, visibleTickets]);
+
+  useEffect(() => {
+    if (!selectedTicket) return;
+
+    const fallbackStatus =
+      selectedTicket.status === "OPEN"
+        ? "IN_PROGRESS"
+        : selectedTicket.status === "IN_PROGRESS"
+          ? "RESOLVED"
+          : "CLOSED";
+
+    setStatusForm({
+      status: fallbackStatus,
+      solutionText: selectedTicket.resolutionNotes ?? "",
+      rejectionReason: selectedTicket.rejectionReason ?? "",
+    });
   }, [selectedTicket]);
 
   useEffect(() => {
-    if (allowedStatusOptions.length > 0 && !allowedStatusOptions.includes(statusForm.status)) {
+    if (allowedStatusOptions.length && !allowedStatusOptions.includes(statusForm.status)) {
       setStatusForm((current) => ({
         ...current,
         status: allowedStatusOptions[0],
@@ -149,373 +179,567 @@ const IncidentsPage = () => {
     }
   }, [allowedStatusOptions, statusForm.status]);
 
-  useEffect(() => {
-    if (!visibleTickets.some((ticket) => ticket.id === selectedTicketId)) {
-      setSelectedTicketId(visibleTickets[0]?.id ?? null);
-    }
-  }, [visibleTickets, selectedTicketId]);
-
-  useEffect(() => {
-    if (activeUserId) {
-      loadData();
-    }
-  }, [activeUserId]);
+  const pushSuccess = (message) => setFeedback({ type: "success", message });
+  const pushError = (error, fallback) =>
+    setFeedback({
+      type: "error",
+      message: error?.response?.data?.message || fallback,
+    });
 
   const handleCreateTicket = async (payload) => {
     setSubmitting(true);
     try {
       await createTicket(payload);
       await loadData();
-      setFeedback('Incident ticket created successfully.');
+      pushSuccess("Your ticket was raised successfully. You can now track it below.");
+    } catch (error) {
+      pushError(error, "Ticket could not be raised right now.");
+      throw error;
     } finally {
       setSubmitting(false);
     }
   };
 
-  const handleAssign = async (assigneeUserId) => {
-    if (!selectedTicket || !activeUserId) return;
-    const updatedTicket = await assignTicket(selectedTicket.id, {
-      adminUserId: Number(activeUserId),
-      assigneeUserId: Number(assigneeUserId),
-    });
-    setTickets((current) => current.map((ticket) => (ticket.id === updatedTicket.id ? updatedTicket : ticket)));
-    setFeedback('Technician assignment updated.');
-    await loadData();
+  const handleAssign = async (staffUserId) => {
+    if (!selectedTicket) return;
+
+    setSubmitting(true);
+    try {
+      await assignTicket(selectedTicket.id, {
+        assigneeUserId: staffUserId,
+      });
+      await loadData();
+      pushSuccess("Ticket ownership updated successfully.");
+    } catch (error) {
+      pushError(error, "Technician assignment failed.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleStatusUpdate = async () => {
-    if (!selectedTicket || !activeUserId) return;
+    if (!selectedTicket) return;
+
     setSubmitting(true);
     try {
-      const updatedTicket = await updateTicketStatus(selectedTicket.id, {
-        actorUserId: Number(activeUserId),
+      await updateTicketStatus(selectedTicket.id, {
         status: statusForm.status,
         resolutionNotes: statusForm.solutionText,
-        rejectionReason: statusForm.status === 'REJECTED' ? statusForm.rejectionReason : '',
+        rejectionReason:
+          statusForm.status === "REJECTED" ? statusForm.rejectionReason : "",
       });
-      setTickets((current) => current.map((ticket) => (ticket.id === updatedTicket.id ? updatedTicket : ticket)));
-      setSelectedTicketId(updatedTicket.id);
-      setFeedback('Technician update saved and shown to the user.');
       await loadData();
+      pushSuccess("Solution saved. The user can now see the latest technician update.");
     } catch (error) {
-      setFeedback(error?.response?.data?.message || 'Workflow update failed. Follow the allowed ticket flow.');
+      pushError(error, "Ticket workflow update failed.");
     } finally {
       setSubmitting(false);
     }
   };
 
+  const currentReporter = getUserById(users, selectedTicket?.createdByUserId);
+  const currentAssignee = getUserById(users, selectedTicket?.assignedStaffUserId);
+  const technicianResponse =
+    selectedTicket?.status === "REJECTED"
+      ? selectedTicket?.rejectionReason || "No rejection reason provided yet."
+      : selectedTicket?.resolutionNotes || "The technician has not shared a solution yet.";
+
   return (
-    <div className="incidents-page">
-      <header className="incidents-topbar">
-        <div>
-          <button className="ghost-btn" onClick={() => navigate('/')}>
-            <ArrowLeft size={16} />
-            Dashboard
-          </button>
-          <p className="eyebrow">Assignment Demo Flow</p>
-          <h1>Maintenance & Incident Ticketing</h1>
-          <p className="subtle-text">
-            {canCreateTickets
-              ? 'User view: raise incident tickets, track your own requests, and follow updates.'
-              : canManageWorkflow
-                ? 'Staff view: inspect reported incidents, update progress, and resolve assigned issues.'
-                : 'Select a demo user to continue.'}
-          </p>
-        </div>
+    <div className="space-y-6">
+      <section className="rounded-[32px] border border-slate-200 bg-gradient-to-br from-white via-slate-50 to-blue-50/70 p-6 shadow-sm">
+        <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+          <div className="max-w-3xl">
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-blue-600">
+              Smart Ticketing Flow
+            </p>
+            <h1 className="mt-3 text-3xl font-black tracking-tight text-slate-900">
+              {isUser
+                ? "Raise a ticket and follow every technician update"
+                : "Review reported issues and send the solution back to users"}
+            </h1>
+            <p className="mt-3 text-sm leading-6 text-slate-600">
+              {isUser
+                ? "Users can submit a maintenance problem once, then monitor status, assigned technician, and final solution without editing the ticket."
+                : "Technicians and admins can inspect the queue, take ownership, move workflow stages forward, and publish updates that are immediately visible to the reporting user."}
+            </p>
+          </div>
 
-        <div className="control-strip">
-          <label className="actor-select">
-            Active Demo User
-            <select value={activeUserId} onChange={(event) => setActiveUserId(event.target.value)}>
-              {users.map((user) => (
-                <option key={user.id} value={user.id}>
-                  {user.username} ({user.role})
-                </option>
-              ))}
-            </select>
-          </label>
-          <button className="ghost-btn" onClick={loadData}>
-            <RefreshCw size={16} />
-            Refresh
-          </button>
-        </div>
-      </header>
-
-      {feedback ? <div className="feedback-banner">{feedback}</div> : null}
-
-      <div className="incidents-layout">
-        <div className="left-column">
-          {canCreateTickets ? (
-            <TicketForm actorUserId={Number(activeUserId)} onSubmit={handleCreateTicket} submitting={submitting} />
-          ) : (
-            <section className="glass-panel role-panel">
-              <div className="panel-heading">
-                <div>
-                  <p className="eyebrow">Signed In As</p>
-                  <h2>{activeUser?.role || 'Guest'} Access</h2>
-                </div>
-                <span className={`status-chip ${canManageWorkflow ? 'in_progress' : 'closed'}`}>
-                  {activeUser?.role || 'NONE'}
-                </span>
-              </div>
-              <p className="subtle-text">
-                {activeUser?.role === 'TECHNICIAN' && 'Technician accounts can inspect tickets, add internal updates, and move tickets through the workflow.'}
-                {activeUser?.role === 'ADMIN' && 'Admin accounts can do technician actions and also assign tickets to available staff members.'}
-                {!activeUser && 'Choose a user from the selector to unlock the correct incident experience.'}
+          <div className="grid min-w-[260px] gap-3 sm:grid-cols-3 lg:grid-cols-1">
+            <div className="rounded-2xl bg-white/90 p-4 shadow-sm ring-1 ring-slate-200">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+                Signed In As
               </p>
+              <div className="mt-2 flex items-center gap-2">
+                {isUser ? (
+                  <UserRound className="h-5 w-5 text-emerald-600" />
+                ) : (
+                  <Wrench className="h-5 w-5 text-amber-600" />
+                )}
+                <strong className="text-slate-900">{role}</strong>
+              </div>
+              <p className="mt-2 text-sm text-slate-600">{getDisplayName(user)}</p>
+            </div>
+            <div className="rounded-2xl bg-white/90 p-4 shadow-sm ring-1 ring-slate-200">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+                Queue Status
+              </p>
+              <p className="mt-2 text-2xl font-black text-slate-900">{queueSummary.total}</p>
+              <p className="text-sm text-slate-600">
+                {isUser ? "visible to you" : "tickets in the support queue"}
+              </p>
+            </div>
+            <button
+              onClick={loadData}
+              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-900 px-4 py-4 text-sm font-semibold text-white transition hover:bg-slate-800"
+            >
+              <RefreshCw className="h-4 w-4" />
+              Refresh Queue
+            </button>
+          </div>
+        </div>
+
+        <div className="mt-6 grid gap-3 sm:grid-cols-3">
+          <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-left">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+              Open
+            </p>
+            <p className="mt-2 text-2xl font-bold text-slate-900">{queueSummary.open}</p>
+          </div>
+          <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-left">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+              In Progress
+            </p>
+            <p className="mt-2 text-2xl font-bold text-slate-900">{queueSummary.active}</p>
+          </div>
+          <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-left">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+              Resolved
+            </p>
+            <p className="mt-2 text-2xl font-bold text-slate-900">{queueSummary.resolved}</p>
+          </div>
+        </div>
+      </section>
+
+      {feedback.message ? (
+        <div
+          className={`flex items-start gap-3 rounded-2xl border px-4 py-3 text-sm ${
+            feedback.type === "error"
+              ? "border-red-200 bg-red-50 text-red-700"
+              : "border-emerald-200 bg-emerald-50 text-emerald-700"
+          }`}
+        >
+          {feedback.type === "error" ? (
+            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+          ) : (
+            <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
+          )}
+          <span>{feedback.message}</span>
+        </div>
+      ) : null}
+
+      <div className="grid gap-6 xl:grid-cols-[1.1fr,0.9fr]">
+        <div className="space-y-6">
+          {isUser ? (
+            <TicketForm
+              actorUser={user}
+              onSubmit={handleCreateTicket}
+              submitting={submitting}
+            />
+          ) : (
+            <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-amber-600">
+                Technician Workspace
+              </p>
+              <h2 className="mt-2 text-2xl font-bold text-slate-900">
+                Support workflow guidance
+              </h2>
+              <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                <div className="rounded-2xl bg-slate-50 p-4 text-left">
+                  <strong className="text-sm text-slate-900">1. Review ticket</strong>
+                  <p className="mt-2 text-sm text-slate-600">
+                    Understand the issue, priority, location, and evidence first.
+                  </p>
+                </div>
+                <div className="rounded-2xl bg-slate-50 p-4 text-left">
+                  <strong className="text-sm text-slate-900">2. Update progress</strong>
+                  <p className="mt-2 text-sm text-slate-600">
+                    Move the ticket through the workflow with clear progress notes.
+                  </p>
+                </div>
+                <div className="rounded-2xl bg-slate-50 p-4 text-left">
+                  <strong className="text-sm text-slate-900">3. Publish solution</strong>
+                  <p className="mt-2 text-sm text-slate-600">
+                    The response you save here becomes visible to the reporting user.
+                  </p>
+                </div>
+              </div>
             </section>
           )}
 
-          <section className="glass-panel">
-            <div className="panel-heading">
+          <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div className="flex items-center justify-between gap-4">
               <div>
-                <p className="eyebrow">Current Queue</p>
-                <h2>{canCreateTickets ? 'My Reported Tickets' : 'Reported Tickets'}</h2>
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">
+                  {isUser ? "My Tickets" : "Support Queue"}
+                </p>
+                <h2 className="mt-2 text-2xl font-bold text-slate-900">
+                  {isUser ? "Submitted Tickets" : "Reported Tickets"}
+                </h2>
               </div>
-              <span className="summary-pill">{visibleTickets.length} visible</span>
+              {loading ? <Loader2 className="h-5 w-5 animate-spin text-slate-400" /> : null}
             </div>
 
-            <div className="ticket-list">
-              {loading ? <p className="subtle-text">Loading incident tickets...</p> : null}
-              {!loading && visibleTickets.length === 0 ? (
-                <p className="subtle-text">
-                  {canCreateTickets ? 'You have not raised any tickets yet. Submit one using the form.' : 'No tickets are available right now.'}
-                </p>
+            <div className="mt-5 space-y-3">
+              {!loading && !visibleTickets.length ? (
+                <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-8 text-center text-sm text-slate-500">
+                  {isUser
+                    ? "You have not raised any ticket yet. Use the form above to report a problem."
+                    : "No tickets are available in the queue right now."}
+                </div>
               ) : null}
+
               {visibleTickets.map((ticket) => (
                 <button
                   key={ticket.id}
-                  className={`ticket-card ${selectedTicket?.id === ticket.id ? 'selected' : ''}`}
+                  type="button"
                   onClick={() => setSelectedTicketId(ticket.id)}
+                  className={`w-full rounded-2xl border px-4 py-4 text-left transition ${
+                    String(selectedTicket?.id) === String(ticket.id)
+                      ? "border-blue-500 bg-blue-50 shadow-sm"
+                      : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
+                  }`}
                 >
-                  <div className="ticket-card-header">
-                    <strong>#{ticket.id} {ticket.category}</strong>
-                    <span className={`status-chip ${ticket.status.toLowerCase()}`}>{ticket.status}</span>
-                  </div>
-                  <p>{ticket.location}</p>
-                  <div className="ticket-meta">
-                    <span>{ticket.priority}</span>
-                    <span>{ticket.imageAttachments.length} attachments</span>
-                    <span>{ticket.status}</span>
-                  </div>
-                  {canCreateTickets ? (
-                    <div className="ticket-response-preview">
-                      <span className="detail-label">Technician Response</span>
-                      <p>{getTechnicianResponse(ticket)}</p>
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <p className="text-sm font-semibold text-slate-900">
+                        #{ticket.id} {ticket.resourceName || ticket.category}
+                      </p>
+                      <p className="mt-1 text-sm text-slate-600">{ticket.location}</p>
                     </div>
-                  ) : null}
+                    <div className="flex flex-wrap gap-2">
+                      <span
+                        className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
+                          PRIORITY_STYLES[ticket.priority] || PRIORITY_STYLES.MEDIUM
+                        }`}
+                      >
+                        {ticket.priority}
+                      </span>
+                      <span
+                        className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
+                          STATUS_STYLES[ticket.status] || STATUS_STYLES.OPEN
+                        }`}
+                      >
+                        {ticket.status}
+                      </span>
+                    </div>
+                  </div>
+                  <p className="mt-3 line-clamp-2 text-sm text-slate-600">
+                    {ticket.description}
+                  </p>
+                  <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-xs text-slate-500">
+                    <span>{ticket.imageAttachments?.length ?? 0} evidence files</span>
+                    <span>
+                      Assigned:{" "}
+                      {getDisplayName(getUserById(users, ticket.assignedStaffUserId)) ||
+                        (ticket.assignedStaffUserId ? `User #${ticket.assignedStaffUserId}` : "Pending")}
+                    </span>
+                  </div>
                 </button>
               ))}
             </div>
           </section>
         </div>
 
-        <div className="right-column">
-          <section className="glass-panel detail-panel">
-            {!selectedTicket ? (
-              <p className="subtle-text">Select a ticket to inspect workflow actions.</p>
-            ) : (
-              <>
-                <div className="panel-heading">
-                  <div>
-                    <p className="eyebrow">Ticket Detail</p>
-                    <h2>{selectedTicket.category}</h2>
-                  </div>
-                  <span className={`status-chip ${selectedTicket.status.toLowerCase()}`}>{selectedTicket.status}</span>
+        <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+          {!selectedTicket ? (
+            <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-12 text-center text-sm text-slate-500">
+              Select a ticket to inspect its workflow details.
+            </div>
+          ) : (
+            <div className="space-y-6">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">
+                    Ticket Detail
+                  </p>
+                  <h2 className="mt-2 text-2xl font-bold text-slate-900">
+                    {selectedTicket.resourceName || selectedTicket.category}
+                  </h2>
+                  <p className="mt-2 text-sm text-slate-600">
+                    {STATUS_COPY[selectedTicket.status]}
+                  </p>
                 </div>
-
-                <div className="detail-grid">
-                  <div>
-                    <span className="detail-label">Location</span>
-                    <p>{selectedTicket.location}</p>
-                  </div>
-                  <div>
-                    <span className="detail-label">Priority</span>
-                    <p>{selectedTicket.priority}</p>
-                  </div>
-                  <div>
-                    <span className="detail-label">Reported By</span>
-                    <p>User #{selectedTicket.createdByUserId}</p>
-                  </div>
-                  <div>
-                    <span className="detail-label">Assigned Staff</span>
-                    <p>{selectedTicket.assignedStaffUserId ? `User #${selectedTicket.assignedStaffUserId}` : 'Unassigned'}</p>
-                  </div>
+                <div className="flex flex-wrap gap-2">
+                  <span
+                    className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                      PRIORITY_STYLES[selectedTicket.priority] || PRIORITY_STYLES.MEDIUM
+                    }`}
+                  >
+                    {selectedTicket.priority}
+                  </span>
+                  <span
+                    className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                      STATUS_STYLES[selectedTicket.status] || STATUS_STYLES.OPEN
+                    }`}
+                  >
+                    {selectedTicket.status}
+                  </span>
                 </div>
+              </div>
 
-                <div className="stack-block">
-                  <span className="detail-label">Description</span>
-                  <p>{selectedTicket.description}</p>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="rounded-2xl bg-slate-50 p-4 text-left">
+                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+                    Reported By
+                  </p>
+                  <p className="mt-2 text-sm font-semibold text-slate-900">
+                    {currentReporter ? getDisplayName(currentReporter) : `User #${selectedTicket.createdByUserId}`}
+                  </p>
                 </div>
-
-                <div className="stack-block">
-                  <span className="detail-label">Preferred Contact</span>
-                  <p>{selectedTicket.preferredContactName} • {selectedTicket.preferredContactEmail} • {selectedTicket.preferredContactPhone}</p>
+                <div className="rounded-2xl bg-slate-50 p-4 text-left">
+                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+                    Assigned Staff
+                  </p>
+                  <p className="mt-2 text-sm font-semibold text-slate-900">
+                    {currentAssignee
+                      ? getDisplayName(currentAssignee)
+                      : selectedTicket.assignedStaffUserId
+                        ? `User #${selectedTicket.assignedStaffUserId}`
+                        : "Pending assignment"}
+                  </p>
                 </div>
+                <div className="rounded-2xl bg-slate-50 p-4 text-left">
+                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+                    Category
+                  </p>
+                  <p className="mt-2 text-sm font-semibold text-slate-900">
+                    {selectedTicket.category}
+                  </p>
+                </div>
+                <div className="rounded-2xl bg-slate-50 p-4 text-left">
+                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+                    Location
+                  </p>
+                  <p className="mt-2 text-sm font-semibold text-slate-900">
+                    {selectedTicket.location}
+                  </p>
+                </div>
+              </div>
 
-                {canCreateTickets ? (
-                  <div className="user-ticket-portal">
-                    <div className="support-response-panel">
-                      <div className="resolved-notice-badge">Support Response</div>
-                      <h3>Technician Response For Your Ticket</h3>
-                      <p className="support-response-copy">
-                        {getTechnicianResponse(selectedTicket)}
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-left">
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+                  User Description
+                </p>
+                <p className="mt-2 text-sm leading-6 text-slate-700">
+                  {selectedTicket.description}
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-left">
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+                  Preferred Contact
+                </p>
+                <p className="mt-2 text-sm leading-6 text-slate-700">
+                  {selectedTicket.preferredContactName || "Not provided"}
+                </p>
+                <p className="text-sm text-slate-600">
+                  {selectedTicket.preferredContactEmail || "No email"}{" "}
+                  {selectedTicket.preferredContactPhone
+                    ? `• ${selectedTicket.preferredContactPhone}`
+                    : ""}
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-left">
+                <div className="flex items-center gap-2 text-emerald-700">
+                  <ShieldCheck className="h-4 w-4" />
+                  <p className="text-xs font-semibold uppercase tracking-[0.16em]">
+                    Technician Response Visible To User
+                  </p>
+                </div>
+                <p className="mt-3 text-sm leading-6 text-emerald-900">
+                  {technicianResponse}
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-slate-200 bg-white p-4 text-left">
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+                  Evidence Attachments
+                </p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {selectedTicket.imageAttachments?.length ? (
+                    selectedTicket.imageAttachments.map((attachment, index) => (
+                      <a
+                        key={`${attachment}-${index}`}
+                        href={attachment}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-medium text-slate-700 transition hover:border-blue-300 hover:text-blue-600"
+                      >
+                        Open attachment {index + 1}
+                      </a>
+                    ))
+                  ) : (
+                    <span className="text-sm text-slate-500">No evidence attached.</span>
+                  )}
+                </div>
+              </div>
+
+              {canManageWorkflow ? (
+                <div className="space-y-4 rounded-3xl border border-amber-200 bg-amber-50/60 p-5">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-amber-700">
+                        Technician Actions
+                      </p>
+                      <h3 className="mt-2 text-xl font-bold text-slate-900">
+                        Update workflow and publish the solution
+                      </h3>
+                    </div>
+                    <Clock3 className="h-5 w-5 text-amber-700" />
+                  </div>
+
+                  {isTechnician ? (
+                    <button
+                      type="button"
+                      onClick={() => handleAssign(user?.id ?? user?.userId)}
+                      disabled={submitting}
+                      className="inline-flex items-center justify-center rounded-2xl border border-amber-200 bg-white px-4 py-2 text-sm font-semibold text-amber-800 transition hover:bg-amber-100 disabled:cursor-not-allowed disabled:opacity-70"
+                    >
+                      Take ownership of this ticket
+                    </button>
+                  ) : null}
+
+                  {isAdmin && technicianUsers.length ? (
+                    <div>
+                      <p className="mb-2 text-sm font-semibold text-slate-700">
+                        Assign technician
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {technicianUsers.map((tech) => (
+                          <button
+                            key={tech.id}
+                            type="button"
+                            onClick={() => handleAssign(tech.id)}
+                            disabled={submitting}
+                            className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:border-blue-300 hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-70"
+                          >
+                            {getDisplayName(tech)}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
+
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <label className="text-left text-sm font-medium text-slate-700">
+                      Next Status
+                      <select
+                        value={statusForm.status}
+                        onChange={(event) =>
+                          setStatusForm((current) => ({
+                            ...current,
+                            status: event.target.value,
+                          }))
+                        }
+                        className="mt-2 w-full rounded-2xl border border-amber-200 bg-white px-4 py-3 outline-none transition focus:border-amber-400"
+                        disabled={!allowedStatusOptions.length}
+                      >
+                        {allowedStatusOptions.length ? (
+                          allowedStatusOptions.map((status) => (
+                            <option key={status} value={status}>
+                              {status}
+                            </option>
+                          ))
+                        ) : (
+                          <option value={selectedTicket.status}>No more updates allowed</option>
+                        )}
+                      </select>
+                    </label>
+                    <div className="rounded-2xl bg-white p-4 text-left">
+                      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+                        Current Stage
+                      </p>
+                      <p className="mt-2 text-sm font-semibold text-slate-900">
+                        {selectedTicket.status}
+                      </p>
+                      <p className="mt-2 text-sm text-slate-600">
+                        Only valid next-step options are shown.
                       </p>
                     </div>
-
-                    <div className="user-status-grid">
-                      <div className="user-status-card">
-                        <span className="detail-label">Ticket Status</span>
-                        <strong>{selectedTicket.status}</strong>
-                        <p>{statusMessages[selectedTicket.status]}</p>
-                      </div>
-                      <div className="user-status-card">
-                        <span className="detail-label">Assigned Technician</span>
-                        <strong>{selectedTicket.assignedStaffUserId ? `User #${selectedTicket.assignedStaffUserId}` : 'Pending Assignment'}</strong>
-                        <p>The assigned support member handling this ticket.</p>
-                      </div>
-                      <div className="user-status-card">
-                        <span className="detail-label">Next Step</span>
-                        <strong>What happens next</strong>
-                        <p>{nextStepMessages[selectedTicket.status]}</p>
-                      </div>
-                    </div>
                   </div>
-                ) : null}
 
-                <div className="stack-block">
-                  <span className="detail-label">Evidence Attachments</span>
-                  <div className="attachment-pills">
-                    {selectedTicket.imageAttachments.length === 0 ? <span className="summary-pill">No attachments</span> : null}
-                    {selectedTicket.imageAttachments.map((attachment) => (
-                      <a key={attachment} className="summary-pill" href={attachment} target="_blank" rel="noreferrer">
-                        Open Evidence
-                      </a>
-                    ))}
-                  </div>
-                </div>
+                  <label className="block text-left text-sm font-medium text-slate-700">
+                    Solution / Progress Note
+                    <textarea
+                      rows={4}
+                      value={statusForm.solutionText}
+                      onChange={(event) =>
+                        setStatusForm((current) => ({
+                          ...current,
+                          solutionText: event.target.value,
+                        }))
+                      }
+                      className="mt-2 w-full rounded-2xl border border-amber-200 bg-white px-4 py-3 outline-none transition focus:border-amber-400"
+                      placeholder="Write what you checked, what was fixed, and what the user should know."
+                    />
+                  </label>
 
-                {canAssignTickets ? (
-                  <div className="action-panel">
-                    <div className="action-title">
-                      <UserCog size={18} />
-                      <h3>Assignment</h3>
-                    </div>
-                    <p className="subtle-text">Admin accounts can assign a technician or staff member.</p>
-                    <div className="inline-actions">
-                      {staffUsers.map((user) => (
-                        <button key={user.id} className="ghost-btn" onClick={() => handleAssign(user.id)}>
-                          {user.username}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                ) : null}
+                  {statusForm.status === "REJECTED" ? (
+                    <label className="block text-left text-sm font-medium text-slate-700">
+                      Rejection Reason
+                      <textarea
+                        rows={3}
+                        value={statusForm.rejectionReason}
+                        onChange={(event) =>
+                          setStatusForm((current) => ({
+                            ...current,
+                            rejectionReason: event.target.value,
+                          }))
+                        }
+                        className="mt-2 w-full rounded-2xl border border-amber-200 bg-white px-4 py-3 outline-none transition focus:border-amber-400"
+                        placeholder="Explain clearly why this ticket cannot proceed."
+                      />
+                    </label>
+                  ) : null}
 
-                {canManageWorkflow ? (
-                  <div className="action-panel">
-                    <div className="action-title">
-                      <Wrench size={18} />
-                      <h3>Give Solution</h3>
-                    </div>
-                    <p className="subtle-text">
-                      Open this section, write the solution, and set the current stage so the user can see it.
-                    </p>
-                    <div className="status-summary-grid">
-                      <div className="status-summary-card">
-                        <span className="detail-label">Current Stage</span>
-                        <strong>{selectedTicket.status}</strong>
-                        <p className="subtle-text">Current ticket condition.</p>
-                      </div>
-                      <div className="status-summary-card">
-                        <span className="detail-label">Current Solution</span>
-                        <strong>{selectedTicket.resolutionNotes ? 'Added' : 'Not Added'}</strong>
-                        <p className="subtle-text">
-                          {selectedTicket.resolutionNotes || 'No technician solution added yet.'}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="inline-actions">
-                      <button
-                        className="btn"
-                        onClick={() => setShowSolutionForm((current) => !current)}
-                        disabled={allowedStatusOptions.length === 0}
-                      >
-                        {showSolutionForm ? 'Close Solution Form' : 'Give Solution'}
-                      </button>
-                    </div>
-                    {showSolutionForm ? (
+                  <button
+                    type="button"
+                    onClick={handleStatusUpdate}
+                    disabled={submitting || !allowedStatusOptions.length}
+                    className="inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-70"
+                  >
+                    {submitting ? (
                       <>
-                        <div className="form-grid compact">
-                          <label>
-                            Current Stage
-                            <select
-                              value={statusForm.status}
-                              onChange={(event) => setStatusForm((current) => ({ ...current, status: event.target.value }))}
-                            >
-                              {allowedStatusOptions.map((status) => (
-                                <option key={status} value={status}>
-                                  {status}
-                                </option>
-                              ))}
-                            </select>
-                          </label>
-                        </div>
-                        <p className="subtle-text">
-                          Current ticket stage is <strong>{selectedTicket.status}</strong>. Next available stage:
-                          {' '}
-                          {allowedStatusOptions.length > 0 ? allowedStatusOptions.join(' or ') : 'No further updates allowed'}
-                        </p>
-                        <label>
-                          {technicianUpdateLabel}
-                          <textarea
-                            rows={4}
-                            value={statusForm.solutionText}
-                            onChange={(event) => setStatusForm((current) => ({ ...current, solutionText: event.target.value }))}
-                            placeholder={technicianUpdatePlaceholder}
-                          />
-                        </label>
-                        {statusForm.status === 'REJECTED' ? (
-                          <label>
-                            Rejection Reason
-                            <textarea
-                              rows={2}
-                              value={statusForm.rejectionReason}
-                              onChange={(event) => setStatusForm((current) => ({ ...current, rejectionReason: event.target.value }))}
-                              placeholder="Admin only when rejecting a ticket"
-                            />
-                          </label>
-                        ) : null}
-                        <p className="subtle-text">
-                          The user will see this solution together with the updated stage.
-                        </p>
-                        <button className="btn" onClick={handleStatusUpdate} disabled={submitting || allowedStatusOptions.length === 0}>
-                          {submitting ? 'Saving Solution...' : 'Save Solution'}
-                        </button>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Saving update...
                       </>
-                    ) : null}
-                  </div>
-                ) : (
-                  <div className="action-panel">
-                    <div className="action-title">
-                      <Shield size={18} />
-                      <h3>Workflow Visibility</h3>
-                    </div>
-                    <p className="subtle-text">
-                      User accounts can monitor ticket progress, but only technicians and staff can manage or resolve issues.
-                    </p>
-                  </div>
-                )}
-
-                <div className="rubric-strip">
-                  <div className="rubric-item"><Shield size={16} /> User sees raise and tracking only</div>
-                  <div className="rubric-item"><Shield size={16} /> Technician sees management actions</div>
-                  <div className="rubric-item"><Shield size={16} /> Resolved state is clearly shown to users</div>
+                    ) : (
+                      <>
+                        <Wrench className="h-4 w-4" />
+                        Save Technician Update
+                      </>
+                    )}
+                  </button>
                 </div>
-              </>
-            )}
-          </section>
-        </div>
+              ) : (
+                <div className="rounded-3xl border border-slate-200 bg-slate-50 p-5 text-left">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+                    User Access Rule
+                  </p>
+                  <h3 className="mt-2 text-lg font-bold text-slate-900">
+                    You can view updates, but not edit the ticket
+                  </h3>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">
+                    Once a ticket is submitted, only technicians and admins can move
+                    the workflow forward or publish the solution. This keeps the
+                    support history clear and trustworthy.
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+        </section>
       </div>
     </div>
   );

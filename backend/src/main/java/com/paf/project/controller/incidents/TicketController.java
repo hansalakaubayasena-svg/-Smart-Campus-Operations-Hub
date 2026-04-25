@@ -50,7 +50,9 @@ public class TicketController {
     public ResponseEntity<ApiResponse<IncidentTicket>> createTicket(@Valid @RequestBody CreateTicketRequest request) {
         User currentUser = userService.getCurrentUser();
         validatePriority(request.getPriority());
-        validateAttachments(request.getAttachments());
+        List<CreateTicketRequest.AttachmentPayload> attachments =
+            request.getAttachments() == null ? List.of() : request.getAttachments();
+        validateAttachments(attachments);
 
         LocalDateTime now = LocalDateTime.now();
         IncidentTicket ticket = new IncidentTicket();
@@ -65,7 +67,7 @@ public class TicketController {
         ticket.setReporterName(currentUser.getFullName());
         ticket.setReporterEmail(currentUser.getEmail());
         ticket.setPreferredContact(request.getPreferredContact().toContactDetails());
-        ticket.setAttachments(request.getAttachments().stream()
+        ticket.setAttachments(attachments.stream()
             .map(CreateTicketRequest.AttachmentPayload::toAttachment)
             .collect(Collectors.toCollection(ArrayList::new)));
         ticket.setComments(new ArrayList<>());
@@ -361,10 +363,7 @@ public class TicketController {
         if ("CLOSED".equals(nextStatus) && !"RESOLVED".equals(currentStatus)) {
             throw new BadRequestException("Only resolved tickets can be closed");
         }
-        if ("RESOLVED".equals(nextStatus) && needsAssignee(ticket)) {
-            throw new BadRequestException("Assign a staff member before resolving the ticket");
-        }
-        if ("IN_PROGRESS".equals(nextStatus) && needsAssignee(ticket)) {
+        if (("IN_PROGRESS".equals(nextStatus) || "RESOLVED".equals(nextStatus)) && needsAssignee(ticket)) {
             ticket.setAssignedStaffId(currentUser.getId());
             ticket.setAssignedStaffName(currentUser.getFullName());
             ticket.setAssignedStaffEmail(currentUser.getEmail());

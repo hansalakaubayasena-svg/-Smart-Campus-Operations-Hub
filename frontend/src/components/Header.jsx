@@ -22,7 +22,6 @@ export default function Header() {
           </span>
         </Link>
 
-        {/* Desktop Navigation */}
         <div className="hidden items-center gap-8 md:flex">
           <a href="/#features" className="font-medium text-slate-600 hover:text-blue-600">
             Features
@@ -35,7 +34,6 @@ export default function Header() {
           </a>
         </div>
 
-        {/* Mobile Menu Button */}
         <button
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           className="md:hidden"
@@ -55,7 +53,6 @@ export default function Header() {
           </svg>
         </button>
 
-        {/* Auth Buttons */}
         <div className="hidden items-center gap-4 md:flex">
           {!isAuthenticated ? (
             <>
@@ -102,7 +99,6 @@ export default function Header() {
         </div>
       </nav>
 
-      {/* Mobile Menu */}
       {mobileMenuOpen && (
         <div className="border-t border-slate-200 px-6 py-4 md:hidden">
           <div className="space-y-4">

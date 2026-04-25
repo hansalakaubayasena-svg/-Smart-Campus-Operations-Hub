@@ -14,17 +14,20 @@ import { NavLink } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import ProfileSettingsModal from "./ProfileSettingsModal";
 
-const navItems = [
-  { to: "/user/dashboard", icon: Home, label: "Home" },
-  { to: "/user/facilities", icon: Building, label: "Facilities" },
-  { to: "/user/bookings", icon: Bookmark, label: "My Bookings" },
-  { to: "/user/ticketing", icon: Wrench, label: "Ticketing" },
-  { to: "/user/notifications", icon: Bell, label: "Notifications" },
-];
-
 const UserSidebar = () => {
   const { logout, user } = useAuth();
   const [showProfileModal, setShowProfileModal] = useState(false);
+  const navItems = [
+    { to: "/user/dashboard", icon: Home, label: "Home" },
+    { to: "/user/facilities", icon: Building, label: "Facilities" },
+    { to: "/user/bookings", icon: Bookmark, label: "My Bookings" },
+    {
+      to: "/user/ticketing",
+      icon: Wrench,
+      label: user?.role === "TECHNICIAN" ? "Support Queue" : "Ticketing",
+    },
+    { to: "/user/notifications", icon: Bell, label: "Notifications" },
+  ];
 
   // Generate initials from full name
   const getInitials = (name) => {

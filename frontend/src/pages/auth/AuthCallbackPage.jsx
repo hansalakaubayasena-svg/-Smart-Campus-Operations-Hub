@@ -42,7 +42,9 @@ const AuthCallbackPage = () => {
 
         // 5. Route based on role
         navigate(
-          userData.role === "ADMIN" ? "/admin/dashboard" : "/user/dashboard",
+          userData.role === "ADMINISTRATOR" || userData.role === "ADMIN"
+            ? "/admin/dashboard"
+            : "/user/dashboard",
           { replace: true },
         );
       } catch {
