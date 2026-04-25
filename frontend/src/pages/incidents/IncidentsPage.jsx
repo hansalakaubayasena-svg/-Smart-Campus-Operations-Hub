@@ -252,7 +252,7 @@ const IncidentsPage = () => {
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-blue-600">
               Smart Ticketing Flow
             </p>
-            <h1 className="mt-3 text-3xl font-black tracking-tight text-slate-900">
+            <h1 className="mt-3 text-3xl font-extrabold tracking-tight text-slate-900">
               {isUser
                 ? "Raise a ticket and follow every technician update"
                 : "Review reported issues and send the solution back to users"}
@@ -283,7 +283,7 @@ const IncidentsPage = () => {
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
                 Queue Status
               </p>
-              <p className="mt-2 text-2xl font-black text-slate-900">{queueSummary.total}</p>
+              <p className="mt-2 text-2xl font-extrabold text-slate-900">{queueSummary.total}</p>
               <p className="text-sm text-slate-600">
                 {isUser ? "visible to you" : "tickets in the support queue"}
               </p>
@@ -303,19 +303,19 @@ const IncidentsPage = () => {
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
               Open
             </p>
-            <p className="mt-2 text-2xl font-bold text-slate-900">{queueSummary.open}</p>
+            <p className="mt-2 text-2xl font-semibold text-slate-900">{queueSummary.open}</p>
           </div>
           <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-left">
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
               In Progress
             </p>
-            <p className="mt-2 text-2xl font-bold text-slate-900">{queueSummary.active}</p>
+            <p className="mt-2 text-2xl font-semibold text-slate-900">{queueSummary.active}</p>
           </div>
           <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-left">
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
               Resolved
             </p>
-            <p className="mt-2 text-2xl font-bold text-slate-900">{queueSummary.resolved}</p>
+            <p className="mt-2 text-2xl font-semibold text-slate-900">{queueSummary.resolved}</p>
           </div>
         </div>
       </section>
@@ -350,7 +350,7 @@ const IncidentsPage = () => {
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-amber-600">
                 Technician Workspace
               </p>
-              <h2 className="mt-2 text-2xl font-bold text-slate-900">
+              <h2 className="mt-2 text-2xl font-semibold text-slate-900">
                 Support workflow guidance
               </h2>
               <div className="mt-4 grid gap-3 sm:grid-cols-3">
@@ -382,7 +382,7 @@ const IncidentsPage = () => {
                 <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">
                   {isUser ? "My Tickets" : "Support Queue"}
                 </p>
-                <h2 className="mt-2 text-2xl font-bold text-slate-900">
+                <h2 className="mt-2 text-2xl font-semibold text-slate-900">
                   {isUser ? "Submitted Tickets" : "Reported Tickets"}
                 </h2>
               </div>
@@ -462,7 +462,7 @@ const IncidentsPage = () => {
                   <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">
                     Ticket Detail
                   </p>
-                  <h2 className="mt-2 text-2xl font-bold text-slate-900">
+                  <h2 className="mt-2 text-2xl font-semibold text-slate-900">
                     {selectedTicket.resourceName || selectedTicket.category}
                   </h2>
                   <p className="mt-2 text-sm text-slate-600">
@@ -592,7 +592,7 @@ const IncidentsPage = () => {
                       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-amber-700">
                         Technician Actions
                       </p>
-                      <h3 className="mt-2 text-xl font-bold text-slate-900">
+                      <h3 className="mt-2 text-xl font-semibold text-slate-900">
                         Update workflow and publish the solution
                       </h3>
                     </div>
@@ -727,7 +727,7 @@ const IncidentsPage = () => {
                   <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
                     User Access Rule
                   </p>
-                  <h3 className="mt-2 text-lg font-bold text-slate-900">
+                  <h3 className="mt-2 text-lg font-semibold text-slate-900">
                     You can view updates, but not edit the ticket
                   </h3>
                   <p className="mt-2 text-sm leading-6 text-slate-600">
