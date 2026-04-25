@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider } from "./context/AuthContext";
+import { AuthProvider, useAuth } from "./context/AuthContext";
 import { ResourceProvider } from './components/facilities/context/ResourceContext';
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 
@@ -23,6 +23,17 @@ import { FacilityDetailsPage } from './components/facilities/pages/FacilityDetai
 import UserBookingsPage from './pages/user/UserBookingsPage';
 import AdminBookingsPage from './pages/admin/AdminBookingsPage';
 import AdminAnalyticsPage from './pages/admin/AdminAnalyticsPage';
+
+const IncidentsRouteRedirect = () => {
+  const { user } = useAuth();
+
+  return (
+    <Navigate
+      to={user?.role === "ADMIN" ? "/admin/ticketing" : "/user/ticketing"}
+      replace
+    />
+  );
+};
 
 export function App() {
   return (
@@ -56,7 +67,7 @@ export function App() {
             {/* Protected — ADMIN only (all share AdminLayout) */}
             <Route
               element={
-                <ProtectedRoute requiredRole="ADMINISTRATOR">
+                <ProtectedRoute requiredRole="ADMIN">
                   <AdminLayout />
                 </ProtectedRoute>
               }
@@ -69,6 +80,15 @@ export function App() {
               <Route path="/admin/analytics" element={<AdminAnalyticsPage />} />
               <Route path="/admin/ticketing" element={<IncidentsPage />} />
             </Route>
+
+            <Route
+              path="/incidents"
+              element={
+                <ProtectedRoute>
+                  <IncidentsRouteRedirect />
+                </ProtectedRoute>
+              }
+            />
 
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

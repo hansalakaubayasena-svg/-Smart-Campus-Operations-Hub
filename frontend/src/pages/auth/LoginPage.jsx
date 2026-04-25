@@ -56,7 +56,9 @@ const LoginPage = () => {
       const authData = await loginUser(form);
       login(authData);
       navigate(
-        authData.role === "ADMINISTRATOR" ? "/admin/dashboard" : "/user/dashboard",
+        authData.role === "ADMINISTRATOR" || authData.role === "ADMIN"
+          ? "/admin/dashboard"
+          : "/user/dashboard",
       );
     } catch (err) {
       setError(

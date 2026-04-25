@@ -7,7 +7,12 @@ const unwrapEntity = (payload) => payload?.content ?? payload;
 const normalizeUser = (user) => {
   if (!user) return null;
 
-  const role = user.role === "ADMINISTRATOR" ? "ADMIN" : user.role;
+  const role =
+    user.role === "ADMINISTRATOR"
+      ? "ADMIN"
+      : user.role === "STUDENT"
+        ? "USER"
+        : user.role;
 
   return {
     id: user.id ?? user.userId,

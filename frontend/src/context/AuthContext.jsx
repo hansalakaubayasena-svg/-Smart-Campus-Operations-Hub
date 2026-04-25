@@ -1,6 +1,21 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { fetchCurrentUser } from "../services/auth/authApi";
 
+const normalizeRole = (role) => {
+  if (role === "ADMINISTRATOR" || role === "ADMIN") return "ADMIN";
+  if (role === "STUDENT" || role === "USER") return "USER";
+  return role ?? "USER";
+};
+
+const normalizeAuthUser = (authData) => {
+  if (!authData) return null;
+
+  return {
+    ...authData,
+    role: normalizeRole(authData.role),
+  };
+};
+
 /**
  * AuthContext — global auth state accessible from any component.
  * Stores: user object, token, loading state.
@@ -29,7 +44,7 @@ export const AuthProvider = ({ children }) => {
       }
       try {
         const userData = await fetchCurrentUser();
-        setUser(userData);
+        setUser(normalizeAuthUser(userData));
       } catch {
         // Token expired or invalid — clear it
         localStorage.removeItem("token");
@@ -47,9 +62,10 @@ export const AuthProvider = ({ children }) => {
    * and sets user in context (reactive — components update immediately).
    */
   const login = (authData) => {
-    localStorage.setItem("token", authData.token);
-    localStorage.setItem("user", JSON.stringify(authData));
-    setUser(authData);
+    const normalizedAuthData = normalizeAuthUser(authData);
+    localStorage.setItem("token", normalizedAuthData.token);
+    localStorage.setItem("user", JSON.stringify(normalizedAuthData));
+    setUser(normalizedAuthData);
   };
 
   /**
@@ -63,9 +79,10 @@ export const AuthProvider = ({ children }) => {
   };
 
   const updateUser = (authData) => {
-    localStorage.setItem("token", authData.token);
-    localStorage.setItem("user", JSON.stringify(authData));
-    setUser(authData);
+    const normalizedAuthData = normalizeAuthUser(authData);
+    localStorage.setItem("token", normalizedAuthData.token);
+    localStorage.setItem("user", JSON.stringify(normalizedAuthData));
+    setUser(normalizedAuthData);
   };
 
   // isAdmin convenience flag — used by ProtectedRoute and nav components
