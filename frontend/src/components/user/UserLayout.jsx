@@ -12,7 +12,7 @@ const UserLayout = () => {
   const [profileOpen, setProfileOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-slate-50 flex">
+    <div className="h-screen bg-slate-50 flex overflow-hidden">
       <UserSidebar />
 
       <main className="flex-1 flex flex-col min-w-0 overflow-hidden animate-fade-in">

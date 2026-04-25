@@ -249,4 +249,12 @@ public class BookingServiceImpl implements BookingService {
 
         return analytics;
     }
+
+    @Override
+    public void deleteBooking(String id) {
+        if (!bookingRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Booking not found");
+        }
+        bookingRepository.deleteById(id);
+    }
 }
