@@ -87,7 +87,7 @@ const UserBookingsPage = () => {
     <div className="p-6 md:p-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
         <div>
-          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">My Bookings</h1>
+          <h1 className="text-3xl font-semibold text-slate-900 tracking-tight">My Bookings</h1>
           <p className="text-slate-500 mt-1 text-base">Track and manage your facility reservation requests.</p>
         </div>
 
@@ -163,7 +163,7 @@ const UserBookingsPage = () => {
               </div>
 
               <div className="flex-1">
-                <h3 className="text-xl font-bold text-slate-900 mb-1 pr-24 leading-tight group-hover:text-blue-600 transition-colors">
+                <h3 className="text-xl font-semibold text-slate-900 mb-1 pr-24 leading-tight group-hover:text-blue-600 transition-colors">
                   {booking.facilityName}
                 </h3>
                 <div className="flex items-center gap-2 text-sm text-slate-400 mb-6 font-medium">
@@ -187,13 +187,13 @@ const UserBookingsPage = () => {
                   </div>
                   
                   <div className="px-1">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.15em] mb-2">Booking Purpose</p>
+                    <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-[0.15em] mb-2">Booking Purpose</p>
                     <p className="text-sm text-slate-600 leading-relaxed font-medium line-clamp-2">"{booking.purpose}"</p>
                   </div>
 
                   {booking.adminNotes && (
                     <div className="mt-4 p-4 bg-amber-50/50 border border-amber-100/50 rounded-2xl text-xs text-amber-800 leading-relaxed">
-                      <span className="font-bold text-amber-900">Admin Response: </span> {booking.adminNotes}
+                      <span className="font-semibold text-amber-900">Admin Response: </span> {booking.adminNotes}
                     </div>
                   )}
                 </div>
@@ -203,13 +203,13 @@ const UserBookingsPage = () => {
                 <div className="flex gap-3 mt-auto">
                   <button
                     onClick={() => setEditingBooking(booking)}
-                    className="flex-1 flex items-center justify-center gap-2 px-5 py-3 text-sm font-bold text-blue-600 bg-blue-50 hover:bg-blue-600 hover:text-white rounded-2xl transition-all duration-300 active:scale-95"
+                    className="flex-1 flex items-center justify-center gap-2 px-5 py-3 text-sm font-semibold text-blue-600 bg-blue-50 hover:bg-blue-600 hover:text-white rounded-2xl transition-all duration-300 active:scale-95"
                   >
                     <Edit2 className="h-4 w-4" /> Edit Details
                   </button>
                   <button
                     onClick={() => handleCancel(booking.id)}
-                    className="flex-1 flex items-center justify-center gap-2 px-5 py-3 text-sm font-bold text-red-600 bg-red-50 hover:bg-red-600 hover:text-white rounded-2xl transition-all duration-300 active:scale-95"
+                    className="flex-1 flex items-center justify-center gap-2 px-5 py-3 text-sm font-semibold text-red-600 bg-red-50 hover:bg-red-600 hover:text-white rounded-2xl transition-all duration-300 active:scale-95"
                   >
                     <Trash2 className="h-4 w-4" /> Cancel
                   </button>

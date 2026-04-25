@@ -83,7 +83,7 @@ const AdminBookingsPage = () => {
     <div className="p-6 md:p-8">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Manage Bookings</h1>
+          <h1 className="text-2xl font-semibold text-slate-900">Manage Bookings</h1>
           <p className="text-sm text-slate-500">Review and moderate all facility reservation requests.</p>
         </div>
 
@@ -104,7 +104,7 @@ const AdminBookingsPage = () => {
               <button
                 key={f}
                 onClick={() => setFilter(f)}
-                className={`px-4 py-2 text-xs font-bold rounded-lg transition-all ${
+                className={`px-4 py-2 text-xs font-semibold rounded-lg transition-all ${
                   filter === f ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'
                 }`}
               >
@@ -131,18 +131,18 @@ const AdminBookingsPage = () => {
           <table className="w-full text-left border-collapse">
             <thead className="bg-slate-50/80 border-b border-slate-200">
               <tr>
-                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Resource & User</th>
-                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Time Slot</th>
-                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Purpose</th>
-                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase text-center">Status</th>
-                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase text-right">Actions</th>
+                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Resource & User</th>
+                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Time Slot</th>
+                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Purpose</th>
+                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase text-center">Status</th>
+                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {filteredBookings.map((booking) => (
                 <tr key={booking.id} className="hover:bg-slate-50/50 transition-colors">
                   <td className="px-6 py-4">
-                    <div className="font-bold text-slate-900">{booking.facilityName}</div>
+                    <div className="font-semibold text-slate-900">{booking.facilityName}</div>
                     <div className="text-xs text-blue-600 font-medium">By: {booking.userName}</div>
                   </td>
                   <td className="px-6 py-4">
@@ -161,13 +161,13 @@ const AdminBookingsPage = () => {
                       "{booking.purpose}"
                     </div>
                     {booking.expectedAttendees > 0 && (
-                      <div className="flex items-center gap-1.5 text-[10px] text-slate-400 mt-1 uppercase font-bold tracking-tight">
+                      <div className="flex items-center gap-1.5 text-[10px] text-slate-400 mt-1 uppercase font-semibold tracking-tight">
                         <UsersIcon className="h-3 w-3" /> {booking.expectedAttendees} Attendees
                       </div>
                     )}
                   </td>
                   <td className="px-6 py-4 text-center">
-                    <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold border ${
+                    <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-semibold border ${
                       getEffectiveStatus(booking) === 'PENDING' ? 'bg-amber-50 text-amber-600 border-amber-100' :
                       getEffectiveStatus(booking) === 'APPROVED' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
                       getEffectiveStatus(booking) === 'EXPIRED' ? 'bg-slate-100 text-slate-500 border-slate-200' :

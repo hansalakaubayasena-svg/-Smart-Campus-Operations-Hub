@@ -18,9 +18,9 @@ const UserDashboard = () => {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         {/* Pending Bookings */}
-        <div className="relative rounded-2xl p-6 overflow-hidden flex flex-col hover:-translate-y-2 transition-all duration-300 animate-slide-up delay-100 group cursor-pointer">
-          <div className="absolute inset-0 bg-gradient-to-br from-cyan-400 via-blue-500 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-blue-100 to-cyan-50" />
+        <div className="relative rounded-3xl p-7 overflow-hidden flex flex-col hover:-translate-y-2 transition-all duration-300 animate-slide-up delay-100 group cursor-pointer border border-transparent hover:border-indigo-100 shadow-sm hover:shadow-xl">
+          <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 via-blue-600/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/50 via-white to-blue-50/30" />
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-4">
               <div className="h-12 w-12 bg-white/40 backdrop-blur-md rounded-xl flex items-center justify-center text-blue-600 group-hover:bg-white group-hover:text-blue-700 transition-all duration-300 shadow-lg">
@@ -30,7 +30,7 @@ const UserDashboard = () => {
                 Today
               </span>
             </div>
-            <h3 className="text-4xl font-black text-blue-900 mt-4 mb-2 group-hover:text-blue-950 transition-colors">
+            <h3 className="text-4xl font-extrabold text-indigo-900 mt-4 mb-2 group-hover:text-indigo-950 transition-colors">
               2
             </h3>
             <p className="text-blue-700 text-sm font-semibold group-hover:text-blue-800 transition-colors">Pending Bookings</p>
@@ -39,9 +39,9 @@ const UserDashboard = () => {
         </div>
 
         {/* Open Tickets */}
-        <div className="relative rounded-2xl p-6 overflow-hidden flex flex-col hover:-translate-y-2 transition-all duration-300 animate-slide-up delay-200 group cursor-pointer">
-          <div className="absolute inset-0 bg-gradient-to-br from-rose-400 via-red-500 to-orange-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-          <div className="absolute inset-0 bg-gradient-to-br from-red-50 via-orange-50 to-rose-50" />
+        <div className="relative rounded-3xl p-7 overflow-hidden flex flex-col hover:-translate-y-2 transition-all duration-300 animate-slide-up delay-200 group cursor-pointer border border-transparent hover:border-rose-100 shadow-sm hover:shadow-xl">
+          <div className="absolute inset-0 bg-gradient-to-br from-rose-500/10 via-orange-600/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          <div className="absolute inset-0 bg-gradient-to-br from-rose-50/50 via-white to-orange-50/30" />
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-4">
               <div className="h-12 w-12 bg-white/40 backdrop-blur-md rounded-xl flex items-center justify-center text-red-600 group-hover:bg-white group-hover:text-red-700 transition-all duration-300 shadow-lg">
@@ -51,7 +51,7 @@ const UserDashboard = () => {
                 Action Required
               </span>
             </div>
-            <h3 className="text-4xl font-black text-red-900 mt-4 mb-2 group-hover:text-red-950 transition-colors">
+            <h3 className="text-4xl font-extrabold text-rose-900 mt-4 mb-2 group-hover:text-rose-950 transition-colors">
               1
             </h3>
             <p className="text-red-700 text-sm font-semibold group-hover:text-red-800 transition-colors">Open Support Tickets</p>
@@ -60,9 +60,9 @@ const UserDashboard = () => {
         </div>
 
         {/* Quick Book CTA */}
-        <div className="relative rounded-2xl p-6 overflow-hidden flex flex-col hover:-translate-y-2 transition-all duration-300 animate-slide-up delay-300 group cursor-pointer">
-          <div className="absolute inset-0 bg-gradient-to-br from-indigo-400 via-purple-500 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-          <div className="absolute inset-0 bg-gradient-to-br from-indigo-50 via-purple-50 to-indigo-50" />
+        <div className="relative rounded-3xl p-7 overflow-hidden flex flex-col hover:-translate-y-2 transition-all duration-300 animate-slide-up delay-300 group cursor-pointer border border-transparent hover:border-violet-100 shadow-sm hover:shadow-xl">
+          <div className="absolute inset-0 bg-gradient-to-br from-violet-500/10 via-purple-600/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          <div className="absolute inset-0 bg-gradient-to-br from-violet-50/50 via-white to-purple-50/30" />
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-4">
               <div className="h-12 w-12 bg-white/40 backdrop-blur-md rounded-xl flex items-center justify-center text-indigo-600 group-hover:bg-white group-hover:text-indigo-700 transition-all duration-300 shadow-lg">
@@ -72,7 +72,7 @@ const UserDashboard = () => {
                 Quick Access
               </span>
             </div>
-            <h3 className="text-4xl font-black text-indigo-900 mt-4 mb-2 group-hover:text-indigo-950 transition-colors">
+            <h3 className="text-4xl font-extrabold text-violet-900 mt-4 mb-2 group-hover:text-violet-950 transition-colors">
               Book
             </h3>
             <p className="text-indigo-700 text-sm font-semibold group-hover:text-indigo-800 transition-colors">Reserve a room instantly</p>

@@ -1,21 +1,21 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap');
 @import "tailwindcss";
 
 @theme {
   --font-sans: "Inter", "Avenir Next", "Segoe UI", sans-serif;
-  --font-display: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", "URW Palladio L", serif;
+  --font-display: "Outfit", "Inter", sans-serif;
   
-  --color-primary: #0f766e;
-  --color-primary-800: #1e3a5f;
-  --color-primary-900: #112240;
-  --color-secondary: #134e4a;
-  --color-accent: #14b8a6;
+  --color-primary: #4f46e5;       /* Modern Indigo 600 */
+  --color-primary-800: #3730a3;   /* Indigo 800 */
+  --color-primary-900: #1e1b4b;   /* Indigo 950 */
+  --color-secondary: #6366f1;     /* Indigo 500 */
+  --color-accent: #818cf8;        /* Indigo 400 */
   --color-accent-emerald: #10b981;
   --color-accent-amber: #f59e0b;
-  --color-background: #f1f5f9;
+  --color-background: #f8fafc;    /* Clean Slate 50 */
   --color-card: #ffffff;
-  --color-text: #020617;
-  --color-border: #cbd5f5;
+  --color-text: #0f172a;          /* Slate 900 */
+  --color-border: #e2e8f0;        /* Slate 200 */
 }
 
 @layer base {
@@ -24,9 +24,9 @@
     margin: 0;
     background-color: var(--color-background);
     background-image: 
-      radial-gradient(circle at 10% 20%, rgba(210, 225, 245, 0.45) 0%, transparent 40%),
-      radial-gradient(circle at 90% 40%, rgba(245, 235, 220, 0.45) 0%, transparent 40%),
-      radial-gradient(circle at 40% 80%, rgba(235, 220, 245, 0.35) 0%, transparent 40%);
+      radial-gradient(circle at 10% 10%, rgba(79, 70, 229, 0.05) 0%, transparent 45%),
+      radial-gradient(circle at 90% 40%, rgba(99, 102, 241, 0.04) 0%, transparent 40%),
+      radial-gradient(circle at 50% 90%, rgba(129, 140, 248, 0.03) 0%, transparent 40%);
     background-attachment: fixed;
   }
 

@@ -142,7 +142,7 @@ const TicketForm = ({ actorUser, onSubmit, submitting = false }) => {
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-blue-600">
             User Portal
           </p>
-          <h2 className="mt-2 text-2xl font-bold text-slate-900">
+          <h2 className="mt-2 text-2xl font-semibold text-slate-900">
             Raise A Maintenance Ticket
           </h2>
           <p className="mt-2 text-sm text-slate-600">
