@@ -18,8 +18,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.ArrayList;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.Comparator;
+import java.time.LocalDateTime;
 
 @Service
 public class BookingServiceImpl implements BookingService {
@@ -117,6 +119,9 @@ public class BookingServiceImpl implements BookingService {
 
         booking.setStatus(action.getStatus().toUpperCase());
         booking.setAdminNotes(action.getNotes());
+        if ("APPROVED".equalsIgnoreCase(action.getStatus()) && isBlank(booking.getCheckInToken())) {
+            booking.setCheckInToken(UUID.randomUUID().toString());
+        }
         Booking savedBooking = bookingRepository.save(booking);
 
         // Notify user of the action
@@ -186,7 +191,28 @@ public class BookingServiceImpl implements BookingService {
         return toResponse(savedBooking);
     }
 
+        @Override
+        public BookingResponse getCheckInBooking(String token) {
+                Booking booking = findBookingByCheckInToken(token);
+                return toResponse(booking);
+        }
+
+        @Override
+        public BookingResponse checkInBooking(String token) {
+                Booking booking = findBookingByCheckInToken(token);
+
+                if (booking.getCheckedInAt() != null) {
+                        return toResponse(booking);
+                }
+
+                booking.setCheckedInAt(LocalDateTime.now());
+                Booking savedBooking = bookingRepository.save(booking);
+                return toResponse(savedBooking);
+        }
+
     private BookingResponse toResponse(Booking booking) {
+                Booking resolvedBooking = ensureCheckInToken(booking);
+
         String facilityName = facilityRepository.findByResourceId(booking.getFacilityId())
                 .map(Facility::getNameOrModel)
                 .orElse("Unknown Facility");
@@ -205,9 +231,39 @@ public class BookingServiceImpl implements BookingService {
                 booking.getEndTime(),
                 booking.getPurpose(),
                 booking.getExpectedAttendees(),
-                booking.getStatus(),
-                booking.getAdminNotes(),
-                booking.getCreatedAt());
+                resolvedBooking.getStatus(),
+                resolvedBooking.getAdminNotes(),
+                resolvedBooking.getCheckInToken(),
+                resolvedBooking.getCheckedInAt(),
+                resolvedBooking.getCreatedAt());
+    }
+
+    private Booking findBookingByCheckInToken(String token) {
+        if (isBlank(token)) {
+            throw new ResourceConflictException("Invalid check-in token.");
+        }
+
+        Booking booking = bookingRepository.findByCheckInToken(token)
+                .orElseThrow(() -> new ResourceNotFoundException("Check-in booking not found"));
+
+        if (!"APPROVED".equalsIgnoreCase(booking.getStatus())) {
+            throw new ResourceConflictException("Only approved bookings can be checked in.");
+        }
+
+        return ensureCheckInToken(booking);
+    }
+
+    private Booking ensureCheckInToken(Booking booking) {
+        if ("APPROVED".equalsIgnoreCase(booking.getStatus()) && isBlank(booking.getCheckInToken())) {
+            booking.setCheckInToken(UUID.randomUUID().toString());
+            booking = bookingRepository.save(booking);
+        }
+
+        return booking;
+    }
+
+    private boolean isBlank(String value) {
+        return value == null || value.isBlank();
     }
 
     @Override

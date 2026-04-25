@@ -23,6 +23,7 @@ import { FacilityDetailsPage } from './components/facilities/pages/FacilityDetai
 import UserBookingsPage from './pages/user/UserBookingsPage';
 import AdminBookingsPage from './pages/admin/AdminBookingsPage';
 import AdminAnalyticsPage from './pages/admin/AdminAnalyticsPage';
+import BookingCheckInPage from './pages/check-in/BookingCheckInPage';
 
 export function App() {
   return (
@@ -36,6 +37,7 @@ export function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignupPage />} />
             <Route path="/auth/callback" element={<AuthCallbackPage />} />
+            <Route path="/check-in/:token" element={<BookingCheckInPage />} />
 
             {/* Protected — USER routes (all share UserLayout) */}
             <Route

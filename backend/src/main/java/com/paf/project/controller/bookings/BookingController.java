@@ -61,6 +61,16 @@ public class BookingController {
         return ResponseEntity.ok(bookingService.updateBooking(userId, id, request));
     }
 
+    @GetMapping("/check-in/{token}")
+    public ResponseEntity<BookingResponse> getCheckInBooking(@PathVariable String token) {
+        return ResponseEntity.ok(bookingService.getCheckInBooking(token));
+    }
+
+    @PostMapping("/check-in/{token}")
+    public ResponseEntity<BookingResponse> checkInBooking(@PathVariable String token) {
+        return ResponseEntity.ok(bookingService.checkInBooking(token));
+    }
+
     @GetMapping("/analytics")
     @PreAuthorize("hasRole('ADMINISTRATOR')")
     public ResponseEntity<java.util.Map<String, Object>> getAnalytics() {

@@ -16,6 +16,8 @@ public class Booking {
     private Integer expectedAttendees;
     private String status; // PENDING / APPROVED / REJECTED / CANCELLED
     private String adminNotes;
+    private String checkInToken;
+    private LocalDateTime checkedInAt;
     private LocalDateTime createdAt;
 
     public Booking() {
@@ -62,6 +64,12 @@ public class Booking {
 
     public String getAdminNotes() { return adminNotes; }
     public void setAdminNotes(String adminNotes) { this.adminNotes = adminNotes; }
+
+    public String getCheckInToken() { return checkInToken; }
+    public void setCheckInToken(String checkInToken) { this.checkInToken = checkInToken; }
+
+    public LocalDateTime getCheckedInAt() { return checkedInAt; }
+    public void setCheckedInAt(LocalDateTime checkedInAt) { this.checkedInAt = checkedInAt; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }

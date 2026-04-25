@@ -63,6 +63,22 @@ public interface BookingService {
     BookingResponse updateBooking(String userId, String bookingId, BookingRequest request);
 
     /**
+     * Retrieves booking details for a QR-based check-in token.
+     *
+     * @param token The public check-in token embedded in the QR code.
+     * @return The matching booking response.
+     */
+    BookingResponse getCheckInBooking(String token);
+
+    /**
+     * Marks a booking as checked in using its public QR token.
+     *
+     * @param token The public check-in token embedded in the QR code.
+     * @return The updated booking response.
+     */
+    BookingResponse checkInBooking(String token);
+
+    /**
      * Retrieves analytical data for bookings.
      * @return A map containing analytics data.
      */

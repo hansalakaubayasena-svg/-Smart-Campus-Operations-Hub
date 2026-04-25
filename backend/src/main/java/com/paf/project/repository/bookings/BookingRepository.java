@@ -13,6 +13,8 @@ public interface BookingRepository extends MongoRepository<Booking, String> {
 
     List<Booking> findByStatus(String status);
 
+    java.util.Optional<Booking> findByCheckInToken(String checkInToken);
+
     List<Booking> findByUserIdAndPurposeContainingIgnoreCase(String userId, String purpose);
 
 

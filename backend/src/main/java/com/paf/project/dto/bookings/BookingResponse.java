@@ -14,13 +14,16 @@ public class BookingResponse {
     private Integer expectedAttendees;
     private String status;
     private String adminNotes;
+    private String checkInToken;
+    private LocalDateTime checkedInAt;
     private LocalDateTime createdAt;
 
     public BookingResponse() {}
 
     public BookingResponse(String id, String facilityId, String facilityName, String userId, String userName,
                            LocalDateTime startTime, LocalDateTime endTime, String purpose, Integer expectedAttendees,
-                           String status, String adminNotes, LocalDateTime createdAt) {
+                           String status, String adminNotes, String checkInToken, LocalDateTime checkedInAt,
+                           LocalDateTime createdAt) {
         this.id = id;
         this.facilityId = facilityId;
         this.facilityName = facilityName;
@@ -32,6 +35,8 @@ public class BookingResponse {
         this.expectedAttendees = expectedAttendees;
         this.status = status;
         this.adminNotes = adminNotes;
+        this.checkInToken = checkInToken;
+        this.checkedInAt = checkedInAt;
         this.createdAt = createdAt;
     }
 
@@ -68,6 +73,12 @@ public class BookingResponse {
 
     public String getAdminNotes() { return adminNotes; }
     public void setAdminNotes(String adminNotes) { this.adminNotes = adminNotes; }
+
+    public String getCheckInToken() { return checkInToken; }
+    public void setCheckInToken(String checkInToken) { this.checkInToken = checkInToken; }
+
+    public LocalDateTime getCheckedInAt() { return checkedInAt; }
+    public void setCheckedInAt(LocalDateTime checkedInAt) { this.checkedInAt = checkedInAt; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }

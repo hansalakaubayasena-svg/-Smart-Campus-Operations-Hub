@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { getMyBookings, cancelBooking } from '../../services/bookings/bookingService';
-import { Calendar, Clock, MapPin, Trash2, AlertCircle, CheckCircle, Clock3, XCircle, Edit2, Search } from 'lucide-react';
+import { Calendar, Clock, MapPin, Trash2, AlertCircle, CheckCircle, Clock3, XCircle, Edit2, Search, QrCode, ScanLine } from 'lucide-react';
 import { BookingModal } from '../../components/bookings/BookingModal';
+import { QRCodeSVG } from 'qrcode.react';
 
 const StatusBadge = ({ status }) => {
   const configs = {
@@ -71,6 +72,8 @@ const UserBookingsPage = () => {
   const filteredSuggestions = suggestions.filter(s => 
     s.toLowerCase().includes(searchTerm.toLowerCase()) && s !== searchTerm
   ).slice(0, 5);
+
+  const buildCheckInUrl = (token) => `${window.location.origin}/check-in/${token}`;
 
   if (loading && bookings.length === 0) return <div className="p-8 text-center text-slate-500 italic">Loading your bookings...</div>;
 
@@ -185,6 +188,48 @@ const UserBookingsPage = () => {
                   {booking.adminNotes && (
                     <div className="mt-4 p-4 bg-amber-50/50 border border-amber-100/50 rounded-2xl text-xs text-amber-800 leading-relaxed">
                       <span className="font-bold text-amber-900">Admin Response: </span> {booking.adminNotes}
+                    </div>
+                  )}
+
+                  {booking.status === 'APPROVED' && booking.checkInToken && (
+                    <div className="mt-4 p-4 bg-slate-50 border border-slate-200 rounded-3xl">
+                      <div className="flex items-center gap-2 mb-4 text-slate-700">
+                        <QrCode className="h-4 w-4 text-blue-600" />
+                        <div>
+                          <p className="text-sm font-bold">QR Check-in</p>
+                          <p className="text-xs text-slate-500">Present this code at the venue to verify the booking.</p>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-col items-center gap-4">
+                        <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
+                          <QRCodeSVG
+                            value={buildCheckInUrl(booking.checkInToken)}
+                            size={164}
+                            level="M"
+                            includeMargin
+                          />
+                        </div>
+
+                        <div className="w-full text-xs text-slate-500 space-y-2">
+                          <div className="flex items-center gap-2">
+                            <ScanLine className="h-3.5 w-3.5 text-slate-400" />
+                            <span className="break-all">{buildCheckInUrl(booking.checkInToken)}</span>
+                          </div>
+
+                          {booking.checkedInAt ? (
+                            <div className="flex items-center gap-2 text-emerald-700">
+                              <CheckCircle className="h-3.5 w-3.5" />
+                              Checked in on {new Date(booking.checkedInAt).toLocaleString()}
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-2 text-slate-500">
+                              <Clock3 className="h-3.5 w-3.5" />
+                              Not checked in yet
+                            </div>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   )}
                 </div>
