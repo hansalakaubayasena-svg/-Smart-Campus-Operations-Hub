@@ -19,6 +19,14 @@ const AdminBookingsPage = () => {
     b.purpose.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const getEffectiveStatus = (booking) => {
+    const isPast = new Date(booking.endTime) < new Date();
+    if (isPast && (booking.status === 'PENDING' || booking.status === 'APPROVED')) {
+      return 'EXPIRED';
+    }
+    return booking.status;
+  };
+
   const loadData = async () => {
     setLoading(true);
     try {
@@ -160,16 +168,17 @@ const AdminBookingsPage = () => {
                   </td>
                   <td className="px-6 py-4 text-center">
                     <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold border ${
-                      booking.status === 'PENDING' ? 'bg-amber-50 text-amber-600 border-amber-100' :
-                      booking.status === 'APPROVED' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
+                      getEffectiveStatus(booking) === 'PENDING' ? 'bg-amber-50 text-amber-600 border-amber-100' :
+                      getEffectiveStatus(booking) === 'APPROVED' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
+                      getEffectiveStatus(booking) === 'EXPIRED' ? 'bg-slate-100 text-slate-500 border-slate-200' :
                       'bg-red-50 text-red-600 border-red-100'
                     }`}>
-                      {booking.status}
+                      {getEffectiveStatus(booking)}
                     </span>
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex flex-col gap-2 min-w-[200px]">
-                      {booking.status === 'PENDING' && (
+                      {getEffectiveStatus(booking) === 'PENDING' && (
                         <input 
                           type="text" 
                           placeholder="Note/Reason..."
@@ -179,7 +188,7 @@ const AdminBookingsPage = () => {
                         />
                       )}
                       <div className="flex gap-2 justify-end">
-                        {booking.status === 'PENDING' ? (
+                        {getEffectiveStatus(booking) === 'PENDING' ? (
                           <>
                             <button
                               onClick={() => handleAction(booking.id, 'REJECTED')}
