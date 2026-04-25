@@ -64,6 +64,16 @@ export const BookingModal = ({ isOpen, onClose, facility, initialData = null }) 
         return;
       }
 
+      // ── BUSINESS HOURS VALIDATION (8 AM - 5 PM) ────────────────────────────────
+      const bookingStartTime = formData.startTime;
+      const bookingEndTime = formData.endTime;
+      
+      if (bookingStartTime < "08:00" || bookingEndTime > "17:00") {
+        setError('Bookings are only allowed between 08:00 AM and 05:00 PM.');
+        setLoading(false);
+        return;
+      }
+
       // ── AVAILABILITY WINDOW VALIDATION ─────────────────────────────────────────
       if (facility?.availabilityWindows?.length > 0) {
         const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];

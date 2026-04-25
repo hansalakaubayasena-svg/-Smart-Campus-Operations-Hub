@@ -289,25 +289,6 @@ const SignupPage = () => {
                 )}
               </div>
 
-              {/* Account Type (Role) */}
-              <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-2" htmlFor="role">
-                  Account Type
-                </label>
-                <select
-                  id="role"
-                  value={form.role}
-                  onChange={handleChange}
-                  className="block w-full px-3 py-2.5 border border-slate-200 rounded-lg focus:ring-2 bg-slate-50 focus:bg-white hover:border-slate-300 transition-all duration-300 sm:text-sm outline-none focus:ring-blue-500/20 focus:border-blue-600"
-                >
-                  <option value="STUDENT">Student</option>
-                  <option value="LECTURER">Lecturer</option>
-                  <option value="TECHNICIAN">Technician</option>
-                  <option value="MANAGER">Manager</option>
-                  <option value="ADMINISTRATOR">Administrator</option>
-                </select>
-              </div>
-
               {/* Password */}
               <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-2" htmlFor="password">
