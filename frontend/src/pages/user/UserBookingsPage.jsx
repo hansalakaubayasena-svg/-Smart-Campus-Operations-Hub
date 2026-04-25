@@ -9,6 +9,7 @@ const StatusBadge = ({ status }) => {
     APPROVED: { color: 'bg-emerald-100 text-emerald-700 border-emerald-200', icon: CheckCircle },
     REJECTED: { color: 'bg-red-100 text-red-700 border-red-200', icon: XCircle },
     CANCELLED: { color: 'bg-slate-100 text-slate-600 border-slate-200', icon: Trash2 },
+    EXPIRED: { color: 'bg-slate-200 text-slate-500 border-slate-300', icon: AlertCircle },
   };
 
   const config = configs[status] || configs.PENDING;
@@ -71,6 +72,14 @@ const UserBookingsPage = () => {
   const filteredSuggestions = suggestions.filter(s => 
     s.toLowerCase().includes(searchTerm.toLowerCase()) && s !== searchTerm
   ).slice(0, 5);
+
+  const getEffectiveStatus = (booking) => {
+    const isPast = new Date(booking.endTime) < new Date();
+    if (isPast && (booking.status === 'PENDING' || booking.status === 'APPROVED')) {
+      return 'EXPIRED';
+    }
+    return booking.status;
+  };
 
   if (loading && bookings.length === 0) return <div className="p-8 text-center text-slate-500 italic">Loading your bookings...</div>;
 
@@ -150,7 +159,7 @@ const UserBookingsPage = () => {
               style={{ animationDelay: `${index * 50}ms` }}
             >
               <div className="absolute top-0 right-0 p-6">
-                <StatusBadge status={booking.status} />
+                <StatusBadge status={getEffectiveStatus(booking)} />
               </div>
 
               <div className="flex-1">
@@ -190,7 +199,7 @@ const UserBookingsPage = () => {
                 </div>
               </div>
 
-              {(booking.status === 'APPROVED' || booking.status === 'PENDING' || booking.status === 'REJECTED') && (
+              {getEffectiveStatus(booking) !== 'EXPIRED' && (booking.status === 'APPROVED' || booking.status === 'PENDING' || booking.status === 'REJECTED') && (
                 <div className="flex gap-3 mt-auto">
                   <button
                     onClick={() => setEditingBooking(booking)}
