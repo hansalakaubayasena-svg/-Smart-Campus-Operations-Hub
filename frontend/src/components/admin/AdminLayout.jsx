@@ -9,7 +9,7 @@ const AdminLayout = () => {
   const { user } = useAuth();
 
   return (
-    <div className="min-h-screen bg-slate-50 flex">
+    <div className="h-screen bg-slate-50 flex overflow-hidden">
       <AdminSidebar />
       <main className="flex-1 flex flex-col min-w-0 overflow-hidden animate-fade-in">
         <header className="h-16 bg-white/80 backdrop-blur-md border-b border-slate-200 flex items-center justify-between px-6 lg:px-8 shadow-sm z-10 sticky top-0">

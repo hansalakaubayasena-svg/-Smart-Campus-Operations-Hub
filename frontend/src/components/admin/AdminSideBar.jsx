@@ -74,7 +74,7 @@ const AdminSidebar = () => {
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 px-4 py-6 space-y-1">
+      <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto scrollbar-hide">
         {NAV_ITEMS.map(({ to, label, Icon, hoverColor }) => (
           <NavLink
             key={to}

@@ -66,4 +66,11 @@ public class BookingController {
     public ResponseEntity<java.util.Map<String, Object>> getAnalytics() {
         return ResponseEntity.ok(bookingService.getBookingAnalytics());
     }
+
+    @DeleteMapping("/{id}/admin")
+    @PreAuthorize("hasRole('ADMINISTRATOR')")
+    public ResponseEntity<Void> deleteBooking(@PathVariable String id) {
+        bookingService.deleteBooking(id);
+        return ResponseEntity.noContent().build();
+    }
 }

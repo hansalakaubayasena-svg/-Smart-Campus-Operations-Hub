@@ -13,4 +13,5 @@ export const getMyBookings = (search = '') => {
 export const getAllBookings = (status) => axiosClient.get('/api/bookings', { params: { status } });
 export const processBookingAction = (id, actionData) => axiosClient.put(`/api/bookings/${id}/action`, actionData);
 export const getBookingAnalytics = () => axiosClient.get('/api/bookings/analytics');
+export const deleteBooking = (id) => axiosClient.delete(`/api/bookings/${id}/admin`);
 
