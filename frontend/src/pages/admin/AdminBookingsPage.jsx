@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { getAllBookings, processBookingAction } from '../../services/bookings/bookingService';
+import { getAllBookings, processBookingAction, deleteBooking } from '../../services/bookings/bookingService';
 import { 
   Calendar, Clock, CheckCircle, X, Clock3, Users as UsersIcon, 
-  Search, Filter, MessageSquare, AlertTriangle 
+  Search, Filter, MessageSquare, AlertTriangle, Trash2 
 } from 'lucide-react';
 
 const AdminBookingsPage = () => {
@@ -52,6 +52,20 @@ const AdminBookingsPage = () => {
       loadData();
     } catch (err) {
       alert('Action failed: ' + (err.response?.data?.message || 'Error'));
+    } finally {
+      setProcessingId(null);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm('Are you sure you want to permanently DELETE this booking? This cannot be undone.')) return;
+    
+    setProcessingId(id);
+    try {
+      await deleteBooking(id);
+      loadData();
+    } catch (err) {
+      alert('Delete failed: ' + (err.response?.data?.message || 'Error'));
     } finally {
       setProcessingId(null);
     }
@@ -154,8 +168,8 @@ const AdminBookingsPage = () => {
                     </span>
                   </td>
                   <td className="px-6 py-4">
-                    {booking.status === 'PENDING' ? (
-                      <div className="flex flex-col gap-2 min-w-[200px]">
+                    <div className="flex flex-col gap-2 min-w-[200px]">
+                      {booking.status === 'PENDING' && (
                         <input 
                           type="text" 
                           placeholder="Note/Reason..."
@@ -163,30 +177,42 @@ const AdminBookingsPage = () => {
                           value={actionNotes[booking.id] || ''}
                           onChange={(e) => setActionNotes({ ...actionNotes, [booking.id]: e.target.value })}
                         />
-                        <div className="flex gap-2 justify-end">
-                          <button
-                            onClick={() => handleAction(booking.id, 'REJECTED')}
-                            disabled={processingId === booking.id}
-                            className="bg-red-50 text-red-600 p-1.5 rounded-lg hover:bg-red-100 transition-colors"
-                            title="Reject"
-                          >
-                            <X className="h-4 w-4" />
-                          </button>
-                          <button
-                            onClick={() => handleAction(booking.id, 'APPROVED')}
-                            disabled={processingId === booking.id}
-                            className="bg-emerald-600 text-white p-1.5 rounded-lg hover:bg-emerald-700 shadow-md transition-colors"
-                            title="Approve"
-                          >
-                            <CheckCircle className="h-4 w-4" />
-                          </button>
-                        </div>
+                      )}
+                      <div className="flex gap-2 justify-end">
+                        {booking.status === 'PENDING' ? (
+                          <>
+                            <button
+                              onClick={() => handleAction(booking.id, 'REJECTED')}
+                              disabled={processingId === booking.id}
+                              className="bg-red-50 text-red-600 p-1.5 rounded-lg hover:bg-red-100 transition-colors"
+                              title="Reject"
+                            >
+                              <X className="h-4 w-4" />
+                            </button>
+                            <button
+                              onClick={() => handleAction(booking.id, 'APPROVED')}
+                              disabled={processingId === booking.id}
+                              className="bg-emerald-600 text-white p-1.5 rounded-lg hover:bg-emerald-700 shadow-md transition-colors"
+                              title="Approve"
+                            >
+                              <CheckCircle className="h-4 w-4" />
+                            </button>
+                          </>
+                        ) : (
+                          <div className="flex-1 text-[10px] text-slate-400 italic flex items-center">
+                            Already {booking.status.toLowerCase()}
+                          </div>
+                        )}
+                        <button
+                          onClick={() => handleDelete(booking.id)}
+                          disabled={processingId === booking.id}
+                          className="bg-slate-100 text-slate-400 p-1.5 rounded-lg hover:bg-red-50 hover:text-red-600 transition-all"
+                          title="Permanently Delete"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
                       </div>
-                    ) : (
-                      <div className="text-[10px] text-slate-400 text-right italic">
-                        No actions available
-                      </div>
-                    )}
+                    </div>
                   </td>
                 </tr>
               ))}

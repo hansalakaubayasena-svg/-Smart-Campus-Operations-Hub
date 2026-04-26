@@ -67,4 +67,10 @@ public interface BookingService {
      * @return A map containing analytics data.
      */
     java.util.Map<String, Object> getBookingAnalytics();
+
+    /**
+     * Deletes a booking from the system.
+     * @param id The ID of the booking to delete.
+     */
+    void deleteBooking(String id);
 }
