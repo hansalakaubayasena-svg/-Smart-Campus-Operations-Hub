@@ -32,7 +32,7 @@ export const updateFacility = (resourceId, payload, role = 'ADMIN') =>
 	api.put(`/api/facilities/${resourceId}`, payload, roleHeaders(role));
 
 export const updateFacilityStatus = (resourceId, status, role = 'ADMIN') =>
-	api.patch(`/api/facilities/${resourceId}/status`, { status }, roleHeaders(role));
+	api.put(`/api/facilities/${resourceId}/status`, { status }, roleHeaders(role));
 
 export const deleteFacility = (resourceId, role = 'ADMIN') =>
 	api.delete(`/api/facilities/${resourceId}`, roleHeaders(role));

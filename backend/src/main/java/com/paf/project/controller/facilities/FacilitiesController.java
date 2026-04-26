@@ -91,7 +91,7 @@ public class FacilitiesController {
         return ResponseEntity.ok(facilityService.update(resourceId, request));
     }
 
-    @PatchMapping("/{resourceId}/status")
+    @PutMapping("/{resourceId}/status")
     public ResponseEntity<FacilityResponse> updateFacilityStatus(
             @RequestHeader("X-ROLE") String role,
             @PathVariable String resourceId,
