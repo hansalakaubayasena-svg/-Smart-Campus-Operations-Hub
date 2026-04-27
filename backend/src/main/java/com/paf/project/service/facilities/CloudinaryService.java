@@ -2,6 +2,7 @@ package com.paf.project.service.facilities;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import com.paf.project.core.exception.CustomExceptions.FileUploadException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,7 +21,7 @@ public class CloudinaryService {
             @Value("${cloudinary.api-secret:${CLOUDINARY_API_SECRET:}}") String apiSecret
     ) {
         if (isBlank(cloudName) || isBlank(apiKey) || isBlank(apiSecret)) {
-            throw new IllegalStateException("Cloudinary is not configured. Set cloudinary.* or CLOUDINARY_* properties.");
+            throw new FileUploadException("Cloudinary is not configured. Set cloudinary.* or CLOUDINARY_* properties.");
         }
 
         this.cloudinary = new Cloudinary(ObjectUtils.asMap(
@@ -33,7 +34,12 @@ public class CloudinaryService {
 
     public String uploadImage(MultipartFile file) {
         if (file == null || file.isEmpty()) {
-            throw new IllegalArgumentException("Image file is required.");
+            throw new FileUploadException("Image file is required.");
+        }
+
+        String contentType = file.getContentType();
+        if (contentType == null || !contentType.toLowerCase().startsWith("image/")) {
+            throw new FileUploadException("Only image files are allowed.");
         }
 
         try {
@@ -43,13 +49,13 @@ public class CloudinaryService {
             );
             Object secureUrl = result.get("secure_url");
             if (secureUrl == null) {
-                throw new IllegalStateException("Cloudinary upload did not return a secure_url.");
+                throw new FileUploadException("Image upload failed: secure URL was not returned.");
             }
             return secureUrl.toString();
         } catch (IOException e) {
-            throw new IllegalStateException("Failed to read image file before Cloudinary upload.", e);
+            throw new FileUploadException("Failed to read the uploaded image.");
         } catch (Exception e) {
-            throw new IllegalStateException("Cloudinary upload failed. Check cloud name, API key, and API secret.", e);
+            throw new FileUploadException("Image upload failed on Cloudinary. Verify credentials and network access.");
         }
     }
 
