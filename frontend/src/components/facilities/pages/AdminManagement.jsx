@@ -241,8 +241,8 @@ export const AdminManagement = () => {
             </div>
           </div>
 
-          <div className="overflow-x-hidden">
-            <table className="w-full table-fixed divide-y divide-border">
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-225 divide-y divide-border">
               <thead className="bg-slate-50">
                 <tr>
                   <th
@@ -265,7 +265,7 @@ export const AdminManagement = () => {
                   </th>
                   <th
                     scope="col"
-                    className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider"
+                    className="max-w-xs w-56 px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider"
                   >
                     Location
                   </th>
@@ -309,13 +309,13 @@ export const AdminManagement = () => {
                         </div>
                       </td>
                       <td className="px-4 py-3 align-top">
-                        <div className="text-sm font-bold text-text break-words">{resource.name}</div>
+                        <div className="text-sm font-bold text-text break-word">{resource.name}</div>
                       </td>
                       <td className="px-4 py-3 align-top">
-                        <div className="text-sm text-text break-words">{resource.type}</div>
-                        <div className="text-xs text-slate-500 break-words">{resource.category}</div>
+                        <div className="text-sm text-text break-word">{resource.type}</div>
+                        <div className="text-xs text-slate-500 break-word">{resource.category}</div>
                       </td>
-                      <td className="px-4 py-3 align-top text-sm text-slate-600 break-words">
+                      <td className="px-4 py-3 align-top text-sm text-slate-600 break-word whitespace-pre-line max-w-xs" style={{wordBreak: 'break-word', whiteSpace: 'pre-line'}}>
                         {resource.location}
                       </td>
                       <td className="px-4 py-3 align-top text-sm text-slate-600">
