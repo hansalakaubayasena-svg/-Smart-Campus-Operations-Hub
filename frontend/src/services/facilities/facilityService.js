@@ -40,5 +40,10 @@ export const deleteFacility = (resourceId, role = 'ADMIN') =>
 export const uploadFacilityImage = (resourceId, file, role = 'ADMIN') => {
 	const formData = new FormData();
 	formData.append('file', file);
-	return api.put(`/api/facilities/${resourceId}/image`, formData, roleHeaders(role));
+	return api.put(`/api/facilities/${resourceId}/image`, formData, {
+		headers: {
+			'X-ROLE': role,
+			'Content-Type': 'multipart/form-data',
+		},
+	});
 };

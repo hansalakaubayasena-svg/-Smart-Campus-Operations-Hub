@@ -242,48 +242,48 @@ export const AdminManagement = () => {
           </div>
 
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-border">
+            <table className="w-full min-w-225 divide-y divide-border">
               <thead className="bg-slate-50">
                 <tr>
                   <th
                     scope="col"
-                    className="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider"
+                    className="w-24 px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider"
                   >
                     Image
                   </th>
                   <th
                     scope="col"
-                    className="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider"
+                    className="w-40 px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider"
                   >
                     Name
                   </th>
                   <th
                     scope="col"
-                    className="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider"
+                    className="w-40 px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider"
                   >
                     Type / Category
                   </th>
                   <th
                     scope="col"
-                    className="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider"
+                    className="max-w-xs w-56 px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider"
                   >
                     Location
                   </th>
                   <th
                     scope="col"
-                    className="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider"
+                    className="w-32 px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider"
                   >
                     Capacity / Quantity
                   </th>
                   <th
                     scope="col"
-                    className="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider"
+                    className="w-28 px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider"
                   >
                     Status
                   </th>
                   <th
                     scope="col"
-                    className="px-6 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider"
+                    className="w-24 px-4 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider"
                   >
                     Actions
                   </th>
@@ -293,8 +293,8 @@ export const AdminManagement = () => {
                 {!loading && filteredResources.length > 0 ? (
                   filteredResources.map((resource) => (
                     <tr key={resource.id} className="hover:bg-slate-50/50 transition-colors">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="h-14 w-20 rounded-md border border-slate-200 bg-slate-50 overflow-hidden flex items-center justify-center">
+                      <td className="px-4 py-3 align-top">
+                        <div className="h-12 w-16 rounded-md border border-slate-200 bg-slate-50 overflow-hidden flex items-center justify-center">
                           {resource.imageUrl ? (
                             <img
                               src={resource.imageUrl}
@@ -308,23 +308,23 @@ export const AdminManagement = () => {
                           )}
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-bold text-text">{resource.name}</div>
+                      <td className="px-4 py-3 align-top">
+                        <div className="text-sm font-bold text-text break-word">{resource.name}</div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-text">{resource.type}</div>
-                        <div className="text-xs text-slate-500">{resource.category}</div>
+                      <td className="px-4 py-3 align-top">
+                        <div className="text-sm text-text break-word">{resource.type}</div>
+                        <div className="text-xs text-slate-500 break-word">{resource.category}</div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
+                      <td className="px-4 py-3 align-top text-sm text-slate-600 break-word whitespace-pre-line max-w-xs" style={{wordBreak: 'break-word', whiteSpace: 'pre-line'}}>
                         {resource.location}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
+                      <td className="px-4 py-3 align-top text-sm text-slate-600">
                         {getMetricLabel(resource.resourceKind)}: {getMetricValue(resource) ?? '-'}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-4 py-3 align-top">
                         <StatusBadge status={resource.status} size="sm" />
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <td className="px-4 py-3 align-top text-right text-sm font-medium">
                         <div className="flex items-center justify-end gap-2">
                           <button
                             onClick={() => handleEditClick(resource)}
